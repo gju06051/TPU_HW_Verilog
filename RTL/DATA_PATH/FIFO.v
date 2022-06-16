@@ -5,7 +5,7 @@ module FIFO_PARAMETER #(
 )
 (   // Port
     input clk,      // clock signal
-    input rstn,     // negedge reset signal
+    input rst_n,    // negedge reset signal
     input wren,     // write enable signal
     input rden,     // read denable signal
     
@@ -25,8 +25,8 @@ module FIFO_PARAMETER #(
     reg [FIFO_DEPTH_LG2:0] rdptr, rdptr_n;  // one extra bit for full checking
 
     // Sequential logic
-    always @(posedge clk, negedge rstn) begin
-        if (!rstn) begin
+    always @(posedge clk, negedge rst_n) begin
+        if (!rst_n) begin
             wrptr   <= {(FIFO_DEPTH_LG2+1){1'b0}};      // reset with zero
             rdptr   <= {(FIFO_DEPTH_LG2+1){1'b0}};      // reset with zero
         end else begin
@@ -65,8 +65,8 @@ module FIFO_PARAMETER #(
     assign rdata    = mem[rdptr[FIFO_DEPTH_LG2-1:0]];   // read actiavation access memory by read pointer
     
     // Empty Check
-    assign empty    = ( wrptr == rdptr );
-    assign full     = ( wrptr[FIFO_DEPTH_LG2-1:0] == rdptr[FIFO_DEPTH_LG2-1:0] )    // full checking checking under addr is equal
-                        & ( wrptr[FIFO_DEPTH_LG2] != rdptr[FIFO_DEPTH_LG2] );       // checking msb for full(msb is equal -> empty, otherwise full)
+    assign empty    = (wrptr == rdptr);
+    assign full     = (wrptr[FIFO_DEPTH_LG2-1:0] == rdptr[FIFO_DEPTH_LG2-1:0])    // full checking checking under addr is equal
+                        & (wrptr[FIFO_DEPTH_LG2] != rdptr[FIFO_DEPTH_LG2]);       // checking msb for full(msb is equal -> empty, otherwise full)
 
 endmodule
