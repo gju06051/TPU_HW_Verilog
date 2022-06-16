@@ -13,4 +13,7 @@ psum
 2) every cycle, accumlate and out
 
 
-RF는 동시에 write / read 불가능(we가 조절)
+RF는 write시 clock sync에 update
+Showahead하게 계속 data 뿜어내는 중
+
+read RF && buffer en
