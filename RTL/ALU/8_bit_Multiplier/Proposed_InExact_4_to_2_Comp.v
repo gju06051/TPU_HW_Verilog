@@ -4,5 +4,5 @@ module Proposed_InExact_4_to_2_Comp(
 );
     assign Csum = (IN2 && IN1) || (IN4 ^ IN3 ^ IN2 ^ IN1);
     assign Ccy  = (IN4 && IN3) || (IN2 && IN1) 
-                  || ((IN4 ^ IN3) && (IN2 ^ IN1)); 
+                    || ((IN4 ^ IN3) && (IN2 ^ IN1)); 
 endmodule

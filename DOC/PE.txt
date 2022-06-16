@@ -1,0 +1,16 @@
+Control PE dataflow
+
+filter
+1) path : fifo -> rf -> multiplier
+2) filter fixed when one row finished
+
+feature
+1) path : fifo -> rf -> multiplier
+2) feature slide in to rf when one row element acc finished
+
+psum
+1) path : rf -> adder
+2) every cycle, accumlate and out
+
+
+RF는 동시에 write / read 불가능(we가 조절)
