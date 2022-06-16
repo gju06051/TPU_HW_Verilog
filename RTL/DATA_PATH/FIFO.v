@@ -1,7 +1,7 @@
 module FIFO_PARAMETER #(
     // Parameter
     parameter DATA_WIDTH = 32,  // data bit width
-    parameter FIFO_DEPTH = 8,   // fifo entry num
+    parameter FIFO_DEPTH = 8    // fifo entry num
 )
 (   // Port
     input clk,      // clock signal
@@ -24,7 +24,7 @@ module FIFO_PARAMETER #(
     reg [FIFO_DEPTH_LG2:0] wrptr, wrptr_n;  // one extra bit for full checking
     reg [FIFO_DEPTH_LG2:0] rdptr, rdptr_n;  // one extra bit for full checking
 
-    // sequential logic
+    // Sequential logic
     always @(posedge clk, negedge rstn) begin
         if (!rstn) begin
             wrptr   <= {(FIFO_DEPTH_LG2+1){1'b0}};      // reset with zero
@@ -35,7 +35,7 @@ module FIFO_PARAMETER #(
         end
     end
     
-    // combination logic for pointer modify
+    // Combination logic for pointer modify
     always @(*) begin
         // write pointer modfiy
         if (wren) begin
@@ -53,21 +53,20 @@ module FIFO_PARAMETER #(
     
     // FIFO Storage
     reg [DATA_WIDTH-1:0] mem [FIFO_DEPTH-1:0];          // consist with 32bit 8 entry
-                                                        // It will be modify when using real architecture
-    // Write activation
+                                                        // it will be modify when using real architecture
+    // Write Activation
     always @(posedge clk) begin
         if (wren) begin
             mem[wrptr[FIFO_DEPTH_LG2-1:0]]  <= wdata;   // write activation access memory by write pointer
         end
     end
     
-    // ouput assignment
-    // Read activation
+    // Read activation ouput assignment
     assign rdata    = mem[rdptr[FIFO_DEPTH_LG2-1:0]];   // read actiavation access memory by read pointer
     
-    // empty check
+    // Empty Check
     assign empty    = ( wrptr == rdptr );
     assign full     = ( wrptr[FIFO_DEPTH_LG2-1:0] == rdptr[FIFO_DEPTH_LG2-1:0] )    // full checking checking under addr is equal
                         & ( wrptr[FIFO_DEPTH_LG2] != rdptr[FIFO_DEPTH_LG2] );       // checking msb for full(msb is equal -> empty, otherwise full)
-    
+
 endmodule
