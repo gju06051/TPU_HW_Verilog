@@ -1,4 +1,4 @@
-module reg_file #(
+module REG_FILE #(
     // Parameter
     parameter   DATA_WIDTH = 32,
     parameter   ADDR_WIDTH = 5

@@ -1,21 +1,22 @@
-module FIFO_PARAMETER #(
+module FIFO #(
     // Parameter
     parameter DATA_WIDTH = 32,  // data bit width
     parameter FIFO_DEPTH = 8    // fifo entry num
-)
-(   // Port
-    input clk,      // clock signal
-    input rst_n,    // negedge reset signal
-    input wren,     // write enable signal
-    input rden,     // read denable signal
+    )
+    (   
+    // Port
+    input clk,          // clock signal
+    input rst_n,        // negedge pointer reset signal(don't need to reset data in fifo)
+    input wren_i,       // write enable signal
+    input rden_i,       // read denable signal
     
-    output full,    // check fifo is full, if full the signal is high
-    output empty,   // chcek fifo is empty, if empty the signal is high
+    output full_o,      // check fifo is full, if full the signal is high
+    output empty_o,     // chcek fifo is empty, if empty the signal is high
     
     input   [DATA_WIDTH-1:0] wdata,   // write data
     output  [DATA_WIDTH-1:0] rdata    // read data
+    );
     
-);
     // Localparam
     localparam FIFO_DEPTH_LG2 = $clog2(FIFO_DEPTH);     // making param log2 of entry size
                                                         // ex) depth is 8 -> log(8) = 3
@@ -38,13 +39,13 @@ module FIFO_PARAMETER #(
     // Combination logic for pointer modify
     always @(*) begin
         // write pointer modfiy
-        if (wren) begin
+        if (wren_i) begin
             wrptr_n = wrptr + 'd1;                      // update wrptr add 1 after write activation
         end else begin
             wrptr_n = wrptr;                            // maintain
         end
         // read pointer modify
-        if (rden) begin
+        if (rden_i) begin
             rdptr_n = rdptr + 'd1;                      // update rdptr add1 after read activation
         end else begin
             rdptr_n = rdptr;                            // maintain
@@ -56,7 +57,7 @@ module FIFO_PARAMETER #(
                                                         // it will be modify when using real architecture
     // Write Activation
     always @(posedge clk) begin
-        if (wren) begin
+        if (wren_i) begin
             mem[wrptr[FIFO_DEPTH_LG2-1:0]]  <= wdata;   // write activation access memory by write pointer
         end
     end
@@ -65,8 +66,8 @@ module FIFO_PARAMETER #(
     assign rdata    = mem[rdptr[FIFO_DEPTH_LG2-1:0]];   // read actiavation access memory by read pointer
     
     // Empty Check
-    assign empty    = (wrptr == rdptr);
-    assign full     = (wrptr[FIFO_DEPTH_LG2-1:0] == rdptr[FIFO_DEPTH_LG2-1:0])    // full checking checking under addr is equal
-                        & (wrptr[FIFO_DEPTH_LG2] != rdptr[FIFO_DEPTH_LG2]);       // checking msb for full(msb is equal -> empty, otherwise full)
+    assign empty_o  = (wrptr == rdptr);
+    assign full_o   = (wrptr[FIFO_DEPTH_LG2-1:0] == rdptr[FIFO_DEPTH_LG2-1:0])      // full checking checking under addr is equal
+                        & (wrptr[FIFO_DEPTH_LG2] != rdptr[FIFO_DEPTH_LG2]);         // checking msb for full(msb is equal -> empty, otherwise full)
 
 endmodule
