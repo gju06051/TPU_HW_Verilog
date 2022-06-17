@@ -51,7 +51,7 @@ feature bufq:           0       a1      a2      a3
 filter  buf:            en      en      en      en      en      en      en      en      en      en      en      en      en
 filter bufq:            0       b1      b2      b3
 
-mul_buf    :                    en      MAC1    MAC2    MAC3
+mul_buf    :                    en      MAC1    MAC2    MAC3       
 acc_buf1                        p0      
 acc_buf2                        x       p0
 
@@ -59,9 +59,9 @@ mul_acc_sel  : 1'b1     x       1'b0
 reset_acc_sel: 1'b0     x       1'b1
 
 mul_out                                         MAC1    
-psum    rf:     we, wa                            
+psum    rf:     we, wa                  we, wa  ra  
                         ra
-psumw           p0
+psumw           p0                      MAC1+p0 
 psumo           x       p0
                                 
 rf에서 필요한 값
