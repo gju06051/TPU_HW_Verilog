@@ -1,7 +1,7 @@
 module eight_bit_multiplier_wallace(
     input           [7:0]   A,
     input           [7:0]   B,
-    output  wire    [16:0]  Product
+    output  wire    [15:0]  Product
 );
     wire    [8:0]   pp_1 = {1'b1, !(A[7] && B[0]), (A[6] && B[0]), (A[5] && B[0]), (A[4] && B[0]),
                             (A[3] && B[0]), (A[2] && B[0]), (A[1] && B[0]), (A[0] && B[0])};
@@ -295,10 +295,15 @@ module eight_bit_multiplier_wallace(
 
     assign  stage_5_col_15[1]      = stage_4_col_15;
 
-    assign Product = {stage_5_col_15[0], stage_5_col_14[0], stage_5_col_13[0], stage_5_col_12[0], stage_5_col_11[0], 
+    CLA_16 CLA(
+        .A({stage_5_col_15[0], stage_5_col_14[0], stage_5_col_13[0], stage_5_col_12[0], stage_5_col_11[0], 
                      stage_5_col_10[0], stage_5_col_9[0], stage_5_col_8[0], stage_5_col_7[0], stage_5_col_6[0], 
-                     stage_5_col_5[0], stage_5_col_4, stage_5_col_3, stage_5_col_2, stage_5_col_1, stage_5_col_0}
-                     + {stage_5_col_15[1], stage_5_col_14[1], stage_5_col_13[1], stage_5_col_12[1], stage_5_col_11[1], 
+                     stage_5_col_5[0], stage_5_col_4, stage_5_col_3, stage_5_col_2, stage_5_col_1, stage_5_col_0}), 
+        .B({stage_5_col_15[1], stage_5_col_14[1], stage_5_col_13[1], stage_5_col_12[1], stage_5_col_11[1], 
                      stage_5_col_10[1], stage_5_col_9[1], stage_5_col_8[1], stage_5_col_7[1], stage_5_col_6[1], 
-                     stage_5_col_5[1], 5'b0};
+                     stage_5_col_5[1], 5'b0}),
+        .Ci(1'b0),
+        .sum(Product),
+        .cout()
+    );
 endmodule
