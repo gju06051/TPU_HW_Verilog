@@ -18,3 +18,62 @@ Showahead하게 계속 data 뿜어내는 중 -> 실제로 data가 나오는데 d
 buffer로 처리해줘야 될거 같은데 잘 모르겠다
 
 read RF && buffer en
+
+rf가 저장하고 있어야 하는 것?
+weight고정
+feature는 slide
+psum?
+크기는?
+feature: 1byte x feature row(13>)
+weight : 1byte x weigth row(3>)
+psum   : 2byte x 
+                
+                                     
+Cycle           1       2       3       4       5       6       7       8       9       10      11      12      13      14
+feature fifo:   rden    rden    rden    rden    rden    rden    rden    rden    rden    rden    rden    rden    rden    
+filter  fifo:   rden    rden    rden    rden    rden    rden    rden    rden    rden    rden    rden    rden    rden    
+
+feature rf:     wa, we  wa, we  wa, we  wa, we  wa, we  wa, we  wa, we  wa, we  wa, we  wa, we  wa, we  wa, we  wa, we
+feature rf:             ra      ra      ra      ra      ra      ra      ra      ra      ra      ra      ra      ra      ra
+feature w:      a1      a2      a3      a4      a5      a6      a7      a8      a9      a10     a11     a12     a13
+feature o:              a1      a2      a3      
+
+filter  rf:     wa, we  wa, we  wa, we  wa, we  wa, we  wa, we  wa, we  wa, we  wa, we  wa, we  wa, we  wa, we  wa, we
+filter  rf:             ra      ra      ra      ra      ra      ra      ra      ra      ra      ra      ra      ra      ra
+filter w:       b1      b2      b3
+filter o:               b1      b2      b3
+
+                                MAC1    MAC2    MAC3
+
+feature buf:            en      en      en      en      en      en      en      en      en      en      en      en      en
+feature bufq:           0       a1      a2      a3
+
+filter  buf:            en      en      en      en      en      en      en      en      en      en      en      en      en
+filter bufq:            0       b1      b2      b3
+
+mul_buf    :                    en      MAC1    MAC2    MAC3
+acc_buf1                        p0      
+acc_buf2                        x       p0
+
+mul_acc_sel  : 1'b1     x       1'b0
+reset_acc_sel: 1'b0     x       1'b1
+
+mul_out                                         MAC1    
+psum    rf:     we, wa                            
+                        ra
+psumw           p0
+psumo           x       p0
+                                
+rf에서 필요한 값
+a1      a2      a3
+b1      b2      b3
+p       0   
+
+acc
+a1b1+p  
+a2b2 + a1b1 + p
+a3b3 + a2b2 + a1b1 + p
+
+
+mul 1 2 add 
+
