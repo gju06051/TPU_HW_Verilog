@@ -14,6 +14,7 @@ psum
 
 
 RF는 write시 clock sync에 update
-Showahead하게 계속 data 뿜어내는 중
+Showahead하게 계속 data 뿜어내는 중 -> 실제로 data가 나오는데 delay가 존재하지 않나?
+buffer로 처리해줘야 될거 같은데 잘 모르겠다
 
 read RF && buffer en

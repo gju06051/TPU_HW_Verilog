@@ -13,8 +13,8 @@ module FIFO #(
     output full_o,      // check fifo is full, if full the signal is high
     output empty_o,     // chcek fifo is empty, if empty the signal is high
     
-    input   [DATA_WIDTH-1:0] wdata,   // write data
-    output  [DATA_WIDTH-1:0] rdata    // read data
+    input   [DATA_WIDTH-1:0] wdata_i,   // write data
+    output  [DATA_WIDTH-1:0] rdata_o    // read data
     );
     
     // Localparam
@@ -58,12 +58,12 @@ module FIFO #(
     // Write Activation
     always @(posedge clk) begin
         if (wren_i) begin
-            mem[wrptr[FIFO_DEPTH_LG2-1:0]]  <= wdata;   // write activation access memory by write pointer
+            mem[wrptr[FIFO_DEPTH_LG2-1:0]] <= wdata_i;   // write activation access memory by write pointer
         end
     end
     
     // Read activation ouput assignment
-    assign rdata    = mem[rdptr[FIFO_DEPTH_LG2-1:0]];   // read actiavation access memory by read pointer
+    assign rdata_o  = mem[rdptr[FIFO_DEPTH_LG2-1:0]];   // read actiavation access memory by read pointer
     
     // Empty Check
     assign empty_o  = (wrptr == rdptr);
