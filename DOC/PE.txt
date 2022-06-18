@@ -33,47 +33,43 @@ Cycle           1       2       3       4       5       6       7       8       
 feature fifo:   rden    rden    rden    rden    rden    rden    rden    rden    rden    rden    rden    rden    rden    
 filter  fifo:   rden    rden    rden    rden    rden    rden    rden    rden    rden    rden    rden    rden    rden    
 
-feature rf:     wa, we  wa, we  wa, we  wa, we  wa, we  wa, we  wa, we  wa, we  wa, we  wa, we  wa, we  wa, we  wa, we
+feature rf:     wa,we   wa,we   wa,we   wa,we   wa,we   wa,we   wa,we   wa,we   wa,we   wa,we   wa,we   wa,we   wa,we
 feature rf:             ra      ra      ra      ra      ra      ra      ra      ra      ra      ra      ra      ra      ra
 feature w:      a1      a2      a3      a4      a5      a6      a7      a8      a9      a10     a11     a12     a13
 feature o:              a1      a2      a3      
+feature buf:                    a1      a2      a3
 
-filter  rf:     wa, we  wa, we  wa, we  wa, we  wa, we  wa, we  wa, we  wa, we  wa, we  wa, we  wa, we  wa, we  wa, we
+
+filter  rf:     wa,we   wa,we   wa,we   wa,we   wa,we   wa,we   wa,we   wa,we   wa,we   wa,we   wa,we   wa,we   wa,we
 filter  rf:             ra      ra      ra      ra      ra      ra      ra      ra      ra      ra      ra      ra      ra
 filter w:       b1      b2      b3
 filter o:               b1      b2      b3
-
-                                MAC1    MAC2    MAC3
-
-feature buf:            en      en      en      en      en      en      en      en      en      en      en      en      en
-feature bufq:           0       a1      a2      a3
-
-filter  buf:            en      en      en      en      en      en      en      en      en      en      en      en      en
-filter bufq:            0       b1      b2      b3
-
-mul_buf    :                    en      MAC1    MAC2    MAC3       
-acc_buf1                        p0      
-acc_buf2                        x       p0
-
-mul_acc_sel  : 1'b1     x       1'b0
-reset_acc_sel: 1'b0     x       1'b1
-
-mul_out                                         MAC1    
-psum    rf:     we, wa                  we, wa  ra  
-                        ra
-psumw           p0                      MAC1+p0 
-psumo           x       p0
-                                
-rf에서 필요한 값
-a1      a2      a3
-b1      b2      b3
-p       0   
-
-acc
-a1b1+p  
-a2b2 + a1b1 + p
-a3b3 + a2b2 + a1b1 + p
+filter buf:                     b1      b2      b3
 
 
-mul 1 2 add 
+stage1_mul:                     a1,b1   a2,b2   a3,b3
+mul_buf:                                a1,b1   a2,b2   a3,b3   
+stage2_mul:                             a1,b1   a2,b2   a3,b3
 
+2to1mux:                                MAC1    MAC2    MAC3
+
+mux_to_add_buf:                                 MAC1    MAC2    MAC3
+
+stage1_add:                                     M1,P    M2,M1P  M3,M2P
+add_buf:                                                M1,P    M2,M1P  M3,M2P
+stage2_add:                                             M1,P    M2,M1P  M3,M2P
+
+psum rf:                                                we,wa   we,wa   we,wa
+psum rf_wd:                                             M1P     M2P     M3P                                                              
+pe_ra:          P       M1P       
+delay1:                 P       M1P
+delay2:                         p       M1P
+delay3:                                 P       M1P
+delay4:                                         P       M1P
+psum_rf_o:                                      P
+
+
+M1 + P      M2 + M1
+
+            M1 + P
+            
