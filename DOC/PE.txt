@@ -57,23 +57,34 @@ buffer_stage
 feature_buf:                    a1      a2      a3      a4      a5      a6      a7      a8      a9      a10     a11     a12     a13     a14     a15
 filter_buf:                     b1      b2      b3      b1      b2      b3      b1      b2      b3      b1      b2      b3      b1      b2      b3 
 
-stage1_mul:                     a1,b1   a2,b2   a3,b3
-mul_buf:                                a1,b1   a2,b2   a3,b3   
-stage2_mul:                             a1,b1   a2,b2   a3,b3
-mul_to_buf_mux:                         1'b1    1'b0    1'b0    1'b0
+stage1_mul:                     a1,b1   a2,b2   a3,b3   a4,b1   a5,b2   a6,b3
+mul_buf:                                a1,b1   a2,b2   a3,b3   a4,b1   a5,b2   a6,b3
+stage2_mul:                             a1,b1   a2,b2   a3,b3   a4,b1   a5,b2   a6,b3
 
-rst_psum_mux                            1'b0    1'b1    1'b1    1'b1
-Psum_rf_o                               0       P0      P1      P2
-
-mux_to_add_buf:                         P0      MAC1    MAC2    MAC3
-
-Adder:                                  0,P0    M1,P0   M2,P1   M3,MP2
-Psum_RF_wd                              P0      P1      P2      P3(=C1)
+acc_psum                                1'b0    1'b0    1'b0    1'b0    1'b0    1'b0    1'b0
+add_buf                                         M1      M2      M3      M4      M5      M6
+    
+psum_rf_o                               ?       ?       P1      P2      ?       P4      P5
+rst_psum_mux                            1'b1    1'b0    1'b1    1'b1    1'b0    1'b1    1'b1
+rst_to_add(d):                          ?       0       P1      P2      0       P4      P5
 
 
+Adder:                                          M1,0    M2,P1   M3,MP2  M4,0    M5,P4   M6,P5
+Psum_RF_wd                                      P1      P2      P3(=C1) P4      P5      P6(=C2)
+Psum_RF_wa                              ?       c1      c1      c1      c2      c2      c2
 
+psum_fifo_o                     
+psum_fifp_rden
 
 M1 + P      M2 + M1
 
             M1 + P
             
+            
+c1_1 + c1_2 + c1_3 = c1
+activatation row width = 13
+이전 psum accumlate가 13회 x 3개 이뤄져야 함
+13개를 fifo에 저장
+fifo + rf -> fifo
+fifo + rf -> fifo
+
