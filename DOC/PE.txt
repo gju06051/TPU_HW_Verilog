@@ -43,10 +43,10 @@ feature_rf_we:  1'b1    1'b1    1'b1    1'b1    1'b1    1'b1    1'b1    1'b1    
 feature_rf_wa:  x       x       x
 
 feature_rf_ra:          x       x       x      
-feature_rd:             a1      a2      a3      a4      a5      a6      a7      a8      a9      a10     a11     a12     a13     a14     a15
+feature_rd:             a1      a2      a3      a2      a3      a4      a3      a4      a5
 
 filter_rf
-filter_wd:     b1      b2       b3
+filter_wd:     b1      b2       b3      
 filter_rf_we:  1'b1    1'b1    1'b1
 filter_rf_wa:  x       x       x
 
@@ -54,24 +54,25 @@ filter_rf_ra:          x        x       x
 filter_rd:             b1       b2      b3      b1      b2      b3      b1      b2      b3      b1      b2      b3      b1      b2      b3 
 
 buffer_stage
-feature_buf:                    a1      a2      a3      a4      a5      a6      a7      a8      a9      a10     a11     a12     a13     a14     a15
+feature_buf:                    a1      a2      a3      a2      a3      a4      a3      a4      a5
 filter_buf:                     b1      b2      b3      b1      b2      b3      b1      b2      b3      b1      b2      b3      b1      b2      b3 
 
-stage1_mul:                     a1,b1   a2,b2   a3,b3   a4,b1   a5,b2   a6,b3
-mul_buf:                                a1,b1   a2,b2   a3,b3   a4,b1   a5,b2   a6,b3
-stage2_mul:                             a1,b1   a2,b2   a3,b3   a4,b1   a5,b2   a6,b3
+stage1_mul:                     a1,b1   a2,b2   a3,b3   a2,b1   a3,b2   a4,b3   a3,b1   a4,b2   a5,b3
+mul_buf:                                a1,b1   a2,b2   a3,b3   a2,b1   a3,b2   a4,b3   a3,b1   a4,b2   a5,b3
+stage2_mul:                             a1,b1   a2,b2   a3,b3   a2,b1   a3,b2   a4,b3   a3,b1   a4,b2   a5,b3
 
-acc_psum                                1'b0    1'b0    1'b0    1'b0    1'b0    1'b0    1'b0
-add_buf                                         M1      M2      M3      M4      M5      M6
+acc_psum                                1'b0    1'b0    1'b0    1'b0    1'b0    1'b0    1'b0    1'b0    1'b0    1'b0
+add_buf                                         M1      M2      M3      M4      M5      M6      M7      M8      M9
     
-psum_rf_o                               ?       ?       P1      P2      ?       P4      P5
-rst_psum_mux                            1'b1    1'b0    1'b1    1'b1    1'b0    1'b1    1'b1
-rst_to_add(d):                          ?       0       P1      P2      0       P4      P5
+psum_rf_ra                              c1      c1      c1      c1      c2      c2      c2      c3      c3      c3      
+psum_rf_o                               ?       ?       P1      P2      ?       P4      P5      ?       P7      P8      
+rst_psum_mux                            1'b1    1'b0    1'b1    1'b1    1'b0    1'b1    1'b1    1'b1    1'b0    1'b0
+rst_to_add(d):                          ?       0       P1      P2      0       P4      P5      0       P7      P8
 
 
-Adder:                                          M1,0    M2,P1   M3,MP2  M4,0    M5,P4   M6,P5
-Psum_RF_wd                                      P1      P2      P3(=C1) P4      P5      P6(=C2)
-Psum_RF_wa                              ?       c1      c1      c1      c2      c2      c2
+Adder:                                          M1,0    M2,P1   M3,MP2  M4,0    M5,P4   M6,P5   M7,0    M8,P7   M9,P8
+Psum_RF_wd                                      P1      P2      P3(=C1) P4      P5      P6(=C2) P7      P8      P9(C3)
+Psum_RF_wa                              ?       c1      c1      c1      c2      c2      c2      c3      c3      c3
 
 psum_fifo_o                     
 psum_fifp_rden
