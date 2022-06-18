@@ -44,6 +44,9 @@ sub_activation이 PE3부터 PE1까지 accumlate되는 col accumlate로 PE1의 FI
 PE2의 rf에서 c11_2의 값과 합산되서 PE2의 out fifo로 write, 이후에 해당 값을 PE1에서 읽어와서 PE1의 rf에서 c11_1을 읽어와서 합산,
 결과적으로 c11 = c11_3(PE3) + c11_2(PE2) + c11_1(PE1)를 통해서 c11이 PE1의 outfifo에 write해서 activation을 최종으로 global buffer에 전송한다.
 
+adder는 PE에 1개밖에 없기 때문에(+rf동시 접근은 위험) 2가지 MAC, Col_Accumulate는 overlap이 불가능하다
+또한 최대한 command를 concurrence하게 작성하기 위해서 resource손해 및 cycle손해가 존재
+
                                      
 Cycle           1       2       3       4       5       6       7       8       9       10      11      12      13      14
 feature_fifo:   rden    rden    rden    rden    rden   
