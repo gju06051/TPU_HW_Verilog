@@ -30,43 +30,47 @@ psum   : 2byte x
                 
                                      
 Cycle           1       2       3       4       5       6       7       8       9       10      11      12      13      14
-feature fifo:   rden    rden    rden    rden    rden    rden    rden    rden    rden    rden    rden    rden    rden    
-filter  fifo:   rden    rden    rden    rden    rden    rden    rden    rden    rden    rden    rden    rden    rden    
+feature_fifo:   rden    rden    rden    rden    rden    rden    rden    rden    rden    rden    rden    rden    rden    
+filter_fifo:    rden    rden    rden    rden    rden    rden    rden    rden    rden    rden    rden    rden    rden    
 
-feature rf:     wa,we   wa,we   wa,we   wa,we   wa,we   wa,we   wa,we   wa,we   wa,we   wa,we   wa,we   wa,we   wa,we
-feature rf:             ra      ra      ra      ra      ra      ra      ra      ra      ra      ra      ra      ra      ra
-feature w:      a1      a2      a3      a4      a5      a6      a7      a8      a9      a10     a11     a12     a13
-feature o:              a1      a2      a3      
-feature buf:                    a1      a2      a3
+fea_fifo_o      a1      a2      a3      a4      a5      a6      a7      a8      a9      a10     a11     a12     a13     
+fil_fifo_o      b1      b2      b3      
 
 
-filter  rf:     wa,we   wa,we   wa,we   wa,we   wa,we   wa,we   wa,we   wa,we   wa,we   wa,we   wa,we   wa,we   wa,we
-filter  rf:             ra      ra      ra      ra      ra      ra      ra      ra      ra      ra      ra      ra      ra
-filter w:       b1      b2      b3
-filter o:               b1      b2      b3
-filter buf:                     b1      b2      b3
+feature_rf
+feature_wd:     a1      a2      a3      a4      a5      a6      a7      a8      a9      a10     a11     a12     a13     
+feature_rf_we:  1'b1    1'b1    1'b1    1'b1    1'b1    1'b1    1'b1    1'b1    1'b1    1'b1    1'b1    1'b1    1'b1    
+feature_rf_wa:  x       x       x
 
+feature_rf_ra:          x       x       x      
+feature_rd:             a1      a2      a3      a4      a5      a6      a7      a8      a9      a10     a11     a12     a13     a14     a15
+
+filter_rf
+filter_wd:     b1      b2       b3
+filter_rf_we:  1'b1    1'b1    1'b1
+filter_rf_wa:  x       x       x
+
+filter_rf_ra:          x        x       x     
+filter_rd:             b1       b2      b3      b1      b2      b3      b1      b2      b3      b1      b2      b3      b1      b2      b3 
+
+buffer_stage
+feature_buf:                    a1      a2      a3      a4      a5      a6      a7      a8      a9      a10     a11     a12     a13     a14     a15
+filter_buf:                     b1      b2      b3      b1      b2      b3      b1      b2      b3      b1      b2      b3      b1      b2      b3 
 
 stage1_mul:                     a1,b1   a2,b2   a3,b3
 mul_buf:                                a1,b1   a2,b2   a3,b3   
 stage2_mul:                             a1,b1   a2,b2   a3,b3
+mul_to_buf_mux:                         1'b1    1'b0    1'b0    1'b0
 
-2to1mux:                                MAC1    MAC2    MAC3
+rst_psum_mux                            1'b0    1'b1    1'b1    1'b1
+Psum_rf_o                               0       P0      P1      P2
 
-mux_to_add_buf:                                 MAC1    MAC2    MAC3
+mux_to_add_buf:                         P0      MAC1    MAC2    MAC3
 
-stage1_add:                                     M1,P    M2,M1P  M3,M2P
-add_buf:                                                M1,P    M2,M1P  M3,M2P
-stage2_add:                                             M1,P    M2,M1P  M3,M2P
+Adder:                                  0,P0    M1,P0   M2,P1   M3,MP2
+Psum_RF_wd                              P0      P1      P2      P3(=C1)
 
-psum rf:                                                we,wa   we,wa   we,wa
-psum rf_wd:                                             M1P     M2P     M3P                                                              
-pe_ra:          P       M1P       
-delay1:                 P       M1P
-delay2:                         p       M1P
-delay3:                                 P       M1P
-delay4:                                         P       M1P
-psum_rf_o:                                      P
+
 
 
 M1 + P      M2 + M1
