@@ -47,7 +47,7 @@ PE2의 rf에서 c11_2의 값과 합산되서 PE2의 out fifo로 write, 이후에
 adder는 PE에 1개밖에 없기 때문에(+rf동시 접근은 위험) 2가지 MAC, Col_Accumulate는 overlap이 불가능하다
 또한 최대한 command를 concurrence하게 작성하기 위해서 resource손해 및 cycle손해가 존재
 
-                                     
+----------------------------------------------------------------------------------------------------------------------------------------                                                          
 Cycle           1       2       3       4       5       6       7       8       9       10      11      12      13      14
 feature_fifo:   rden    rden    rden    rden    rden   
 filter_fifo:    rden    rden    rden    rden    rden   
@@ -97,7 +97,6 @@ psum_fifo_w                                                     wren            
 
 
 ---------------------------------------------------------------------------------------------------------------------------
-
 start col acc                  
                                 
 cycle                           1       2       3       4       5       6       7       8       9       10      11                
