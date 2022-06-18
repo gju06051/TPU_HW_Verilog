@@ -1,61 +1,77 @@
-Control PE dataflow
+PE dataflow
+아래의 예제는 feature 3x3, filter 3x3, stride 1, padding 1이 경우를 가정함
+feature input이 a1~a5인 것은 3개의 feature에서 padding이 이미 전처리 되어서 5x5로 구성하기 위해서 결정된 것
 
-filter
-1) path : fifo -> rf -> multiplier
-2) filter fixed when one row finished
+M : Mac결과(i.e. a1b1 = mac1 = M1)
+P : Psum(i.e. P1 = a1b1, P2 = a1b1 + a2b2)
+
+크게 두가지 동작 command로 나뉨
+1. Mac연산
+2. Col accumlate
+
+첫번째 Mac연산은 1개의 row를 구하는 가정임, 
 
 feature
-1) path : fifo -> rf -> multiplier
-2) feature slide in to rf when one row element acc finished
+a11 ~ a15까지(PE1) 
+a21 ~ a25까지(PE2)
+a31 ~ a35까지(PE3)
 
-psum
-1) path : rf -> adder
-2) every cycle, accumlate and out
+filter
+b11 ~ b13까지(PE1)
+b21 ~ b23까지(PE2)
+b31 ~ b33까지(PE3)
 
+PE가 병렬적으로 MAC연산을 진행
+C11_1, C12_1, C13_1 (PE1)
+C11_2, C12_2, C13_2 (PE2)
+C11_3, C12_3, C13_3 (PE3)
+연산된다.
 
-RF는 write시 clock sync에 update
-Showahead하게 계속 data 뿜어내는 중 -> 실제로 data가 나오는데 delay가 존재하지 않나?
-buffer로 처리해줘야 될거 같은데 잘 모르겠다
+이후에 두번째 과정에서 
+이전에 구한 c값들의 accumulate가 이뤄져서 최종 c11, c12, c13이 구해지는 col accumulate가 진행된다
+C11 = C11_1 + C11_2 + C11_3
+C12 = C12_1 + C12_2 + C12_3
+C13 = C13_1 + C13_2 + C13_3
 
-read RF && buffer en
+이 총과정이 하나의 c11, c12, c13으로 구성된 activation row를 구하는데 진행된다
+따라서 3x3 activation을 얻어내기 위해서는 해당 PE가 3개로 구성된 것이 3묶음 즉, PE 9개가 필요한 것이다.
 
-rf가 저장하고 있어야 하는 것?
-weight고정
-feature는 slide
-psum?
-크기는?
-feature: 1byte x feature row(13>)
-weight : 1byte x weigth row(3>)
-psum   : 2byte x 
-                
+c11_1, c11_2와 같은 col accumulate 이전의 값들을 sub_activation map이라 말하면
+모든 sub_activation은 psum rf에 하나의 주소에 multiply결과값을 accumulate되면서 저장되고, 모든 MAC과정 이후에
+sub_activation이 PE3부터 PE1까지 accumlate되는 col accumlate로 PE1의 FIFO에 최종 activation row map이 저장된다
+
+각각의 PE 3개 1묶음은 서로 Psum_FIFO를 통해서 sub_activation값을 전송하며, 예를들어 PE3의 c11_3가 PE2로 FIFO를 통해서 읽히고,
+PE2의 rf에서 c11_2의 값과 합산되서 PE2의 out fifo로 write, 이후에 해당 값을 PE1에서 읽어와서 PE1의 rf에서 c11_1을 읽어와서 합산,
+결과적으로 c11 = c11_3(PE3) + c11_2(PE2) + c11_1(PE1)를 통해서 c11이 PE1의 outfifo에 write해서 activation을 최종으로 global buffer에 전송한다.
+
                                      
 Cycle           1       2       3       4       5       6       7       8       9       10      11      12      13      14
-feature_fifo:   rden    rden    rden    rden    rden    rden    rden    rden    rden    rden    rden    rden    rden    
-filter_fifo:    rden    rden    rden    rden    rden    rden    rden    rden    rden    rden    rden    rden    rden    
+feature_fifo:   rden    rden    rden    rden    rden   
+filter_fifo:    rden    rden    rden    rden    rden   
 
-fea_fifo_o      a1      a2      a3      a4      a5      a6      a7      a8      a9      a10     a11     a12     a13     
+fea_fifo_o      a1      a2      a3      a4      a5      
 fil_fifo_o      b1      b2      b3      
 
 
 feature_rf
-feature_wd:     a1      a2      a3      a4      a5      a6      a7      a8      a9      a10     a11     a12     a13     
-feature_rf_we:  1'b1    1'b1    1'b1    1'b1    1'b1    1'b1    1'b1    1'b1    1'b1    1'b1    1'b1    1'b1    1'b1    
-feature_rf_wa:  x       x       x
+feature_wd:     a1      a2      a3      a4      a5      
+feature_rf_we:  1'b1    1'b1    1'b1    1'b1    1'b1    
+feature_rf_wa:  &a1     &a2     &a3     &a4     &a5
 
-feature_rf_ra:          x       x       x      
+feature_rf_ra:          %a1     %a2     %a3     %a2     %a3     %a4     %a3     %a4     %a5      
 feature_rd:             a1      a2      a3      a2      a3      a4      a3      a4      a5
 
 filter_rf
 filter_wd:     b1      b2       b3      
-filter_rf_we:  1'b1    1'b1    1'b1
-filter_rf_wa:  x       x       x
+filter_rf_we:  1'b1    1'b1     1'b1
+filter_rf_wa:  &b1     &b2      &b3
 
-filter_rf_ra:          x        x       x     
-filter_rd:             b1       b2      b3      b1      b2      b3      b1      b2      b3      b1      b2      b3      b1      b2      b3 
+filter_rf_ra:          %b1      &b2     &b3     &b1     &b2     &b3     &b1     &b2     &b3
+filter_rd:             b1       b2      b3      b1      b2      b3      b1      b2      b3      
 
 buffer_stage
 feature_buf:                    a1      a2      a3      a2      a3      a4      a3      a4      a5
-filter_buf:                     b1      b2      b3      b1      b2      b3      b1      b2      b3      b1      b2      b3      b1      b2      b3 
+filter_buf:                     b1      b2      b3      b1      b2      b3      b1      b2      b3      
 
 stage1_mul:                     a1,b1   a2,b2   a3,b3   a2,b1   a3,b2   a4,b3   a3,b1   a4,b2   a5,b3
 mul_buf:                                a1,b1   a2,b2   a3,b3   a2,b1   a3,b2   a4,b3   a3,b1   a4,b2   a5,b3
@@ -64,28 +80,56 @@ stage2_mul:                             a1,b1   a2,b2   a3,b3   a2,b1   a3,b2   
 acc_psum                                1'b0    1'b0    1'b0    1'b0    1'b0    1'b0    1'b0    1'b0    1'b0    1'b0
 add_buf                                         M1      M2      M3      M4      M5      M6      M7      M8      M9
     
-psum_rf_ra                              c1      c1      c1      c1      c2      c2      c2      c3      c3      c3      
-psum_rf_o                               ?       ?       P1      P2      ?       P4      P5      ?       P7      P8      
-rst_psum_mux                            1'b1    1'b0    1'b1    1'b1    1'b0    1'b1    1'b1    1'b1    1'b0    1'b0
-rst_to_add(d):                          ?       0       P1      P2      0       P4      P5      0       P7      P8
+psum_rf_ra                                      c1      c1      c1      c2      c2      c2      c3      c3      c3      
+psum_rf_o                                       ?       P1      P2      ?       P4      P5      ?       P7      P8      
+rst_psum_mux                                    1'b0    1'b1    1'b1    1'b0    1'b1    1'b1    1'b1    1'b0    1'b0
+rst_to_add(d):                                  0       P1      P2      0       P4      P5      0       P7      P8
 
 
 Adder:                                          M1,0    M2,P1   M3,MP2  M4,0    M5,P4   M6,P5   M7,0    M8,P7   M9,P8
-Psum_RF_wd                                      P1      P2      P3(=C1) P4      P5      P6(=C2) P7      P8      P9(C3)
-Psum_RF_wa                              ?       c1      c1      c1      c2      c2      c2      c3      c3      c3
+Psum_RF_wd                                      P1      P2      P3(=C1) P4      P5      P6(=C2) P7      P8      P9(=C3)
+Psum_RF_wa                                      &c1     &c1     &c1     &c2     &c2     &c2     &c3     &c3     &c3
 
-psum_fifo_o                     
-psum_fifp_rden
+psum_fifo_w                                                     wren                    wren                    wren
 
-M1 + P      M2 + M1
 
-            M1 + P
-            
-            
-c1_1 + c1_2 + c1_3 = c1
-activatation row width = 13
-이전 psum accumlate가 13회 x 3개 이뤄져야 함
-13개를 fifo에 저장
-fifo + rf -> fifo
-fifo + rf -> fifo
+---------------------------------------------------------------------------------------------------------------------------
+
+start col acc                  
+                                
+cycle                           1       2       3       4       5       6       7       8       9       10      11                
+
+PE2(first)                      
+pre_psum_fifo_r                 rden    rden    
+pre_psum_fifo_o                 c1_3    c2_3    c3_3      
+acc_col                         1'b1    1'b1    1'b1    1'b1
+add_buf                         ?       c1_3    c2_3    c3_3      
+                             
+psum_rf_ra                              &c1     &c2     &c3
+psum_rf_o                               c1_2    c2_2    c3_2
+rst_psum_mux                            1'b1    1'b1    1'b1
+rst_to_add                              c1_2    c2_2    c3_2
+
+adder                                   c1_2,3  c2_2,3  c3_2,3
+                                        wren    wren    wren
+
+PE1(last)
+                      
+pre_psum_fifo_r                                 rden    rden    
+pre_psum_fifo_o                                 c1_2    c2_2    c3_2      
+acc_col                                         1'b1    1'b1    1'b1    1'b1
+add_buf                                         ?       c1_2    c2_2    c3_2      
+                                            
+psum_rf_ra                                              &c1     &c2     &c3
+psum_rf_o                                               c1_1    c2_1    c3_1
+rst_psum_mux                                            1'b1    1'b1    1'b1
+rst_to_add                                              c1_1    c2_1    c3_1
+                
+adder                                                   c1_1,2  c2_1,2  c3_1,2
+                                                        wren    wren    wren
+
+pe1_fifo_r                                                      rden    rden
+PE1_fifo_out                                                    C1      C2      C3
+
+                             
 
