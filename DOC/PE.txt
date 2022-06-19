@@ -51,6 +51,30 @@ fifo depth 통찰
 사용이유? buffer -> write하는 초반 준비 cycle timing 아끼기 위해서
 그렇다면 fifo가 해야되는 일? 미리 fifo를 채워두고 feature, filter 사용이 끝나면
 
+
+data -> input, filter each 1B
+1 layer example in alexnet
+W: 384 x 13 x 13 x 256 
+feature: 13 x 13 x 256 
+Output 13 x 13 x 384
+
+weight 3 x 3 -> 3 row PE for 1 row output
+output 13 -> 15 x 3 -> 13 -> 13 col PE for 13 width output
+channel 256 of input -> accumulate weight 256 to 256 input matching
+
+
+filter와 feature를 interleave이후에 연산하라.
+-> 어짜피 psum이 accumulate되어야 함으로
+다른 ch
+같은 row input, filter끼리 interleave
+길어진 filter, feature row를 sliding해서 넣음, accumulate이후에 결과값 형성
+input이 1개 weight 384개 
+weight reuse를 위해서 weight끼리 interleave이후에 activation map에서 분리
+channel이 256임으로 channel끼리 filter feature interleave이후에 결과 그대로 psum으로 사용
+
+즉, weight interleave, channel interleave 두개 모두 적용
+mapping과정 찾기
+
 ----------------------------------------------------------------------------------------------------------------------------------------                                                          
 Cycle           1       2       3       4       5       6       7       8       9       10      11      12      13      14
 feature_fifo:   rden    rden    rden    rden    rden   
@@ -101,7 +125,9 @@ psum_fifo_w                                                     wren            
 
 
 ---------------------------------------------------------------------------------------------------------------------------
-start col acc                  
+start col acc(13cycle까지 adder를 이용) 
+14cycle부터 accumulate작업 가능,
+
                                 
 cycle                           1       2       3       4       5       6       7       8       9       10      11                
 
@@ -137,5 +163,11 @@ adder                                                   c1_1,2  c2_1,2  c3_1,2
 pe1_fifo_r                                                      rden    rden
 PE1_fifo_out                                                    C1      C2      C3
 
-                             
 
+
+Q
+1. Quatization적용?
+2. dedicated 사용해도 되는지
+3. Register_file(scratch_pad) 모듈에서 사용방법
+4. fifo사용방법
+5. 최소단위를 어디까지 잡는지(RF? FF? rst나 enable신호는 다 mux로 시간 때려서 적용?)
