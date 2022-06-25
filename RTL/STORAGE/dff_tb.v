@@ -77,7 +77,7 @@ module DFF_TB #(
             D = 'd3;
             
         // enable on
-        @(posedge CLK)
+        @(posedge CLK);
         #(`DELTA)
             EN = 1'b1;
         
@@ -89,12 +89,12 @@ module DFF_TB #(
             D = 'd4;
         
         // enable off
-        @(posedge CLK)
+        @(posedge CLK);
         #(`DELTA)
             EN = 1'b0;
             
         // data change
-        @(posedge CLK)
+        @(posedge CLK);
         #(`DELTA)
             D = 'd8;
         
@@ -103,8 +103,8 @@ module DFF_TB #(
             @(posedge CLK);
         end
         
-        $display("finished testbench")
-        $finish
+        $display("finished testbench");
+        $finish;
         
     end
 
