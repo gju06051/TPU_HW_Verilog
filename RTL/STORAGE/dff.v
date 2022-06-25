@@ -8,7 +8,7 @@ module DFF #(
     input   en,
     
     input   [DATA_WIDTH-1:0]    d,
-    output  [DATA_WIDTH-1:0]    q,
+    output  [DATA_WIDTH-1:0]    q
 
     );
     
