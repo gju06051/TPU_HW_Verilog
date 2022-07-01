@@ -58,12 +58,12 @@ module FIFO #(
     // Write Activation
     always @(posedge clk) begin
         if (wren_i) begin
-            mem[wrptr[FIFO_DEPTH_LG2-1:0]] <= wdata_i;   // write activation access memory by write pointer
-        end
+            mem[wrptr[FIFO_DEPTH_LG2-1:0]] <= wdata_i;      // write activation access memory by write pointer
+        end                                                 // wrptr not use full index(not use msb), overflow -> target first fifo
     end
     
     // Read activation ouput assignment
-    assign rdata_o  = mem[rdptr[FIFO_DEPTH_LG2-1:0]];   // read actiavation access memory by read pointer
+    assign rdata_o  = mem[rdptr[FIFO_DEPTH_LG2-1:0]];       // read actiavation access memory by read pointer
     
     // Empty Check
     assign empty_o  = (wrptr == rdptr);
