@@ -74,12 +74,6 @@ module PE_TB #(
         end
     end
 
-    // generate reset signal
-    initial begin
-        rst_n = 1'b1;
-        #(`DELTA)
-        rst_n = 1'b0;
-    end
     
     // writing checkpoint //
     
@@ -87,56 +81,37 @@ module PE_TB #(
     // test stimulus
     initial begin
         // initialize
-        RST_N = 1'b1;
-        EN = 1'b0;
-        D = {(DATA_WIDTH){1'b0}};
+        rst_n = 1'b1;
+        #(`DELTA)
+        rst_n = 1'b0;
+        @(posedge clk);
+        #(`DELTA)
+        rst_n = 1'b1;
         
+        // weight preload
+        @(posedge clk);
+        #(`DELTA)
+        weight_i = 'd20;
+        weight_en_i = 'b1;
         
-        // stimulus
+        @(posedge clk);
+        #(`DELTA)
+        weight_en_i = 'b0;
         
-        // reset signal
         repeat(3) begin
-            @(posedge CLK);
+            @(posedge clk);
+            #(`DELTA)
         end
-        #(`DELTA)
-            RST_N = 1'b1;
-        #(`DELTA)
-            RST_N = 1'b0;
-        #(`DELTA*3)
-            RST_N = 1'b1;
         
+        @(posedge clk);
+        #(`DELTA)
+        psum_en_i = 'b1;
+        psum_i = 'd14;
+        ifmap_en_i = 'b1;
+        ifmap_i = 'd13;
+
+        @(posedge clk);
         
-        // data in
-        @(posedge CLK);
-        #(`DELTA)
-            D = 'd3;
-            
-        // enable on
-        @(posedge CLK);
-        #(`DELTA)
-            EN = 1'b1;
-        
-        // data change
-        repeat(3) begin
-            @(posedge CLK);
-        end
-        #(`DELTA)
-            D = 'd4;
-        
-        // enable off
-        @(posedge CLK);
-        #(`DELTA)
-            EN = 1'b0;
-            
-        // data change
-        @(posedge CLK);
-        #(`DELTA)
-            D = 'd8;
-        
-        // finish wait 
-        repeat(3) begin
-            @(posedge CLK);
-        end
         
         $display("finished testbench");
         $finish;
