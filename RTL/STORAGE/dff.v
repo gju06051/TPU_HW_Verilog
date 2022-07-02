@@ -1,5 +1,5 @@
 module DFF #(
-    parameter DATA_WIDTH = 16
+    parameter DATA_WIDTH = 8
     )
     (
     // port

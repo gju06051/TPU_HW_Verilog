@@ -42,28 +42,28 @@ module PE_TB #(
     ) PE_DUT
     (
         // Special Input
-        .clk(clk);
-        .rst_n(rst_n);
+        .clk(clk),
+        .rst_n(rst_n),
         
         // Primitives(input)
-        .weight_i(weight_i);
-        .ifmap_i(ifmap_i);
-        .psum_i(psum_i);
+        .weight_i(weight_i),
+        .ifmap_i(ifmap_i),
+        .psum_i(psum_i),
         
         // Register enable signal(output)
-        .weight_en_i(weight_en_i);
-        .ifmap_en_i(ifmap_en_i);
-        .psum_en_i(psum_en_i);
+        .weight_en_i(weight_en_i),
+        .ifmap_en_i(ifmap_en_i),
+        .psum_en_i(psum_en_i),
         
         // Primitives(input)
-        .ifmap_o(ifmap_o);
-        .weight_o(weight_o);
-        .psum_o(psum_o);
+        .ifmap_o(ifmap_o),
+        .weight_o(weight_o),
+        .psum_o(psum_o),
     
         // Register enable signal(output)
-        .weight_en_o(weight_en_o);
-        .ifmap_en_o(ifmap_en_o);
-        .psum_en_o(psum_en_o);    
+        .weight_en_o(weight_en_o),
+        .ifmap_en_o(ifmap_en_o),
+        .psum_en_o(psum_en_o)  
     );
     
     // clock signal
@@ -75,12 +75,20 @@ module PE_TB #(
     end
 
     
-    // writing checkpoint //
-    
+    // initialization
+    initial begin
+        weight_i = {(DATA_WIDTH){1'b0}};
+        ifmap_i = {(DATA_WIDTH){1'b0}};
+        psum_i = {(PSUM_WIDTH){1'b0}};
+        
+        weight_en_i = 1'b0;
+        ifmap_en_i = 1'b0;
+        psum_en_i = 1'b0;
+    end
     
     // test stimulus
     initial begin
-        // initialize
+        // reset
         rst_n = 1'b1;
         #(`DELTA)
         rst_n = 1'b0;
@@ -91,7 +99,7 @@ module PE_TB #(
         // weight preload
         @(posedge clk);
         #(`DELTA)
-        weight_i = 'd20;
+        weight_i = 'd10;
         weight_en_i = 'b1;
         
         @(posedge clk);
@@ -101,20 +109,29 @@ module PE_TB #(
         repeat(3) begin
             @(posedge clk);
             #(`DELTA)
+            weight_en_i = 'b0;
         end
         
         @(posedge clk);
         #(`DELTA)
         psum_en_i = 'b1;
-        psum_i = 'd14;
+        psum_i = 'd1;
         ifmap_en_i = 'b1;
-        ifmap_i = 'd13;
+        ifmap_i = 'd11;
 
         @(posedge clk);
+        #(`DELTA)
+        psum_en_i = 'b1;
+        psum_i = 'd2;
+        ifmap_en_i = 'b1;
+        ifmap_i ='d22;
         
-        
+        repeat (3) begin
+            @(posedge clk);
+            weight_en_i = 'b0;
+        end
         $display("finished testbench");
-        $finish;
+        
         
     end
 
