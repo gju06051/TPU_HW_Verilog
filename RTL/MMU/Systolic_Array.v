@@ -40,9 +40,9 @@ module Systolic_Array #(
     wire    [DATA_WIDTH-1:0]    ifmap_row_w     [0:SA_WIDTH-1][0:SA_WIDTH-1];
     wire    [PSUM_WIDTH-1:0]    psum_col_w      [0:SA_WIDTH-1][0:SA_WIDTH-1];
     
-    wire                        weight_en_w     [0:SA_WIDTH-1][0:SA_WIDTH-1];
-    wire                        ifmap_en_w      [0:SA_WIDTH-1][0:SA_WIDTH-1];
-    wire                        psum_en_w       [0:SA_WIDTH-1][0:SA_WIDTH-1];
+    wire    [SA_WIDTH-1:0]      weight_en_w     [0:SA_WIDTH-1];
+    wire    [SA_WIDTH-1:0]      ifmap_en_w      [0:SA_WIDTH-1];
+    wire    [SA_WIDTH-1:0]      psum_en_w       [0:SA_WIDTH-1];
     
     // assignment first col & row IF of filter & ifmap 
     assign weight_col_w[0][0] =  weight_col0_i; 
@@ -59,7 +59,25 @@ module Systolic_Array #(
     assign psum_col_w[0][1] =  {(PSUM_WIDTH){1'b0}};
     assign psum_col_w[0][2] =  {(PSUM_WIDTH){1'b0}};
     assign psum_col_w[0][3] =  {(PSUM_WIDTH){1'b0}};
-
+    
+    
+    // assignment first col & row enable siganl 
+    assign weight_en_w[0][0] = weight_en_i[3];
+    assign weight_en_w[0][1] = weight_en_i[2];
+    assign weight_en_w[0][2] = weight_en_i[1];
+    assign weight_en_w[0][3] = weight_en_i[0];
+    
+    assign ifmap_en_w[0][0] = ifmap_en_i[3];
+    assign ifmap_en_w[1][0] = ifmap_en_i[2];
+    assign ifmap_en_w[2][0] = ifmap_en_i[1];
+    assign ifmap_en_w[3][0] = ifmap_en_i[0];
+    
+    assign psum_en_w[0][0] = psum_en_i[3];
+    assign psum_en_w[0][1] = psum_en_i[2];
+    assign psum_en_w[0][2] = psum_en_i[1];
+    assign psum_en_w[0][3] = psum_en_i[0];
+    
+    
     
     PE_V2 #(
         .DATA_WIDTH(DATA_WIDTH)
