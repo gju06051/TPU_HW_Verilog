@@ -1,4 +1,4 @@
-module PE_V2 #(
+module PE #(
     // Parameter
     parameter DATA_WIDTH = 8,
     parameter PSUM_WIDTH = 32

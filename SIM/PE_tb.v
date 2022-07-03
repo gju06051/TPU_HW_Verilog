@@ -35,7 +35,7 @@ module PE_TB #(
     wire                      ifmap_en_o;
     wire                      psum_en_o; 
 
-    PE_V2 #(
+    PE #(
         // Parameter
         .DATA_WIDTH(DATA_WIDTH), 
         .PSUM_WIDTH(PSUM_WIDTH) 

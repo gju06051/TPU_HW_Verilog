@@ -1,4 +1,4 @@
-module COUNTER #(
+module COUNTER_NOTUSE #(
     // parameter
     parameter COUNT_BIT = 2,
     )

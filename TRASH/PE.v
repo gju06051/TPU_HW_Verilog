@@ -1,4 +1,4 @@
-module PE #(
+module PE_NOT_USE #(
     // Parameter
     parameter DATA_WIDTH = 8,
     parameter PSUM_WIDTH = 32
