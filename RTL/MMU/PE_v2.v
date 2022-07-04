@@ -54,7 +54,7 @@ module PE #(
         end
     end
 
-    // forwarding primitives(weight, filter)
+    // Registering weight
     always @(posedge clk, negedge rst_n) begin
         if (!rst_n) begin
             weight_r <= {(DATA_WIDTH){1'b0}};
@@ -64,6 +64,7 @@ module PE #(
         end
     end
     
+    // Registering ifmap
     always @(posedge clk, negedge rst_n) begin
         if (!rst_n) begin
             ifmap_r <= {(DATA_WIDTH){1'b0}};
@@ -73,7 +74,7 @@ module PE #(
         end
     end
     
-    // Registering partial sum from upper PE for accumulation
+    // Registering psum
     always @(posedge clk, negedge rst_n) begin
         if (!rst_n) begin
             psum_r <= {(PSUM_WIDTH){1'b0}};
@@ -83,23 +84,23 @@ module PE #(
         end
     end
     
-    // Registering product(pipeline for timing issue, using dedicated logic for multiplication)
+    // Registering multiplication product(using dedicated logic for multiplication)
     always @(posedge clk, negedge rst_n) begin
         if (!rst_n) begin
             product_r <= {(DATA_WIDTH*2){1'b0}};
         end else begin
-            product_r <= ifmap_i * weight_r;
+            product_r <= ifmap_r * weight_i
         end
     end
     
     // accumulation(using dedicatied logic)
     assign psum_o = product_r + psum_r;
 
-    // assignment output(primitives)
+    // assignment output(primitives forwarding)
     assign weight_o = weight_r;
     assign ifmap_o  = ifmap_r;
     
-    // assignment output(control)
+    // assignment output(control forwarding)
     assign weight_en_o  = weight_en_r;
     assign ifmap_en_o   = ifmap_en_r;
     assign psum_en_o    = psum_en_r;
