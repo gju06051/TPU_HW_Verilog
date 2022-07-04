@@ -4,7 +4,9 @@
 	module myip_v1_0_S00_AXI #
 	(
 		// Users to add parameters here
-
+		parameter integer MEM0_DEPTH = 98,
+		parameter integer MEM0_ADDR_WIDTH = 7,
+		parameter integer MEM0_DATA_WIDTH = 128,
 		// User parameters ends
 		// Do not modify the parameters beyond this line
 
@@ -15,7 +17,7 @@
 	)
 	(
 		// Users to add ports here
-
+		input wire [MEM0_DATA_WIDTH-1:0] mem0_q1,
 		// User ports ends
 		// Do not modify the ports beyond this line
 
@@ -92,7 +94,9 @@
 	reg [C_S_AXI_DATA_WIDTH-1 : 0] 	axi_rdata;
 	reg [1 : 0] 	axi_rresp;
 	reg  	axi_rvalid;
-
+	reg		axi_rvalid_d;
+	reg 	axi_rvalid_selected;
+	
 	// Example-specific design signals
 	// local parameter for addressing 32 bit / 64 bit C_S_AXI_DATA_WIDTH
 	// ADDR_LSB is used for addressing 32/64 bit registers/memories
@@ -127,7 +131,11 @@
 	assign S_AXI_ARREADY	= axi_arready;
 	assign S_AXI_RDATA	= axi_rdata;
 	assign S_AXI_RRESP	= axi_rresp;
-	assign S_AXI_RVALID	= axi_rvalid;
+
+	//(added)
+	//assign S_AXI_RVALID	= axi_rvalid;
+	assign S_AXI_RVALID = axi_rvalid_selected;
+
 	// Implement axi_awready generation
 	// axi_awready is asserted for one S_AXI_ACLK clock cycle when both
 	// S_AXI_AWVALID and S_AXI_WVALID are asserted. axi_awready is
@@ -228,6 +236,7 @@
 	      slv_reg1 <= 0;
 	      slv_reg2 <= 0;
 	      slv_reg3 <= 0;
+		  // (added)
 	      // slv_reg4 <= 0;
 	      // slv_reg5 <= 0;
 	      // slv_reg6 <= 0;
@@ -264,7 +273,8 @@
 	                // Respective byte enables are asserted as per write strobes 
 	                // Slave register 3
 	                slv_reg3[(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
-	              end  
+	              end 
+			//(added)
 	        //  3'h4:
 	        //    for ( byte_index = 0; byte_index <= (C_S_AXI_DATA_WIDTH/8)-1; byte_index = byte_index+1 )
 	        //      if ( S_AXI_WSTRB[byte_index] == 1 ) begin
@@ -298,6 +308,7 @@
 	                      slv_reg1 <= slv_reg1;
 	                      slv_reg2 <= slv_reg2;
 	                      slv_reg3 <= slv_reg3;
+						  // (added)
 	                      // slv_reg4 <= slv_reg4;
 	                      // slv_reg5 <= slv_reg5;
 	                      // slv_reg6 <= slv_reg6;
@@ -402,6 +413,20 @@
 	    end
 	end    
 
+	//(added)
+	reg slv_reg_rden_d;
+	always @(posedge S_AXI_ACLK or negedge S_AXI_ARESETN) begin
+	    if(!S_AXI_ARESETN) begin
+			axi_rvalid_d	<= 'd0;
+			slv_reg_rden_d	<= 'd0;
+	    end else begin
+			axi_rvalid_d	<= axi_rvalid;
+			slv_reg_rden_d	<= slv_reg_rden;
+	    end 
+	end
+
+
+
 	// Implement memory mapped register select and read logic generation
 	// Slave register read enable is asserted when valid address is available
 	// and the slave is ready to accept the read address.
@@ -414,10 +439,10 @@
 	        3'h1   : reg_data_out <= slv_reg1;
 	        3'h2   : reg_data_out <= slv_reg2;
 	        3'h3   : reg_data_out <= slv_reg3;
-	        3'h4   : reg_data_out <= slv_reg4;
-	        3'h5   : reg_data_out <= slv_reg5;
-	        3'h6   : reg_data_out <= slv_reg6;
-	        3'h7   : reg_data_out <= slv_reg7;
+	        3'h4   : reg_data_out <= mem0_q1[(C_S_AXI_DATA_WIDTH*3)+:C_S_AXI_DATA_WIDTH];
+	        3'h5   : reg_data_out <= mem0_q1[(C_S_AXI_DATA_WIDTH*2)+:C_S_AXI_DATA_WIDTH];
+	        3'h6   : reg_data_out <= mem0_q1[(C_S_AXI_DATA_WIDTH)  +:C_S_AXI_DATA_WIDTH];
+	        3'h7   : reg_data_out <= mem0_q1[ 0                    +:C_S_AXI_DATA_WIDTH];
 	        default : reg_data_out <= 0;
 	      endcase
 	end
@@ -442,15 +467,53 @@
 	end    
 
 	// Add user logic here
-	wire mem0_addr1 	;
-	wire mem0_ce1		;
-	wire mem0_we1		;
-	wire [C_S_AXI_DATA_WIDTH-1:0]	mem0_d1		; 
+	wire [C_S_AXI_ADDR_WIDTH-1:0]   slv_reg_0_addr = 'h0;
+	wire [C_S_AXI_ADDR_WIDTH-1:0]   slv_reg_1_addr = 'h4;
+	wire [C_S_AXI_ADDR_WIDTH-1:0]   slv_reg_2_addr = 'h8;
+	wire [C_S_AXI_ADDR_WIDTH-1:0]   slv_reg_3_addr = 'hc;
 
-	assign mem0_addr1 	= mem0_addr_cnt[MEM0_ADDR_WIDTH-1:0]			; 
-	assign mem0_ce1		= mem0_data_write_hit || mem0_data_read_hit		;
-	assign mem0_we1		= mem0_data_write_hit 							;
-	assign mem0_d1		= {slv_reg0,slv_reg1,slv_reg2,slv_reg3}			;
+	wire [C_S_AXI_ADDR_WIDTH-1:0]   slv_reg_4_addr = 'h10;
+	wire [C_S_AXI_ADDR_WIDTH-1:0]   slv_reg_5_addr = 'h14;
+	wire [C_S_AXI_ADDR_WIDTH-1:0]   slv_reg_6_addr = 'h18;
+	wire [C_S_AXI_ADDR_WIDTH-1:0]   slv_reg_7_addr = 'h1c;
+
+	// make write_hit signal
+	wire mem0_data_write_hit = slv_reg_wren && (axi_awaddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] == slv_reg_3_addr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB]);
+	reg mem0_data_write_hit_delay;
+	always@(posedge S_AXI_ACLK) begin
+		mem0_data_write_hit_delay <= mem0_data_write_hit;
+	end
+
+	wire mem0_data_read_hit = slv_reg_rden; // && (axi_awaddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] == slv_reg_4_addr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB]);
+	wire mem0_data_read_hit_cnt = 	slv_reg_rden && (axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] == slv_reg_7_addr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB]);									
+	
+	reg [MEM0_ADDR_WIDTH-1:0] mem0_addr_cnt;
+	always@(posedge S_AXI_ACLK) begin
+		if ( S_AXI_ARESETN == 1'b0 ) begin
+			mem0_addr_cnt <= 0;
+		end else if(mem0_addr_cnt == MEM0_DEPTH-1) begin
+			mem0_addr_cnt <= 0;
+		end else if(mem0_data_write_hit || mem0_data_read_hit_cnt) begin
+			mem0_addr_cnt <= mem0_addr_cnt + 1;
+		end
+	end
+	
+	always@(*) begin
+		if(axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] == slv_reg_4_addr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB])
+			axi_rvalid_selected = axi_rvalid_d;
+		else
+			axi_rvalid_selected = axi_rvalid;
+	end
+
+	wire mem0_addr1;
+	wire mem0_ce1;
+	wire mem0_we1;
+	wire [(C_S_AXI_DATA_WIDTH*4)-1:0]	mem0_d1; 
+
+	assign mem0_addr1 	= mem0_addr_cnt[MEM0_ADDR_WIDTH-1:0]; 
+	assign mem0_ce1		= mem0_data_write_hit || mem0_data_read_hit;
+	assign mem0_we1		= mem0_data_write_hit_delay;
+	assign mem0_d1		= {slv_reg0, slv_reg1, slv_reg2, slv_reg3};
 	// User logic ends
 
 	endmodule
