@@ -1,5 +1,5 @@
 module SA #(
-    parameter PE_SIZE       = 4,
+    parameter PE_SIZE       = 1,
     parameter DATA_WIDTH    = 8,
     parameter PSUM_WIDTH    = 32
     )
@@ -9,24 +9,24 @@ module SA #(
     input rst_n,
 
     // input primitivies
-    input   [(DATA_WIDTH)*(PE_SIZE)-1:0]    weight_col_i,
-    input   [(DATA_WIDTH)*(PE_SIZE)-1:0]    ifmap_row_i,
-    input   [(PSUM_WIDTH)*(PE_SIZE)-1:0]    psum_row_i,
+    input   [DATA_WIDTH*PE_SIZE-1:0]    weight_col_i,
+    input   [DATA_WIDTH*PE_SIZE-1:0]    ifmap_row_i,
+    input   [PSUM_WIDTH*PE_SIZE-1:0]    psum_row_i,
     
     // input enable signal
-    input   [PE_SIZE-1:0]                   weight_en_i,
-    input   [PE_SIZE-1:0]                   ifmap_en_i,
-    input   [PE_SIZE-1:0]                   psum_en_i,
+    input   [PE_SIZE-1:0]               weight_en_i,
+    input   [PE_SIZE-1:0]               ifmap_en_i,
+    input   [PE_SIZE-1:0]               psum_en_i,
     
     // output primitivies 
-    output  [(DATA_WIDTH)*(PE_SIZE)-1:0]    weight_col_o,
-    output  [(DATA_WIDTH)*(PE_SIZE)-1:0]    ifmap_row_o,
-    output  [(PSUM_WIDTH)*(PE_SIZE)-1:0]    psum_row_o,
+    output  [DATA_WIDTH*PE_SIZE-1:0]    weight_col_o,
+    output  [DATA_WIDTH*PE_SIZE-1:0]    ifmap_row_o,
+    output  [PSUM_WIDTH*PE_SIZE-1:0]    psum_row_o,
     
     // output enable signal
-    output  [PE_SIZE-1:0]                   weight_en_o,      
-    output  [PE_SIZE-1:0]                   ifmap_en_o,      
-    output  [PE_SIZE-1:0]                   psum_en_o       
+    output  [PE_SIZE-1:0]               weight_en_o,      
+    output  [PE_SIZE-1:0]               ifmap_en_o,      
+    output  [PE_SIZE-1:0]               psum_en_o       
     );
 
     // primitives wire port
@@ -44,9 +44,9 @@ module SA #(
     generate
         for (i=0; i < PE_SIZE; i=i+1) begin : GEN_INPUT_ASSIGN
             // primitives input assign
-            assign weight_w[i][0] = weight_col_i[(DATA_WIDTH)*(PE_SIZE-i)-1:(DATA_WIDTH)*(PE_SIZE-i-1)];
-            assign ifmap_w[0][i] = ifmap_row_i[(DATA_WIDTH)*(PE_SIZE-i)-1:(DATA_WIDTH)*(PE_SIZE-i-1)];
-            assign psum_w[0][i] = psum_row_i[(PSUM_WIDTH)*(PE_SIZE-i)-1:(PSUM_WIDTH)*(PE_SIZE-i-1)];
+            assign weight_w[i][0] = weight_col_i[DATA_WIDTH*(PE_SIZE-i)-1 : DATA_WIDTH*(PE_SIZE-i-1)];
+            assign ifmap_w[0][i] = ifmap_row_i[DATA_WIDTH*(PE_SIZE-i)-1 : DATA_WIDTH*(PE_SIZE-i-1)];
+            assign psum_w[0][i] = psum_row_i[PSUM_WIDTH*(PE_SIZE-i)-1 : PSUM_WIDTH*(PE_SIZE-i-1)];
             
             // enable siganl input assign
             assign weight_en_w[i][0] = weight_en_i[i];
@@ -95,9 +95,9 @@ module SA #(
     generate
         for (l=0; l < PE_SIZE; l=l+1) begin
             // primitives output assign
-            assign weight_col_o[(DATA_WIDTH)*(PE_SIZE-l)-1:(DATA_WIDTH)*(PE_SIZE-l-1)] = weight_w[l][PE_SIZE];
-            assign ifmap_row_o[(DATA_WIDTH)*(PE_SIZE-l)-1:(DATA_WIDTH)*(PE_SIZE-l-1)] = ifmap_w[PE_SIZE][l];
-            assign psum_row_o[(PSUM_WIDTH)*(PE_SIZE-l)-1:(PSUM_WIDTH)*(PE_SIZE-l-1)] = psum_w[PE_SIZE][l];
+            assign weight_col_o[DATA_WIDTH*(PE_SIZE-l)-1 : DATA_WIDTH*(PE_SIZE-l-1)] = weight_w[l][PE_SIZE];
+            assign ifmap_row_o[DATA_WIDTH*(PE_SIZE-l)-1 : DATA_WIDTH*(PE_SIZE-l-1)] = ifmap_w[PE_SIZE][l];
+            assign psum_row_o[PSUM_WIDTH*(PE_SIZE-l)-1 : PSUM_WIDTH*(PE_SIZE-l-1)] = psum_w[PE_SIZE][l];
             
             // enable signal output assign 
             assign weight_en_o[l] = weight_en_w[l][PE_SIZE];
