@@ -18,6 +18,10 @@
 	(
 		// Users to add ports here
 		input wire [MEM0_DATA_WIDTH-1:0] mem0_q1,
+		output wire	[MEM0_ADDR_WIDTH-1:0] mem0_addr1,
+		output wire	mem0_ce1,
+		output wire	mem0_we1,
+		output wire	[MEM0_DATA_WIDTH-1:0] mem0_d1,
 		// User ports ends
 		// Do not modify the ports beyond this line
 
@@ -491,10 +495,11 @@
 	always@(posedge S_AXI_ACLK) begin
 		if ( S_AXI_ARESETN == 1'b0 ) begin
 			mem0_addr_cnt <= 0;
-		end else if(mem0_addr_cnt == MEM0_DEPTH-1) begin
-			mem0_addr_cnt <= 0;
-		end else if(mem0_data_write_hit || mem0_data_read_hit_cnt) begin
-			mem0_addr_cnt <= mem0_addr_cnt + 1;
+		end else if(mem0_data_write_hit_delay || mem0_data_read_hit_cnt) begin
+			if(mem0_addr_cnt == MEM0_DEPTH-1)
+				mem0_addr_cnt <= 0;
+			else
+				mem0_addr_cnt <= mem0_addr_cnt + 1;
 		end
 	end
 	
@@ -505,13 +510,9 @@
 			axi_rvalid_selected = axi_rvalid;
 	end
 
-	wire mem0_addr1;
-	wire mem0_ce1;
-	wire mem0_we1;
-	wire [(C_S_AXI_DATA_WIDTH*4)-1:0]	mem0_d1; 
 
 	assign mem0_addr1 	= mem0_addr_cnt[MEM0_ADDR_WIDTH-1:0]; 
-	assign mem0_ce1		= mem0_data_write_hit || mem0_data_read_hit;
+	assign mem0_ce1		= mem0_data_write_hit_delay || mem0_data_read_hit;
 	assign mem0_we1		= mem0_data_write_hit_delay;
 	assign mem0_d1		= {slv_reg0, slv_reg1, slv_reg2, slv_reg3};
 	// User logic ends

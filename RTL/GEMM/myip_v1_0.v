@@ -4,7 +4,9 @@
 	module myip_v1_0 #
 	(
 		// Users to add parameters here
-
+		parameter integer MEM0_DEPTH = 98,
+		parameter integer MEM0_ADDR_WIDTH = 7,
+		parameter integer MEM0_DATA_WIDTH = 128,
 		// User parameters ends
 		// Do not modify the parameters beyond this line
 
@@ -15,7 +17,6 @@
 	)
 	(
 		// Users to add ports here
-
 		// User ports ends
 		// Do not modify the ports beyond this line
 
@@ -44,9 +45,18 @@
 		input wire  s00_axi_rready
 	);
 // Instantiation of Axi Bus Interface S00_AXI
+	wire    [MEM0_DATA_WIDTH-1:0] mem0_q1;
+	wire	[MEM0_ADDR_WIDTH-1:0] mem0_addr1;
+	wire	mem0_ce1;
+	wire	mem0_we1;
+	wire	[MEM0_DATA_WIDTH-1:0] mem0_d1;
+	
 	myip_v1_0_S00_AXI # ( 
 		.C_S_AXI_DATA_WIDTH(C_S00_AXI_DATA_WIDTH),
-		.C_S_AXI_ADDR_WIDTH(C_S00_AXI_ADDR_WIDTH)
+		.C_S_AXI_ADDR_WIDTH(C_S00_AXI_ADDR_WIDTH),
+		.MEM0_DEPTH(MEM0_DEPTH),
+		.MEM0_ADDR_WIDTH(MEM0_ADDR_WIDTH),
+		.MEM0_DATA_WIDTH(MEM0_DATA_WIDTH)
 	) myip_v1_0_S00_AXI_inst (
 		.S_AXI_ACLK(s00_axi_aclk),
 		.S_AXI_ARESETN(s00_axi_aresetn),
@@ -68,11 +78,33 @@
 		.S_AXI_RDATA(s00_axi_rdata),
 		.S_AXI_RRESP(s00_axi_rresp),
 		.S_AXI_RVALID(s00_axi_rvalid),
-		.S_AXI_RREADY(s00_axi_rready)
+		.S_AXI_RREADY(s00_axi_rready),
+
+		.mem0_q1(mem0_q1),
+		.mem0_addr1(mem0_addr1),
+		.mem0_ce1(mem0_ce1),
+		.mem0_we1(mem0_we1),
+		.mem0_d1(mem0_d1)
 	);
 
 	// Add user logic here
-
+	axi_true_dpbram # (
+    	.DWIDTH(MEM0_DATA_WIDTH),
+    	.AWIDTH(MEM0_ADDR_WIDTH),
+    	.MEM_SIZE(MEM0_DEPTH)
+	) mem0 (
+    	.clk(s00_axi_aclk),
+    	.addr0_i(),
+		.ce0_i(),
+		.we0_i(),
+		.d0_i(),
+		.addr1_i(mem0_addr1),
+    	.ce1_i(mem0_ce1),
+    	.we1_i(mem0_we1),
+    	.d1_i(mem0_d1),
+    	.q0_o(),
+    	.q1_o(mem0_q1)
+);
 	// User logic ends
 
 	endmodule
