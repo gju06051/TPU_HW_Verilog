@@ -105,11 +105,11 @@ module PE_TB #(
         @(posedge clk);
         #(`DELTA)
         ifmap_en_i = 'b0;
-        
+
         repeat(3) begin
             @(posedge clk);
             #(`DELTA)
-            ifmap_en_i = 'b0;
+            ifmap_i = 'd13;
         end
         
         @(posedge clk);
@@ -126,9 +126,22 @@ module PE_TB #(
         weight_en_i = 'b1;
         weight_i ='d22;
         
+        @(posedge clk);
+        #(`DELTA)
+        
+        psum_en_i = 'b0;
+        psum_i = 'd3;
+        weight_en_i = 'b0;
+        weight_i = 'd33;
+        
+        @(posedge clk);
+        #(`DELTA)
         repeat (3) begin
             @(posedge clk);
-            ifmap_en_i = 'b0;
+            weight_en_i = 'b0;
+            weight_i = 'd0;
+            psum_en_i = 'b0;
+            psum_i = 'd0;
         end
         $display("finished testbench");
         
