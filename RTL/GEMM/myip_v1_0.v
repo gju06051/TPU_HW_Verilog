@@ -4,7 +4,7 @@
 	module myip_v1_0 #
 	(
 		// Users to add parameters here
-		parameter integer MEM0_DEPTH = 98,
+		parameter integer MEM0_DEPTH = 896,
 		parameter integer MEM0_ADDR_WIDTH = 7,
 		parameter integer MEM0_DATA_WIDTH = 128,
 		// User parameters ends
