@@ -62,8 +62,8 @@ module SA #(
         for (j=0; j < PE_SIZE; j=j+1) begin : GEN_COL_PE
             for (k=0; k < PE_SIZE; k=k+1) begin : GEN_ROW_PE
                 PE #(
-                    .DATA_WIDTH(DATA_WIDTH)
-                    .PSUM_WIDTH(PSUM_WIDTH)
+                    .DATA_WIDTH(DATA_WIDTH),
+                    .PSUM_WIDTH(PSUM_WIDTH),
                 ) PE_INST (   
                     // special signal
                     .clk            (clk), 

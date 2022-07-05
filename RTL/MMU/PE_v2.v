@@ -89,7 +89,7 @@ module PE #(
         if (!rst_n) begin
             product_r <= {(DATA_WIDTH*2){1'b0}};
         end else begin
-            product_r <= ifmap_r * weight_i
+            product_r <= ifmap_r * weight_i;
         end
     end
     

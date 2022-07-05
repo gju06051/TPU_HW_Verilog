@@ -99,36 +99,36 @@ module PE_TB #(
         // weight preload
         @(posedge clk);
         #(`DELTA)
-        weight_i = 'd10;
-        weight_en_i = 'b1;
+        ifmap_i = 'd10;
+        ifmap_en_i = 'b1;
         
         @(posedge clk);
         #(`DELTA)
-        weight_en_i = 'b0;
+        ifmap_en_i = 'b0;
         
         repeat(3) begin
             @(posedge clk);
             #(`DELTA)
-            weight_en_i = 'b0;
+            ifmap_en_i = 'b0;
         end
         
         @(posedge clk);
         #(`DELTA)
         psum_en_i = 'b1;
         psum_i = 'd1;
-        ifmap_en_i = 'b1;
-        ifmap_i = 'd11;
+        weight_en_i = 'b1;
+        weight_i = 'd11;
 
         @(posedge clk);
         #(`DELTA)
         psum_en_i = 'b1;
         psum_i = 'd2;
-        ifmap_en_i = 'b1;
-        ifmap_i ='d22;
+        weight_en_i = 'b1;
+        weight_i ='d22;
         
         repeat (3) begin
             @(posedge clk);
-            weight_en_i = 'b0;
+            ifmap_en_i = 'b0;
         end
         $display("finished testbench");
         
