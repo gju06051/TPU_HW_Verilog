@@ -47,6 +47,7 @@ module SA #(
             assign weight_col_w[i][0] = weight_col_i[(DATA_WIDTH)*(PE_SIZE-i)-1:(DATA_WIDTH)*(PE_SIZE-i-1)];
             assign ifmap_row_w[0][i] = ifmap_row_i[(DATA_WIDTH)*(PE_SIZE-i)-1:(DATA_WIDTH)*(PE_SIZE-i-1)];
             assign psum_row_w[0][i] = psum_row_i[(PSUM_WIDTH)*(PE_SIZE-i)-1:(PSUM_WIDTH)*(PE_SIZE-i-1)];
+            
             // enable siganl input assign
             assign weight_en_w[i][0] = weight_en_i[i];
             assign ifmap_en_w[0][i] = ifmap_en_i[i];
@@ -97,6 +98,7 @@ module SA #(
             assign weight_col_o[(DATA_WIDTH)*(PE_SIZE-l)-1:(DATA_WIDTH)*(PE_SIZE-l-1)] = weight_col_w[l][PE_SIZE];
             assign ifmap_row_o[(DATA_WIDTH)*(PE_SIZE-l)-1:(DATA_WIDTH)*(PE_SIZE-l-1)] = ifmap_row_w[PE_SIZE][l];
             assign psum_row_o[(PSUM_WIDTH)*(PE_SIZE-l)-1:(PSUM_WIDTH)*(PE_SIZE-l-1)] = psum_row_w[PE_SIZE][l];
+            
             // enable signal output assign 
             assign weight_en_o[l] = weight_en_w[l][PE_SIZE];
             assign ifmap_en_o[l] = ifmap_en_w[PE_SIZE][l];
