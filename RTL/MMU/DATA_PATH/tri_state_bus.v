@@ -23,7 +23,7 @@ module TRI_STATE_BUS #(
     // register data from bus
     always @(posedge clk, negedge rst_n) begin
         if (!rst_n) begin
-            temp <= {(DATA_WIDTH]){1'b0}};
+            temp <= {(DATA_WIDTH){1'b0}};
         end else if (en) begin
             temp <= tri_bus;
         end 
