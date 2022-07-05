@@ -54,8 +54,8 @@ module ACC #(
                 .full_o     (),                 // check fifo is full, if full the signal is high
                 .empty_o    (),                 // chcek fifo is empty, if empty the signal is high
                 // In/Out data signal
-                .wdata_i    (fifo_in_w[i]),  // write data
-                .rdata_o    (fifo_out_w[i])   // read data
+                .wdata_i    (fifo_in_w[i]),     // write data
+                .rdata_o    (fifo_out_w[i])     // read data
             );
         end
     endgenerate
