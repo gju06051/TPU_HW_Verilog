@@ -2,7 +2,7 @@ module ACC #(
     // parameter
     parameter PE_SIZE       = 16,
     parameter DATA_WIDTH    = 32,
-    parameter FIFO_DEPTH    = 16
+    parameter FIFO_DEPTH    = 64
     )
     (
     // special input
@@ -57,8 +57,8 @@ module ACC #(
         for (i=0; i < PE_SIZE; i=i+1) begin : GEN_FIFO
             FIFO #(
                 // Parameter
-                .DATA_WIDTH (DATA_WIDTH),        // data bit width
-                .FIFO_DEPTH (FIFO_DEPTH),        // FIFO entry num
+                .DATA_WIDTH (DATA_WIDTH),       // data bit width
+                .FIFO_DEPTH (FIFO_DEPTH)        // FIFO entry num
             ) FIFO_INST (   
                 // special signal
                 .clk        (clk),              // clock signal
