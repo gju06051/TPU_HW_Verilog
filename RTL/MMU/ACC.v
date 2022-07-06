@@ -44,7 +44,7 @@ module ACC #(
             assign fifo_in_w[j] = feedback_w[j] + psum_w[j];
             
             // Read FIFO when accumulation or GLB read activation
-            assign rden_w[j] = (psum_en_i[j] & acc_en_w[j]) | rden_i;
+            assign rden_w[j] = (psum_en_i[j] & acc_en_w[j]) | rden_i[j];
         end
     endgenerate
     
