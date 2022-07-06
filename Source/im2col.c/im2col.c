@@ -25,31 +25,50 @@ typedef struct  {
     } Flags;
 
 int main(void) {
-    
+
+    // AXI_WRITE for test
+    Flags bitfild_init[4];
     unsigned int INIT_IN_TENSOR[IC][IN_X][IN_Y];
     for(int i = 0; i < IC ; i++) {
         for(int k = 0; k < IN_X; k++){
             for(int l = 0; l <IN_Y; l++){
                 INIT_IN_TENSOR[i][k][l] = (l+1)+(k*IN_X)+i;
-                switch (l % 4){
-                        case 0:
-                            bitfild.data_3 = OUT_MATRIX[(k*PE_SIZE)+PE_SIZE-1-l][m+(PE_SIZE*i)];
-                            break;
-                        case 1:
-                            bitfild.data_2 = OUT_MATRIX[(k*PE_SIZE)+PE_SIZE-1-l][m+(PE_SIZE*i)];
-                            break;
-                        case 2:
-                            bitfild.data_1 = OUT_MATRIX[(k*PE_SIZE)+PE_SIZE-1-l][m+(PE_SIZE*i)];
-                            break;
-                        case 3:
-                            bitfild.data_0 = OUT_MATRIX[(k*PE_SIZE)+PE_SIZE-1-l][m+(PE_SIZE*i)];
-                            //printf("%d ",bitfild);
-                            Xil_Out32((XPAR_LAB13_MATBI_0_BASEADDR) + ((MEM0_DATA_REG+l*4)*AXI_DATA_BYTE), bitfild);
-                            break;
+                if(l != 0 && l != 1){
+                    switch (l % 4){
+                            case 0:
+                                bitfild_init[((l-2)/4)+1].data_1 =IN_TENSOR[i][k][l];
+                                break;
+                            case 1:
+                                bitfild_init[((l-2)/4)+1].data_0 =IN_TENSOR[i][k][l];
+                                break;
+                            case 2:
+                                bitfild_init[((l-2)/4)+1].data_3 =IN_TENSOR[i][k][l];
+                                break;
+                            case 3:
+                                bitfild_init[((l-2)/4)+1].data_2 =IN_TENSOR[i][k][l];
+                                //printf("%d ",bitfild);
+                                Xil_Out32((XPAR_LAB13_MATBI_0_BASEADDR) + ((MEM0_DATA_REG+m*4)*AXI_DATA_BYTE), bitfild_init[((l-2)/4)+1]);
+                                break;
                     };
+                } else {
+                    switch (l % 2){
+                            case 0:
+                                bitfild_init[0].data_3 = 0;
+                                bitfild_init[0].data_2 = 0;
+                                bitfild_init[0].data_1 = IN_TENSOR[i][k][l];
+                                break;
+                            case 1:
+                                bitfild_init[0].data_0 = IN_TENSOR[i][k][l];
+                                Xil_Out32((XPAR_LAB13_MATBI_0_BASEADDR) + ((MEM0_DATA_REG+m*4)*AXI_DATA_BYTE), bitfild_init[0]);
+                                break;
+                    }
+                }
             }
         }
     }
+
+
+    /*
     for(int i = 0; i < IC ; i++) {
         for(int k = 0; k < IN_X; k++){
             for(int l = 0; l <IN_Y; l++){
@@ -59,9 +78,10 @@ int main(void) {
         }
         printf("\n\n\n");
     }
-    
+    */
 
     //// AXI_READ ////
+    Flags bitfild[4];
 
     /* no padding
     Flags bitfild[4];
@@ -125,38 +145,38 @@ int main(void) {
                         if(l != 1 && l != 2){
                             switch (l % 4){
                                     case 0:
-                                        IN_TENSOR[i][k][l] = bitfild[((l-2)/4)+1].data_2;
+                                        IN_TENSOR[i][k][l] = bitfild[((l-3)/4)+1].data_2;
                                         break;
                                     case 1:
-                                        IN_TENSOR[i][k][l] = bitfild[((l-2)/4)+1].data_1;
+                                        IN_TENSOR[i][k][l] = bitfild[((l-3)/4)+1].data_1;
                                         break;
                                     case 2:
-                                        IN_TENSOR[i][k][l] = bitfild[((l-2)/4)+1].data_0;
+                                        IN_TENSOR[i][k][l] = bitfild[((l-3)/4)+1].data_0;
                                         break;
                                     case 3:
-                                        IN_TENSOR[i][k][l] = bitfild[((l-2)/4)+1].data_3;
+                                        IN_TENSOR[i][k][l] = bitfild[((l-3)/4)+1].data_3;
                                         //printf("%d ",bitfild);
                                         //Xil_Out32
                                         break;
                             };
                         } else {
-                        switch (l % 2){
-                                case 0:
-                                    IN_TENSOR[i][k][l] = bitfild[0].data_0;
-                                    break;
-                                case 1:
-                                    IN_TENSOR[i][k][l] = bitfild[0].data_1;
-                                    break;
+                            switch (l % 2){
+                                    case 0:
+                                        IN_TENSOR[i][k][l] = bitfild[0].data_0;
+                                        break;
+                                    case 1:
+                                        IN_TENSOR[i][k][l] = bitfild[0].data_1;
+                                        break;
+                            }
                         }
-                    }
-                } else {
+                    } else {
+                        IN_TENSOR[i][k][l] = 0;
+                    };
+                } 
+            } else {
+                for(int l = 0 ; l < IN_Y+2; l++) {
                     IN_TENSOR[i][k][l] = 0;
-                };
-            } 
-        } else {
-              for(int l = 0 ; l < IN_Y+2; l++) {
-                IN_TENSOR[i][k][l] = 0;
-              }      
+                }      
             }
         };
     };
@@ -169,8 +189,8 @@ int main(void) {
      for(int i = 0; i < OUT_Y; i++){
          for(int k = 0; k < OUT_X; k++){
              in_channel = k / (K*K);
-             row = (i / 12) + (k / K) % K; // change 14 to variable = striding num
-             col = (k % K) + (i % 12);
+             row = (i / 14) + (k / K) % K; // change 14 to variable = striding num
+             col = (k % K) + (i % 14);
              OUT_MATRIX[k][i] = IN_TENSOR[in_channel][row][col];
          };
      }
