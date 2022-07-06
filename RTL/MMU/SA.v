@@ -69,8 +69,8 @@ module SA #(
                     .PSUM_WIDTH(PSUM_WIDTH)
                 ) PE_INST (   
                     // special signal
-                    .clk            (clk), 
-                    .rst_n          (rst_n), 
+                    .clk            (clk    ), 
+                    .rst_n          (rst_n  ), 
                     // primitives(input) 2D array, var[vector_idx][bit_idx]
                     .weight_i       (weight_col_w   [j][DATA_WIDTH*(PE_SIZE-k)-1 : DATA_WIDTH*(PE_SIZE-k-1)]), 
                     .ifmap_i        (ifmap_row_w    [k][DATA_WIDTH*(PE_SIZE-j)-1 : DATA_WIDTH*(PE_SIZE-j-1)]), 

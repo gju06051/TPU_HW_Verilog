@@ -31,7 +31,6 @@ module ACC #(
     // Wire port for control
     wire    [PE_SIZE-1:0]       rden_w;                     // FIFO read enable signal
     wire    [PE_SIZE-1:0]       acc_en_w;                   // Accumulation enable signal(use for reset fifo rdata)
-    wire    [PE_SIZE-1:0]       empty_w;                    // used for generate FIFO read finish signal
     
     
     // Data flow of accumulation FIFO
@@ -58,8 +57,8 @@ module ACC #(
         for (i=0; i < PE_SIZE; i=i+1) begin : GEN_FIFO
             FIFO #(
                 // Parameter
-                .DATA_WIDTH(DATA_WIDTH),        // data bit width
-                .FIFO_DEPTH(FIFO_DEPTH),        // fifo entry num
+                .DATA_WIDTH (DATA_WIDTH),        // data bit width
+                .FIFO_DEPTH (FIFO_DEPTH),        // FIFO entry num
             ) FIFO_INST (   
                 // special signal
                 .clk        (clk),              // clock signal
@@ -69,7 +68,7 @@ module ACC #(
                 .rden_i     (rden_w[i]),        // read denable signal
                 // F/E output signal
                 .full_o     (acc_en_w[i]),      // check fifo is full, if full the signal is high
-                .empty_o    (empty_w[i]),       // chcek fifo is empty, if empty the signal is high
+                .empty_o    (),       // chcek fifo is empty, if empty the signal is high
                 // In/Out data signal
                 .wdata_i    (fifo_in_w[i]),     // write data
                 .rdata_o    (fifo_out_w[i])     // read data
@@ -80,11 +79,8 @@ module ACC #(
     genvar k;
     generate
         for (k=0; k < PE_SIZE; k=k+1) begin : GEN_OUT
-            // generate read finish data for dataflow control
-            assign rd_finish_o[k]   = empty_w[k] & rden_i;
-            
             // concatenate flatten output data
-            assign psum_row_o[DATA_WIDTH*(PE_SIZE-k)-1 : DATA_WIDTH*(PE_SIZE-k-1)] = feedback_w[k];
+            assign psum_row_o[DATA_WIDTH*(PE_SIZE-k)-1 : DATA_WIDTH*(PE_SIZE-k-1)] = fifo_out_w[k];
         end
     endgenerate
     
