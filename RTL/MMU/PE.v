@@ -93,14 +93,14 @@ module PE #(
         end
     end
     
-    // accumulation(using dedicatied logic)
+    // Accumulation(using dedicatied logic)
     assign psum_o = product_r + psum_r;
 
-    // assignment output(primitives forwarding)
+    // Assignment output(primitives forwarding)
     assign weight_o = weight_r;
     assign ifmap_o  = ifmap_r;
     
-    // assignment output(control forwarding)
+    // Assignment output(control forwarding)
     assign weight_en_o  = weight_en_r;
     assign ifmap_en_o   = ifmap_en_r;
     assign psum_en_o    = psum_en_r;

@@ -93,7 +93,6 @@ module SA #(
     endgenerate
 
 
-
     // assignment last side output
     
     // primitives output assign

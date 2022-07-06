@@ -1,11 +1,11 @@
 module ACC #(
-    // parameter
+    // Parameter
     parameter PE_SIZE       = 16,
     parameter DATA_WIDTH    = 32,
     parameter FIFO_DEPTH    = 64
     )
     (
-    // special input
+    // Special input
     input   clk,
     input   rst_n,
     
@@ -49,7 +49,8 @@ module ACC #(
         end
     endgenerate
     
-    // FIFO Inst
+    
+    // FIFO Inst(i : col num)
     genvar i;
     generate
         for (i=0; i < PE_SIZE; i=i+1) begin : GEN_FIFO
@@ -73,6 +74,7 @@ module ACC #(
             );
         end
     endgenerate
+    
     
     // Output assignment
     genvar k;
