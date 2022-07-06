@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdint.h>
-#include "xparameters.h"
-#include "xil_io.h"
-#include "xtime_l.h"  // To measure of processing time
+//#include "xparameters.h"
+//#include "xil_io.h"
+//#include "xtime_l.h"  // To measure of processing time
 #include <stdlib.h>	  // To generate rand value
 
 #define AXI_DATA_WIDTH 32
@@ -13,7 +13,7 @@
 #define OC 64//64
 #define K 3
 #define OUT_X 288//288
-#define OUT_Y 196//196
+#define OUT_Y 208//196 + 12 for extension
 #define PE_SIZE 16
 #define padding 1
 
@@ -33,6 +33,8 @@ int main(void) {
         for(int k = 0; k < IN_X; k++){
             for(int l = 0; l <IN_Y; l++){
                 INIT_IN_TENSOR[i][k][l] = (l+1)+(k*IN_X)+i;
+                printf("%2d ",(l+1)+(k*IN_X)+i);
+                /*
                 if(l != 0 && l != 1){
                     switch (l % 4){
                             case 0:
@@ -63,8 +65,11 @@ int main(void) {
                                 break;
                     }
                 }
+                */
             }
+            printf("\n");
         }
+        printf("\n\n");
     }
 
 
@@ -135,6 +140,28 @@ int main(void) {
     unsigned int IN_TENSOR[IC][IN_X+2][IN_Y+2];
     for(int i = 0; i < IC ; i++) {
         for(int k = 0; k < IN_X+2; k++){
+            if(k != 0 && k != IN_X+1) {
+                for(int l = 0 ; l < IN_Y+2; l++){
+                    if(l != 0 && l != IN_Y+1) {
+                        IN_TENSOR[i][k][l] = INIT_IN_TENSOR[i][k-1][l-1];
+                    } else {
+                        IN_TENSOR[i][k][l] = 0;
+                    }
+                    printf("%-3d ",IN_TENSOR[i][k][l]);
+                }  
+            } else {
+                for(int l = 0 ; l < IN_Y+2; l++){
+                    IN_TENSOR[i][k][l] = 0;
+                    printf("%-3d ",IN_TENSOR[i][k][l]);
+                }
+            }
+            printf("\n");
+        }
+        printf("\n\n");
+    }
+    /* 
+    for(int i = 0; i < IC ; i++) {
+        for(int k = 0; k < IN_X+2; k++){
             if(k != 0 && k != IN_X-1) {
                 bitfild[0] = Xil_In32((XPAR_LAB13_MATBI_0_BASEADDR) + (MEM0_DATA_REG*AXI_DATA_BYTE));
                 bitfild[1] = Xil_In32((XPAR_LAB13_MATBI_0_BASEADDR) + (MEM0_DATA_REG*AXI_DATA_BYTE));
@@ -180,32 +207,42 @@ int main(void) {
             }
         };
     };
+    */
 
-    //// im2col transform ////
+
+    //// im2col transform + extension ////
     unsigned int OUT_MATRIX[OUT_X][OUT_Y];
     unsigned int in_channel;
     unsigned int row;
     unsigned int col;
      for(int i = 0; i < OUT_Y; i++){
          for(int k = 0; k < OUT_X; k++){
-             in_channel = k / (K*K);
-             row = (i / 14) + (k / K) % K; // change 14 to variable = striding num
-             col = (k % K) + (i % 14);
-             OUT_MATRIX[k][i] = IN_TENSOR[in_channel][row][col];
+                if(i < OUT_Y-12){
+                    in_channel = k / (K*K);
+                    row = (i / 14) + (k / K) % K; // change 14 to variable = striding num
+                    col = (k % K) + (i % 14);
+                    OUT_MATRIX[k][i] = IN_TENSOR[in_channel][row][col];
+                    if(i < 20)
+                        printf("[%d %d %d] ",in_channel, row, col);
+                } else {
+                    OUT_MATRIX[k][i] = 0;
+                }
          };
+         printf("\n\n");
      }
-     /*
-     for(int i = 0; i < OUT_X; i++){
+     
+     for(int i = 0; i < 9; i++){
          for(int k = 0; k < OUT_Y; k++){
-            printf("%-2d ",OUT_MATRIX[i][k]);
+            printf("%-3d ",OUT_MATRIX[i][k]);
          };
-         printf("\n");
+         printf("\n\n");
          if(i!=0 && i%9 == 8)
              printf("\n");
      };
-    */
+    
 
     //// AXI_WRITE ////
+    /*
     Flags bitfild;
     int out_col = OUT_Y / PE_SIZE;
     int out_row = OUT_X / PE_SIZE;
@@ -236,6 +273,6 @@ int main(void) {
             };
         };
     }
-    
+    */
     return 0;
 }   
