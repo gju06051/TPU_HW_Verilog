@@ -6,14 +6,14 @@ module ACC #(
     )
     (
     // special input
-    input                   clk,
-    input                   rst_n,
+    input   clk,
+    input   rst_n,
     
     // R/W enable signal
-    input   [PE_SIZE-1:0]   psum_en_i,                      // signal from SA, used for fifo write signal
-    input   [PE_SIZE-1:0]   rden_i,                         // signal from Top control, read data from fifo to GLB
+    input   [PE_SIZE-1:0]   psum_en_i,          // signal from SA, used for fifo write signal
+    input   [PE_SIZE-1:0]   rden_i,             // signal from Top control, read data from fifo to GLB
     
-    // In/Out data
+    // I/O data
     input   [DATA_WIDTH*PE_SIZE-1:0]    psum_row_i,
     output  [DATA_WIDTH*PE_SIZE-1:0]    psum_row_o
     
@@ -31,6 +31,7 @@ module ACC #(
     
     
     // Data flow of accumulation FIFO
+    // (fifo_out + psum -> fifo_in)
     genvar j;
     generate
         for (j=0; j < PE_SIZE; j=j+1) begin : GEN_ACC_OP
@@ -48,7 +49,7 @@ module ACC #(
         end
     endgenerate
     
-    // FIFO inst
+    // FIFO Inst
     genvar i;
     generate
         for (i=0; i < PE_SIZE; i=i+1) begin : GEN_FIFO
@@ -73,6 +74,7 @@ module ACC #(
         end
     endgenerate
     
+    // Output assignment
     genvar k;
     generate
         for (k=0; k < PE_SIZE; k=k+1) begin : GEN_OUT
