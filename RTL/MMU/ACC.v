@@ -10,28 +10,45 @@ module ACC #(
     input                   rst_n,
     
     // R/W enable signal
-    input   [PE_SIZE-1:0]   wren_i,
-    input   [PE_SIZE-1:0]   rden_i,
+    input   [PE_SIZE-1:0]   psum_en_i,                      // signal from SA, used for fifo write signal
+    input   [PE_SIZE-1:0]   rden_i,                         // signal from Top control, read data from fifo to GLB
     
-    // inout data
+    // In/Out data
     input   [DATA_WIDTH*PE_SIZE-1:0]    psum_row_i,
-    output  [DATA_WIDTH*PE_SIZE-1:0]    psum_row_o
+    output  [DATA_WIDTH*PE_SIZE-1:0]    psum_row_o,
+    
+    // fifo read check
+    output  [PE_SIZE-1:0]               rd_finish_o         // signal that fifo read finish
     
     );
     
-    // wire declartion
+    // Wire port for data, 2D array var[fifo_col_idx][bit_idx]
     wire    [DATA_WIDTH-1:0]    psum_w      [0:PE_SIZE-1];
-    wire    [DATA_WIDTH-1:0]    fifo_in_w   [0:PE_SIZE-1];  // wdata
-    wire    [DATA_WIDTH-1:0]    fifo_out_w  [0:PE_SIZE-1];  // rdate
-    wire    [DATA_WIDTH-1:0]    feedback_w  [0:PE_SIZE-1];  // sel zero/fifo_out
-
+    wire    [DATA_WIDTH-1:0]    fifo_in_w   [0:PE_SIZE-1];  // FIFO wdata
+    wire    [DATA_WIDTH-1:0]    fifo_out_w  [0:PE_SIZE-1];  // FIFO rdate
+    wire    [DATA_WIDTH-1:0]    feedback_w  [0:PE_SIZE-1];  // Zero or FIFO rdata
     
+    // Wire port for control
+    wire    [PE_SIZE-1:0]       rden_w;                     // FIFO read enable signal
+    wire    [PE_SIZE-1:0]       acc_en_w;                   // Accumulation enable signal(use for reset fifo rdata)
+    wire    [PE_SIZE-1:0]       empty_w;                    // used for generate FIFO read finish signal
+    
+    
+    // Data flow of accumulation FIFO
     genvar j;
     generate
         for (j=0; j < PE_SIZE; j=j+1) begin : GEN_ACC_OP
-            assign psum_w[j] = psum_row_i[DATA_WIDTH*(PE_SIZE-j)-1 : DATA_WIDTH*(PE_SIZE-j-1)];
-            assign feedback_w[j] = sel[j] ? fifo_out_w[j] : {(DATA_WIDTH){1'b0}};
+            // flatten input data with each wire
+            assign psum_w[j] = psum_row_i[DATA_WIDTH*(PE_SIZE-j)-1 : DATA_WIDTH*(PE_SIZE-j-1)];     
+            
+            // checking preload psum, not_full -> preload psum by giving feedback zero
+            assign feedback_w[j] = acc_en_w[j] ? fifo_out_w[j] : {(DATA_WIDTH){1'b0}};              
+            
+            // FIFO accumulation
             assign fifo_in_w[j] = feedback_w[j] + psum_w[j];
+            
+            // Read FIFO when accumulation or GLB read activation
+            assign rden_w[j] = (psum_en_i[j] & acc_en_w[j]) | rden_i;
         end
     endgenerate
     
@@ -48,11 +65,11 @@ module ACC #(
                 .clk        (clk),              // clock signal
                 .rst_n      (rst_n),            // negedge pointer reset signal(don't need to reset data in fifo)
                 // R/W input signal
-                .wren_i     (wren_i[i]),        // write enable signal
-                .rden_i     (rden_i[i]),        // read denable signal
+                .wren_i     (psum_en_i[i]),     // write enable signal
+                .rden_i     (rden_w[i]),        // read denable signal
                 // F/E output signal
-                .full_o     (),                 // check fifo is full, if full the signal is high
-                .empty_o    (),                 // chcek fifo is empty, if empty the signal is high
+                .full_o     (acc_en_w[i]),      // check fifo is full, if full the signal is high
+                .empty_o    (empty_w[i]),       // chcek fifo is empty, if empty the signal is high
                 // In/Out data signal
                 .wdata_i    (fifo_in_w[i]),     // write data
                 .rdata_o    (fifo_out_w[i])     // read data
@@ -63,6 +80,10 @@ module ACC #(
     genvar k;
     generate
         for (k=0; k < PE_SIZE; k=k+1) begin : GEN_OUT
+            // generate read finish data for dataflow control
+            assign rd_finish_o[k]   = empty_w[k] & rden_i;
+            
+            // concatenate flatten output data
             assign psum_row_o[DATA_WIDTH*(PE_SIZE-k)-1 : DATA_WIDTH*(PE_SIZE-k-1)] = feedback_w[k];
         end
     endgenerate
