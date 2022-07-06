@@ -15,10 +15,7 @@ module ACC #(
     
     // In/Out data
     input   [DATA_WIDTH*PE_SIZE-1:0]    psum_row_i,
-    output  [DATA_WIDTH*PE_SIZE-1:0]    psum_row_o,
-    
-    // fifo read check
-    output  [PE_SIZE-1:0]               rd_finish_o         // signal that fifo read finish
+    output  [DATA_WIDTH*PE_SIZE-1:0]    psum_row_o
     
     );
     
