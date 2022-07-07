@@ -16,7 +16,7 @@ module SA #(
     
     // input enable signal
     input   [PE_SIZE-1:0]               weight_en_col_i,
-    input   [PE_SIZE-1:0]               ifmap_en_row_i,
+    input                               ifmap_en_i,
     input   [PE_SIZE-1:0]               psum_en_row_i,
     
     // output primitivies 
@@ -40,7 +40,6 @@ module SA #(
     
     // enable signal wire port
     wire    [PE_SIZE-1:0]               weight_en_col_w     [0:PE_SIZE];
-    wire    [PE_SIZE-1:0]               ifmap_en_row_w      [0:PE_SIZE];
     wire    [PE_SIZE-1:0]               psum_en_row_w       [0:PE_SIZE];
     
     
@@ -54,7 +53,6 @@ module SA #(
     
     // enable siganl input assign
     assign weight_en_col_w[0] = weight_en_col_i;
-    assign ifmap_en_row_w[0] = ifmap_en_row_i;
     assign psum_en_row_w[0] = psum_en_row_i;
 
 
@@ -77,7 +75,7 @@ module SA #(
                     .psum_i         (psum_row_w     [k][PSUM_WIDTH*(PE_SIZE-j)-1 : PSUM_WIDTH*(PE_SIZE-j-1)]), 
                     // enable signal(input) 2D array, var[vector_idx][bit_idx]
                     .weight_en_i    (weight_en_col_w[j][PE_SIZE-k-1]), 
-                    .ifmap_en_i     (ifmap_en_row_w [k][PE_SIZE-j-1]), 
+                    .ifmap_en_i     (ifmap_en_i), 
                     .psum_en_i      (psum_en_row_w  [k][PE_SIZE-j-1]), 
                     // primitives(output) 2D array, var[vector_idx][bit_idx]
                     .weight_o       (weight_col_w   [j+1][DATA_WIDTH*(PE_SIZE-k)-1 : DATA_WIDTH*(PE_SIZE-k-1)]), 
@@ -85,7 +83,6 @@ module SA #(
                     .psum_o         (psum_row_w     [k+1][PSUM_WIDTH*(PE_SIZE-j)-1 : PSUM_WIDTH*(PE_SIZE-j-1)]), 
                     // enable signal(output) 2D array, var[vector_idx][bit_idx]
                     .weight_en_o    (weight_en_col_w[j+1][PE_SIZE-k-1]), 
-                    .ifmap_en_o     (ifmap_en_row_w [k+1][PE_SIZE-j-1]), 
                     .psum_en_o      (psum_en_row_w  [k+1][PE_SIZE-j-1])
                 );
             end
@@ -102,7 +99,6 @@ module SA #(
     
     // enable signal output assign 
     assign weight_en_col_o = weight_en_col_w[PE_SIZE];
-    assign ifmap_en_row_o = ifmap_en_row_w[PE_SIZE];
     assign psum_en_row_o = psum_en_row_w[PE_SIZE];
 
 

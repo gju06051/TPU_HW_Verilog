@@ -107,7 +107,7 @@ module SA_TB #(
         @(posedge clk);
         cycle = 2;
         #(`DELTA)
-        ifmap_en_row_i = {(PE_SIZE){1'b1}};
+        ifmap_en_row_i = {(PE_SIZE){1'b0}};
         ifmap_row_i = 'h0103;
         
         // 3. Ifmap preload stop(enable off)
@@ -122,12 +122,13 @@ module SA_TB #(
             @(posedge clk);
             cycle = 3;
             #(`DELTA)
+            ifmap_row_i = 'h00_00;  // uncorrect val
         end
         
         // 4. Weight load & psum_enable
         // 4-1. weight col1
         @(posedge clk);
-        cycle = 4;
+        cycle = 4; 
         #(`DELTA)
         weight_en_col_i = {(PE_SIZE){1'b1}};
         weight_col_i = 'h01_00;
@@ -157,10 +158,10 @@ module SA_TB #(
         @(posedge clk);
         cycle = 7;
         #(`DELTA)
-        weight_en_col_i = {(PE_SIZE){1'b0}};
-        weight_col_i = 'h00_00; // uncorrect val
-        psum_en_row_i = {(PE_SIZE){1'b0}};
-        psum_row_i = 'h01_0101_0101_0101_01;   // uncorrect val
+        weight_en_col_i = {(PE_SIZE){1'b1}};
+        weight_col_i = 'h00_00;
+        psum_en_row_i = {(PE_SIZE){1'b1}};
+        psum_row_i = 'h0000000000000000;
         
         
         // Waiting Activation

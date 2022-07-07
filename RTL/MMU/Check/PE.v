@@ -25,7 +25,6 @@ module PE #(
 
     // Register enable signal(output)
     output                          weight_en_o,
-    output                          ifmap_en_o,
     output                          psum_en_o
     );
     
@@ -37,7 +36,6 @@ module PE #(
     reg     [(DATA_WIDTH*2)-1:0]    product_r;  
     
     reg                             weight_en_r;
-    reg                             ifmap_en_r;
     reg                             psum_en_r;
     
 
@@ -45,11 +43,9 @@ module PE #(
     always @(posedge clk, negedge rst_n) begin
         if (!rst_n) begin
             weight_en_r <= 1'b0;
-            ifmap_en_r  <= 1'b0;
             psum_en_r   <= 1'b0;
         end else begin
             weight_en_r <= weight_en_i;
-            ifmap_en_r  <= ifmap_en_i;
             psum_en_r   <= psum_en_i;
         end
     end
@@ -102,7 +98,6 @@ module PE #(
     
     // Assignment output(control forwarding)
     assign weight_en_o  = weight_en_r;
-    assign ifmap_en_o   = ifmap_en_r;
     assign psum_en_o    = psum_en_r;
 
 endmodule
