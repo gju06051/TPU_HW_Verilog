@@ -30,7 +30,7 @@ module Counter #(
     
     // next state logic(comb)
     always @(*) begin 
-        n_state = c_state
+        n_state = c_state;  // latch prevent
         case (c_state)
             IDLE    : begin
                 if (start_i) begin
