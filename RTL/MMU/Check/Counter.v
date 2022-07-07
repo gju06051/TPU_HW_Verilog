@@ -16,10 +16,11 @@ module Counter #(
     localparam IDLE = 2'b00;
     localparam RUN  = 2'b01;
     localparam DONE = 2'b10;
-
-
-    // state register(seq)
+    
     reg [1:0] c_state, n_state;
+    reg [COUNT_LG2-1:0] cnt_num;
+    
+    // state register(seq)
     always @(posedge clk, negedge rst_n) begin
         if (!rst_n) begin
             c_state <= IDLE;
@@ -38,7 +39,7 @@ module Counter #(
                 end
             end
             RUN     : begin
-                if (cnt_num==COUNT_NUM) begin
+                if (cnt_num==COUNT_NUM-1) begin
                     n_state <= DONE;
                 end
             end
@@ -53,7 +54,6 @@ module Counter #(
     
     
     // Counter logic
-    reg [COUNT_LG2-1:0] cnt_num;
     always @(posedge clk, negedge rst_n) begin
         if (!rst_n) begin
             cnt_num <= {(COUNT_LG2){1'b0}};

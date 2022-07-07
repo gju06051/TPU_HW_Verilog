@@ -45,6 +45,7 @@ module Counter_TB #(
     initial begin
         // Stimulus
         // 1. Reset
+        @(posedge clk);
         #(`DELTA)
         rst_n = 'b1;
         
