@@ -9,24 +9,24 @@ module PE #(
     input   rst_n,
     
     // Primitives(input)
-    input   [DATA_WIDTH-1:0]    weight_i,
-    input   [DATA_WIDTH-1:0]    ifmap_i,
-    input   [PSUM_WIDTH-1:0]    psum_i,
+    input   [DATA_WIDTH-1:0]        weight_i,
+    input   [DATA_WIDTH-1:0]        ifmap_i,
+    input   [PSUM_WIDTH-1:0]        psum_i,
     
     // Register enable signal(output)
-    input                       weight_en_i,
-    input                       ifmap_en_i,
-    input                       psum_en_i,
+    input                           weight_en_i,
+    input                           ifmap_en_i,
+    input                           psum_en_i,
     
     // Primitives(input)
-    output  [DATA_WIDTH-1:0]    weight_o,
-    output  [DATA_WIDTH-1:0]    ifmap_o,
-    output  [PSUM_WIDTH-1:0]    psum_o,
+    output  [DATA_WIDTH-1:0]        weight_o,
+    output  [DATA_WIDTH-1:0]        ifmap_o,
+    output  [PSUM_WIDTH-1:0]        psum_o,
 
     // Register enable signal(output)
-    output                      weight_en_o,
-    output                      ifmap_en_o,
-    output                      psum_en_o
+    output                          weight_en_o,
+    output                          ifmap_en_o,
+    output                          psum_en_o
     );
     
     // temp signal 
