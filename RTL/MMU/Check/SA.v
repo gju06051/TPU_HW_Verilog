@@ -61,7 +61,7 @@ module SA #(
     wire preload_done_w;
     // Preload count cycle
     Counter #(
-        .COUNT_NUM ( PE_SIZE )
+        .COUNT_NUM ( PE_SIZE-1 )
     )u_Counter(
         .clk     ( clk              ),
         .rst_n   ( rst_n            ),

@@ -23,18 +23,18 @@ module SA_TB #(
     
     // input enable signal
     reg                               ifmap_preload_i;
-    reg   [PE_SIZE-1:0]               weight_en_col_i;
-    reg   [PE_SIZE-1:0]               psum_en_row_i;
+    reg     [PE_SIZE-1:0]               weight_en_col_i;
+    reg     [PE_SIZE-1:0]               psum_en_row_i;
     
     
     // output primitivies 
-    reg  [DATA_WIDTH*PE_SIZE-1:0]    ifmap_row_o;
-    reg  [DATA_WIDTH*PE_SIZE-1:0]    weight_col_o;
-    reg  [PSUM_WIDTH*PE_SIZE-1:0]    psum_row_o;
+    wire    [DATA_WIDTH*PE_SIZE-1:0]    ifmap_row_o;
+    wire    [DATA_WIDTH*PE_SIZE-1:0]    weight_col_o;
+    wire    [PSUM_WIDTH*PE_SIZE-1:0]    psum_row_o;
     
     // output enable signal     
-    reg  [PE_SIZE-1:0]               weight_en_col_o;      
-    reg  [PE_SIZE-1:0]               psum_en_row_o;    
+    wire    [PE_SIZE-1:0]               weight_en_col_o;      
+    wire    [PE_SIZE-1:0]               psum_en_row_o;    
     
     
     
