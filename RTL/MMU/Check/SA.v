@@ -10,23 +10,24 @@ module SA #(
     input rst_n,
 
     // input primitivies
-    input   [DATA_WIDTH*PE_SIZE-1:0]    weight_col_i,
     input   [DATA_WIDTH*PE_SIZE-1:0]    ifmap_row_i,
+    input   [DATA_WIDTH*PE_SIZE-1:0]    weight_col_i,
     input   [PSUM_WIDTH*PE_SIZE-1:0]    psum_row_i,
     
     // input enable signal
+    input                               ifmap_load_start,
     input   [PE_SIZE-1:0]               weight_en_col_i,
-    input                               ifmap_en_i,
     input   [PE_SIZE-1:0]               psum_en_row_i,
     
+    
     // output primitivies 
-    output  [DATA_WIDTH*PE_SIZE-1:0]    weight_col_o,
     output  [DATA_WIDTH*PE_SIZE-1:0]    ifmap_row_o,
+    output  [DATA_WIDTH*PE_SIZE-1:0]    weight_col_o,
     output  [PSUM_WIDTH*PE_SIZE-1:0]    psum_row_o,
     
     // output enable signal
-    output  [PE_SIZE-1:0]               weight_en_col_o,      
     output  [PE_SIZE-1:0]               ifmap_en_row_o,      
+    output  [PE_SIZE-1:0]               weight_en_col_o,      
     output  [PE_SIZE-1:0]               psum_en_row_o       
     );
     
@@ -39,6 +40,7 @@ module SA #(
     wire    [PSUM_WIDTH*PE_SIZE-1:0]    psum_row_w          [0:PE_SIZE];
     
     // enable signal wire port
+    wire                                ifmap_en_w;
     wire    [PE_SIZE-1:0]               weight_en_col_w     [0:PE_SIZE];
     wire    [PE_SIZE-1:0]               psum_en_row_w       [0:PE_SIZE];
     
@@ -54,6 +56,9 @@ module SA #(
     // enable siganl input assign
     assign weight_en_col_w[0] = weight_en_col_i;
     assign psum_en_row_w[0] = psum_en_row_i;
+
+
+    // Preload_Counter
 
 
     // PE inst(j : col_num, k : row_num)
@@ -75,7 +80,7 @@ module SA #(
                     .psum_i         (psum_row_w     [k][PSUM_WIDTH*(PE_SIZE-j)-1 : PSUM_WIDTH*(PE_SIZE-j-1)]), 
                     // enable signal(input) 2D array, var[vector_idx][bit_idx]
                     .weight_en_i    (weight_en_col_w[j][PE_SIZE-k-1]), 
-                    .ifmap_en_i     (ifmap_en_i), 
+                    .ifmap_en_i     (ifmap_en_w), 
                     .psum_en_i      (psum_en_row_w  [k][PE_SIZE-j-1]), 
                     // primitives(output) 2D array, var[vector_idx][bit_idx]
                     .weight_o       (weight_col_w   [j+1][DATA_WIDTH*(PE_SIZE-k)-1 : DATA_WIDTH*(PE_SIZE-k-1)]), 
@@ -90,16 +95,18 @@ module SA #(
     endgenerate
 
 
+
     // assignment last side output
     
     // primitives output assign
-    assign weight_col_o = weight_col_w[PE_SIZE];
     assign ifmap_row_o = ifmap_row_w[PE_SIZE];
+    assign weight_col_o = weight_col_w[PE_SIZE];
     assign psum_row_o = psum_row_w[PE_SIZE];
     
     // enable signal output assign 
     assign weight_en_col_o = weight_en_col_w[PE_SIZE];
     assign psum_en_row_o = psum_en_row_w[PE_SIZE];
+
 
 
 
