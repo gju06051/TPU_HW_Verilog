@@ -5,6 +5,7 @@
 //#include "xtime_l.h"  // To measure of processing time
 #include <stdlib.h>	  // To generate rand value
 
+#define AXI_DATA_BYTE 4
 #define AXI_DATA_WIDTH 32
 #define DATA_WIDTH 8
 #define IN_X 14//16

@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdint.h>
-#include "xparameters.h"
-#include "xil_io.h"
-#include "xtime_l.h"  // To measure of processing time
+//#include "xparameters.h"
+//#include "xil_io.h"
+//#include "xtime_l.h"  // To measure of processing time
 #include <stdlib.h>	  // To generate rand value
 
 #define AXI_DATA_BYTE 4
@@ -21,10 +21,10 @@
 typedef union  {
 		unsigned int axi_write_data;
 		struct {
-			uint8_t data_3;
-			uint8_t data_2;
-			uint8_t data_1;
 			uint8_t data_0;
+			uint8_t data_1;
+			uint8_t data_2;
+			uint8_t data_3;
 		} bit_data;
     } Flags;
 
@@ -33,31 +33,40 @@ int main(void) {
     // AXI_WRITE for test
 	printf("hello dwadwf");
 
-    //Flags bitfild_init;
-    unsigned int INIT_IN_TENSOR[IC][IN_X][IN_Y];
+    Flags bitfild_init;
+    uint8_t INIT_IN_TENSOR[IC][IN_X][IN_Y];
     for(int i = 0; i < IC ; i++) {
         for(int k = 0; k < IN_X; k++){
             for(int l = 0; l <IN_Y; l++){
                 INIT_IN_TENSOR[i][k][l] = (l+1)+(k*IN_X)+i;
-                //printf("%2d ",(l+1)+(k*IN_X)+i);
-                /*
+                //printf("%2d \n",(l+1)+(k*IN_X)+i);
+
                 if(l != 0 && l != 1){
+                	//printf("index : %d mod : %d  data : %d ",l,(l%4),INIT_IN_TENSOR[i][k][l]);
                     switch (l % 4){
                             case 0:
+                            	printf("%u ",INIT_IN_TENSOR[i][k][l]);
                                 bitfild_init.bit_data.data_1 = INIT_IN_TENSOR[i][k][l];
+                                printf("%u \n",bitfild_init.bit_data.data_1);
                                 break;
                             case 1:
+                            	printf("%u ",INIT_IN_TENSOR[i][k][l]);
                                 bitfild_init.bit_data.data_0 = INIT_IN_TENSOR[i][k][l];
+                                printf("%u \n",bitfild_init.bit_data.data_0);
+                                printf("result %d \n\n",bitfild_init.axi_write_data);
+                                //Xil_Out32((XPAR_MYIP_V1_0_0_BASEADDR) + ( (((l-2)/4)+1)*AXI_DATA_BYTE), bitfild_init.axi_write_data);
                                 break;
                             case 2:
+                            	printf("%u ",INIT_IN_TENSOR[i][k][l]);
                                 bitfild_init.bit_data.data_3 = INIT_IN_TENSOR[i][k][l];
+                                printf("%u \n",bitfild_init.bit_data.data_3);
                                 break;
                             case 3:
+                            	printf("%u ",INIT_IN_TENSOR[i][k][l]);
                                 bitfild_init.bit_data.data_2 = INIT_IN_TENSOR[i][k][l];
-                                printf("%d ",bitfild_init.axi_write_data);
-                                Xil_Out32((XPAR_MYIP_V1_0_0_BASEADDR) + ( (((l-2)/4)+1)*AXI_DATA_BYTE), bitfild_init.axi_write_data);
+                                printf("%u \n",bitfild_init.bit_data.data_2);
                                 break;
-                    };
+                    }
                 } else {
                     switch (l % 2){
                             case 0:
@@ -67,11 +76,12 @@ int main(void) {
                                 break;
                             case 1:
                             	bitfild_init.bit_data.data_0 = INIT_IN_TENSOR[i][k][l];
-                                Xil_Out32((XPAR_MYIP_V1_0_0_BASEADDR)+(0*AXI_DATA_BYTE), bitfild_init.axi_write_data);
+                            	//printf("%d ",bitfild_init.axi_write_data);
+                                //Xil_Out32((XPAR_MYIP_V1_0_0_BASEADDR)+(0*AXI_DATA_BYTE), bitfild_init.axi_write_data);
                                 break;
                     }
                 }
-               */
+
             }
             //printf("\n");
         }
@@ -144,7 +154,7 @@ int main(void) {
 
 
     // padding
-    unsigned int IN_TENSOR[IC][IN_X+2][IN_Y+2];
+    uint8_t IN_TENSOR[IC][IN_X+2][IN_Y+2];
     for(int i = 0; i < IC ; i++) {
         for(int k = 0; k < IN_X+2; k++){
             if(k != 0 && k != IN_X+1) {
@@ -166,6 +176,9 @@ int main(void) {
         }
         printf("\n\n");
     }
+    printf("%d",IN_TENSOR[3][2][2]);
+
+
     /*
     for(int i = 0; i < IC ; i++) {
         for(int k = 0; k < IN_X+2; k++){
@@ -217,8 +230,9 @@ int main(void) {
     */
 
 
+
     //// im2col transform + extension ////
-    unsigned int OUT_MATRIX[OUT_X][OUT_Y];
+    uint8_t OUT_MATRIX[OUT_X][OUT_Y] = {0,};
     unsigned int in_channel;
     unsigned int row;
     unsigned int col;
@@ -229,29 +243,30 @@ int main(void) {
                     row = (i / 14) + (k / K) % K; // change 14 to variable = striding num
                     col = (k % K) + (i % 14);
                     OUT_MATRIX[k][i] = IN_TENSOR[in_channel][row][col];
-                    //if(i < 20)
-                        //printf("[%d %d %d] ",in_channel, row, col);
+
+                    //printf("[%d %d %d] : %d \n",in_channel, row, col, OUT_MATRIX[k][i]);
                 } else {
                     OUT_MATRIX[k][i] = 0;
                 }
-         };
+         }
          //printf("\n\n");
      }
 
-     /*
-     for(int i = 0; i < 9; i++){
+
+
+     for(int i = 0; i < OUT_X; i++){
          for(int k = 0; k < OUT_Y; k++){
-            printf("%-3d ",OUT_MATRIX[i][k]);
-         };
+            printf("%d ",OUT_MATRIX[i][k]);
+         }
          printf("\n\n");
          if(i!=0 && i%9 == 8)
              printf("\n");
-     };
-     */
+     }
+
 
 
     //// AXI_WRITE ////
-
+     
     Flags bitfild_write;
     uint8_t check_arr[3744][16];
     int out_col = OUT_Y / PE_SIZE;
@@ -262,7 +277,7 @@ int main(void) {
             for(int l = 0; l < PE_SIZE; l++){
                 for(int m = 0; m < PE_SIZE; m++){
                 	check_arr[i+k+l][m] = OUT_MATRIX[(k*PE_SIZE)+PE_SIZE-1-l][m+(PE_SIZE*i)];
-                    //printf("%d %d ",(k*PE_SIZE)+PE_SIZE-1-l,m+(PE_SIZE*i));
+                    printf("%d %d ",(k*PE_SIZE)+PE_SIZE-1-l,m+(PE_SIZE*i));
                     switch (m % 4){
                         case 0:
                         	bitfild_write.bit_data.data_3 = OUT_MATRIX[(k*PE_SIZE)+PE_SIZE-1-l][m+(PE_SIZE*i)];
@@ -276,7 +291,7 @@ int main(void) {
                         case 3:
                         	bitfild_write.bit_data.data_0 = OUT_MATRIX[(k*PE_SIZE)+PE_SIZE-1-l][m+(PE_SIZE*i)];
                             //printf("%d ",bitfild);
-                            Xil_Out32((XPAR_MYIP_V1_0_0_BASEADDR) + ((m/4)*AXI_DATA_BYTE), bitfild_write.axi_write_data);
+                            //Xil_Out32((XPAR_MYIP_V1_0_0_BASEADDR) + ((m/4)*AXI_DATA_BYTE), bitfild_write.axi_write_data);
                         break;
                     };
                 };
