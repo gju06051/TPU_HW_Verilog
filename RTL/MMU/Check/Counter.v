@@ -6,23 +6,68 @@ module Counter #(
     // Port
     input   clk,
     input   rst_n,
-    input   en,
+    input   start_i,
     
-    output  finish_o
+    output  done_o
     );
     
     localparam COUNT_LG2 = $clog2(COUNT_NUM);
     
-    reg [COUNT_LG2-1:0] cnt_temp;
-    
+    localparam IDLE = 2'b00;
+    localparam RUN  = 2'b01;
+    localparam DONE = 2'b10;
+
+
+    // state register(seq)
+    reg [1:0] c_state, n_state;
     always @(posedge clk, negedge rst_n) begin
         if (!rst_n) begin
-            cnt_temp <= {(COUNT_LG2){1'b0}};
+            c_state <= IDLE;
         end else begin
-            if (en) begin
-                cnt_temp <= cnt_temp + 'd1;
-            end    
+            c_state <= n_state;
         end
     end
+    
+    // next state logic(comb)
+    always @(*) begin 
+        n_state = c_state
+        case (c_state)
+            IDLE    : begin
+                if (start_i) begin
+                    n_state <= RUN;
+                end
+            end
+            RUN     : begin
+                if (cnt_num==COUNT_NUM) begin
+                    n_state <= DONE;
+                end
+            end
+            DONE    : begin
+                n_state <= IDLE;
+            end
+            default : begin
+                n_state <= IDLE;
+            end
+        endcase
+    end
+    
+    
+    // Counter logic
+    reg [COUNT_LG2-1:0] cnt_num;
+    always @(posedge clk, negedge rst_n) begin
+        if (!rst_n) begin
+            cnt_num <= {(COUNT_LG2){1'b0}};
+        end else begin
+            case (c_state)
+                IDLE    : cnt_num <= {(COUNT_LG2){1'b0}};
+                RUN     : cnt_num <= cnt_num + 'd1;
+                DONE    : cnt_num <= {(COUNT_LG2){1'b0}};
+                default : cnt_num <= {(COUNT_LG2){1'b0}};
+            endcase
+        end
+    end
+    
+    // Output logic
+    assign done_o = (c_state==DONE);
     
 endmodule
