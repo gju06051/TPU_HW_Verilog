@@ -4,7 +4,7 @@
 
 module SA_TB #(
     // parameter
-    parameter PE_SIZE       = 16,
+    parameter PE_SIZE       = 2,
     parameter DATA_WIDTH    = 8,
     parameter PSUM_WIDTH    = 32
     )
@@ -81,52 +81,86 @@ module SA_TB #(
     end
     
     
-    integer i;
+    integer cycle;
     
     // Stimulus
     initial begin
         
         // 1. Reset
-        rst_n = 1'b1;
         #(`DELTA)
         rst_n = 1'b0;
         @(posedge clk);
+        cycle = 0;
         #(`DELTA)
         rst_n = 1'b1;
     
     
         // 2. Ifmap preload
-        repeat (PE_SIZE) begin
-            @(posedge clk);
-            #(`DELTA)
-            for (i=0; i < PE_SIZE; i=i+1) begin
-                ifmap_en_row_i = {(PE_SIZE-1:0){1'b1}};
-                ifmap_row_i[DATA_WIDTH*(PE_SIZE-i)-1 : DATA_WIDTH*(PE_SIZE-i-1)] = i;
-            end
-        end
+        // 2-1) ifmap row1
+        @(posedge clk);
+        cycle = 1;
+        #(`DELTA)
+        ifmap_en_row_i = {(PE_SIZE-1:0){1'b1}};
+        ifmap_row_i = 'h0204;
+        
+        // 2-2) ifmap row2
+        @(posedge clk);
+        cycle = 2;
+        #(`DELTA)
+        ifmap_en_row_i = {(PE_SIZE-1:0){1'b1}};
+        ifmap_row_i = 'h0103;
         
         // 3. Ifmap preload stop(enable off)
         @(posedge clk);
+        cycle = 3;
         #(`DELTA)
-        ifmap_en_row_i = {(PE_SIZE-1:0){1'b1}};
-        
+        ifmap_en_row_i = {(PE_SIZE-1:0){1'b0}};
+        ifmap_row_i = 'h00_00;  // uncorrect val
         
         // 4. Weight load & psum_enable
-        repeat (PE_SIZE) begin
-            @(posedge clk);
-            #(`DELTA)
-            for (i=0; i < PE_SIZE; i=i+1) begin
-                weight_en_col_i = {(PE_SIZE-1:0){1'b1}};
-                weight_col_i[DATA_WIDTH*(PE_SIZE-i)-1 : DATA_WIDTH*(PE_SIZE-i-1)] = i;
-                psum_en_row_i = {(PE_SIZE-1:0){1'b1}};
-                psum_row_i[PSUM_WIDTH*(PE_SIZE-i)-1 : PSUM_WIDTH*(PE_SIZE-i-1)] = 'd0;
-            end
-        end
+        // 4-1. weight col1
+        @(posedge clk);
+        cycle = 4;
+        #(`DELTA)
+        weight_en_col_i = {(PE_SIZE-1:0){1'b1}};
+        weight_col_i = 'h01_00;
+        psum_en_row_i = {(PE_SIZE-1:0){1'b1}};
+        psum_row_i = 'h0000;
         
+        // 4-2. weight col2
+        @(posedge clk);
+        cycle = 5;
+        #(`DELTA)
+        weight_en_col_i = {(PE_SIZE-1:0){1'b1}};
+        weight_col_i = 'h02_03;
+        psum_en_row_i = {(PE_SIZE-1:0){1'b1}};
+        psum_row_i = 'h0000;
+        
+        
+        // 4-2. weight col3
+        @(posedge clk);
+        cycle = 6;
+        #(`DELTA)
+        weight_en_col_i = {(PE_SIZE-1:0){1'b1}};
+        weight_col_i = 'h00_04;
+        psum_en_row_i = {(PE_SIZE-1:0){1'b1}};
+        psum_row_i = 'h0000;
         
         // Weight, Psum load stop(enable off)
+        @(posedge clk);
+        cycle = 7;
+        #(`DELTA)
+        weight_en_col_i = {(PE_SIZE-1:0){1'b1}};
+        psum_en_row_i = {(PE_SIZE-1:0){1'b1}};
+        weight_col_i = 'h00_00; // uncorrect val
+        psum_col_i = 'h01_01;   // uncorrect val
+        
         
         // Waiting Activation
+        @(posedge clk);
+        cycle = 8;
+        #(`DELATA)
+        
         
         // END
     end

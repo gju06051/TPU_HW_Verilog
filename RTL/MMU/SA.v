@@ -1,6 +1,6 @@
 module SA #(
     // parameter
-    parameter PE_SIZE       = 16,
+    parameter PE_SIZE       = 2,
     parameter DATA_WIDTH    = 8,
     parameter PSUM_WIDTH    = 32
     )
