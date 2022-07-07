@@ -35,12 +35,13 @@ module PE_TB #(
     wire                      ifmap_en_o;
     wire                      psum_en_o; 
 
+
+    // DUT INST
     PE #(
         // Parameter
         .DATA_WIDTH(DATA_WIDTH), 
         .PSUM_WIDTH(PSUM_WIDTH) 
-    ) PE_DUT
-    (
+    ) PE_DUT (
         // Special Input
         .clk(clk),
         .rst_n(rst_n),
