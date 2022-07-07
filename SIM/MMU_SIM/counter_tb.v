@@ -42,48 +42,50 @@ module Counter_TB #(
         start_i = 'b0;
     end
 
-    // Stimulus
-    // 1. Reset
-    rst_n = 'b1;
-    @(posedge clk);
-    #(`DELTA)
-    rst_n = 'b0;
-    
-    // 2. Start in
-    
-    // test1.
-    @(posedge clk);
-    #(`DELTA)
-    start_i = 1'b1;
-    
-    repeat (COUNT_NUM) begin
+    initial begin
+        // Stimulus
+        // 1. Reset
+        #(`DELTA)
+        rst_n = 'b1;
         @(posedge clk);
         #(`DELTA)
-        start_i = 1'b0;
-    end
-    
-    repeat (3) begin
+        rst_n = 'b0;
+        
+        // 2. Start in
+        
+        // test1.
         @(posedge clk);
         #(`DELTA)
-        start_i = 1'b0;
-    end
-    
-    // test2.
-    @(posedge clk);
-    #(`DELTA)
-    start_i = 1'b1;
-    
-    repeat (COUNT_NUM) begin
+        start_i = 1'b1;
+        
+        repeat (COUNT_NUM) begin
+            @(posedge clk);
+            #(`DELTA)
+            start_i = 1'b0;
+        end
+        
+        repeat (3) begin
+            @(posedge clk);
+            #(`DELTA)
+            start_i = 1'b0;
+        end
+        
+        // test2.
         @(posedge clk);
         #(`DELTA)
-        start_i = 1'b0;
+        start_i = 1'b1;
+        
+        repeat (COUNT_NUM) begin
+            @(posedge clk);
+            #(`DELTA)
+            start_i = 1'b0;
+        end
+        
+        repeat (3) begin
+            @(posedge clk);
+            #(`DELTA)
+            start_i = 1'b0;
+        end
     end
-    
-    repeat (3) begin
-        @(posedge clk);
-        #(`DELTA)
-        start_i = 1'b0;
-    end
-    
     
 endmodule
