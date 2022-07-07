@@ -157,12 +157,13 @@ module SA_TB #(
         
         
         // Waiting Activation
-        @(posedge clk);
-        cycle = 8;
-        #(`DELATA)
+        repeat (3) begin
+            @(posedge clk);
+            cycle = cycle + 1;
+            #(`DELATA)
+        end
         
         
-        // END
     end
     
 endmodule
