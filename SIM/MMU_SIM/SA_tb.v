@@ -100,21 +100,21 @@ module SA_TB #(
         @(posedge clk);
         cycle = 1;
         #(`DELTA)
-        ifmap_en_row_i = {(PE_SIZE-1:0){1'b1}};
+        ifmap_en_row_i = {(PE_SIZE-1){1'b1}};
         ifmap_row_i = 'h0204;
         
         // 2-2) ifmap row2
         @(posedge clk);
         cycle = 2;
         #(`DELTA)
-        ifmap_en_row_i = {(PE_SIZE-1:0){1'b1}};
+        ifmap_en_row_i = {(PE_SIZE-1){1'b1}};
         ifmap_row_i = 'h0103;
         
         // 3. Ifmap preload stop(enable off)
         @(posedge clk);
         cycle = 3;
         #(`DELTA)
-        ifmap_en_row_i = {(PE_SIZE-1:0){1'b0}};
+        ifmap_en_row_i = {(PE_SIZE-1){1'b0}};
         ifmap_row_i = 'h00_00;  // uncorrect val
         
         // 4. Weight load & psum_enable
@@ -122,18 +122,18 @@ module SA_TB #(
         @(posedge clk);
         cycle = 4;
         #(`DELTA)
-        weight_en_col_i = {(PE_SIZE-1:0){1'b1}};
+        weight_en_col_i = {(PE_SIZE-1){1'b1}};
         weight_col_i = 'h01_00;
-        psum_en_row_i = {(PE_SIZE-1:0){1'b1}};
+        psum_en_row_i = {(PE_SIZE-1){1'b1}};
         psum_row_i = 'h0000;
         
         // 4-2. weight col2
         @(posedge clk);
         cycle = 5;
         #(`DELTA)
-        weight_en_col_i = {(PE_SIZE-1:0){1'b1}};
+        weight_en_col_i = {(PE_SIZE-1){1'b1}};
         weight_col_i = 'h02_03;
-        psum_en_row_i = {(PE_SIZE-1:0){1'b1}};
+        psum_en_row_i = {(PE_SIZE-1){1'b1}};
         psum_row_i = 'h0000;
         
         
@@ -141,17 +141,17 @@ module SA_TB #(
         @(posedge clk);
         cycle = 6;
         #(`DELTA)
-        weight_en_col_i = {(PE_SIZE-1:0){1'b1}};
+        weight_en_col_i = {(PE_SIZE-1){1'b1}};
         weight_col_i = 'h00_04;
-        psum_en_row_i = {(PE_SIZE-1:0){1'b1}};
+        psum_en_row_i = {(PE_SIZE-1){1'b1}};
         psum_row_i = 'h0000;
         
         // Weight, Psum load stop(enable off)
         @(posedge clk);
         cycle = 7;
         #(`DELTA)
-        weight_en_col_i = {(PE_SIZE-1:0){1'b1}};
-        psum_en_row_i = {(PE_SIZE-1:0){1'b1}};
+        weight_en_col_i = {(PE_SIZE-1){1'b0}};
+        psum_en_row_i = {(PE_SIZE-1){1'b0}};
         weight_col_i = 'h00_00; // uncorrect val
         psum_col_i = 'h01_01;   // uncorrect val
         
@@ -160,7 +160,10 @@ module SA_TB #(
         repeat (3) begin
             @(posedge clk);
             cycle = cycle + 1;
-            #(`DELATA)
+            #(`DELTA)
+            ifmap_en_row_i = {(PE_SIZE-1){1'b0}};
+            weight_en_col_i = {(PE_SIZE-1){1'b0}};
+            psum_en_row_i = {(PE_SIZE-1){1'b0}};
         end
         
         
