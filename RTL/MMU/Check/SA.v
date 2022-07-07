@@ -5,7 +5,7 @@ module SA #(
     parameter PSUM_WIDTH    = 32
     )
     (
-    // special input
+    // Special signal
     input clk,
     input rst_n,
 
@@ -15,18 +15,16 @@ module SA #(
     input   [PSUM_WIDTH*PE_SIZE-1:0]    psum_row_i,
     
     // input enable signal
-    input                               ifmap_load_start,
+    input                               ifmap_preload_i,
     input   [PE_SIZE-1:0]               weight_en_col_i,
     input   [PE_SIZE-1:0]               psum_en_row_i,
-    
     
     // output primitivies 
     output  [DATA_WIDTH*PE_SIZE-1:0]    ifmap_row_o,
     output  [DATA_WIDTH*PE_SIZE-1:0]    weight_col_o,
     output  [PSUM_WIDTH*PE_SIZE-1:0]    psum_row_o,
     
-    // output enable signal
-    output  [PE_SIZE-1:0]               ifmap_en_row_o,      
+    // output enable signal   
     output  [PE_SIZE-1:0]               weight_en_col_o,      
     output  [PE_SIZE-1:0]               psum_en_row_o       
     );
@@ -45,7 +43,7 @@ module SA #(
     wire    [PE_SIZE-1:0]               psum_en_row_w       [0:PE_SIZE];
     
     
-    
+    // Input logic
     // assignment first side input 
     
     // primitives input assign
@@ -57,10 +55,40 @@ module SA #(
     assign weight_en_col_w[0] = weight_en_col_i;
     assign psum_en_row_w[0] = psum_en_row_i;
 
+    
+    
+    // Preload logic
+    wire preload_done_w;
+    // Preload count cycle
+    Counter #(
+        .COUNT_NUM ( PE_SIZE )
+    )u_Counter(
+        .clk     ( clk              ),
+        .rst_n   ( rst_n            ),
+        .start_i ( ifmap_preload_i  ),
+        .done_o  ( preload_done_w   )
+    );
 
-    // Preload_Counter
+
+    // Registering preload signal
+    reg preload;
+    always @(posedge clk, negedge rst_n) begin
+        if (!rst_n) begin
+            preload <= 1'b0;
+        end else if (ifmap_preload_i) begin
+            preload <= 1'b1;
+        end else if (preload_done_w) begin
+            preload <= 1'b0;
+        end
+    end 
+
+    // assignment of ifmap_enable siganl
+    // (preload start signal) OR (registerd preload signal)
+    assign ifmap_en_w = (ifmap_preload_i | preload);
 
 
+
+    // Systolic Array MAC body logic
     // PE inst(j : col_num, k : row_num)
     // ex. psum, j=1, k=1 this signal is 
     genvar j, k;
@@ -96,6 +124,7 @@ module SA #(
 
 
 
+    // Output logic
     // assignment last side output
     
     // primitives output assign

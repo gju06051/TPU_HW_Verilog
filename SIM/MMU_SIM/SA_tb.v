@@ -9,56 +9,61 @@ module SA_TB #(
     parameter PSUM_WIDTH    = 32
     )
     (
-    // no inout
-    // this is testbench
-    );
-    
     // special input
     reg clk;
     reg rst_n;
 
     // input primitivies
-    reg     [DATA_WIDTH*PE_SIZE-1:0]    weight_col_i;
-    reg     [DATA_WIDTH*PE_SIZE-1:0]    ifmap_row_i;
-    reg     [PSUM_WIDTH*PE_SIZE-1:0]    psum_row_i;
+    reg     [DATA_WIDTH*PE_SIZE-1:0]    ifmap_row_i,
+    reg     [DATA_WIDTH*PE_SIZE-1:0]    weight_col_i,
+    reg     [PSUM_WIDTH*PE_SIZE-1:0]    psum_row_i,
     
     // input enable signal
-    reg     [PE_SIZE-1:0]               weight_en_col_i;
-    reg     [PE_SIZE-1:0]               ifmap_en_row_i;
-    reg     [PE_SIZE-1:0]               psum_en_row_i;
+    reg                               ifmap_preload_i,
+    reg   [PE_SIZE-1:0]               weight_en_col_i,
+    reg   [PE_SIZE-1:0]               psum_en_row_i,
+    
     
     // output primitivies 
-    wire    [DATA_WIDTH*PE_SIZE-1:0]    weight_col_o;
-    wire    [DATA_WIDTH*PE_SIZE-1:0]    ifmap_row_o;
-    wire    [PSUM_WIDTH*PE_SIZE-1:0]    psum_row_o;
+    reg  [DATA_WIDTH*PE_SIZE-1:0]    ifmap_row_o,
+    reg  [DATA_WIDTH*PE_SIZE-1:0]    weight_col_o,
+    reg  [PSUM_WIDTH*PE_SIZE-1:0]    psum_row_o,
     
-    // output enable signal
-    wire    [PE_SIZE-1:0]               weight_en_col_o;      
-    wire    [PE_SIZE-1:0]               ifmap_en_row_o;      
-    wire    [PE_SIZE-1:0]               psum_en_row_o;      
+    // output enable signal     
+    reg  [PE_SIZE-1:0]               weight_en_col_o,      
+    reg  [PE_SIZE-1:0]               psum_en_row_o       
+    );
+    
+    
 
-
-    // DUT INST
     SA #(
-        .PE_SIZE         ( PE_SIZE ),
-        .DATA_WIDTH      ( DATA_WIDTH),
-        .PSUM_WIDTH      ( PSUM_WIDTH )
-    ) SA_DUT (
+        .PE_SIZE         ( PE_SIZE      ),
+        .DATA_WIDTH      ( DATA_WIDTH   ),
+        .PSUM_WIDTH      ( PSUM_WIDTH   )
+    )u_SA(
+        // Special signal
         .clk             ( clk             ),
         .rst_n           ( rst_n           ),
-        .weight_col_i    ( weight_col_i    ),
+        // input primitivies
         .ifmap_row_i     ( ifmap_row_i     ),
+        .weight_col_i    ( weight_col_i    ),
         .psum_row_i      ( psum_row_i      ),
+        // input enable signal
+        .ifmap_preload_i ( ifmap_preload_i ),
         .weight_en_col_i ( weight_en_col_i ),
-        .ifmap_en_row_i  ( ifmap_en_row_i  ),
         .psum_en_row_i   ( psum_en_row_i   ),
-        .weight_col_o    ( weight_col_o    ),
+        // output primitives
         .ifmap_row_o     ( ifmap_row_o     ),
+        .weight_col_o    ( weight_col_o    ),
         .psum_row_o      ( psum_row_o      ),
+        // output enable siganl
         .weight_en_col_o ( weight_en_col_o ),
-        .ifmap_en_row_o  ( ifmap_en_row_o  ),
         .psum_en_row_o   ( psum_en_row_o   )
     );
+    
+    
+
+    
 
     // Clock Signal
     initial begin
@@ -70,14 +75,14 @@ module SA_TB #(
     
     // Initialization
     initial begin
-        clk             = 1'b0;
-        rst_n           = 1'b1;
-        weight_col_i    = {(DATA_WIDTH*PE_SIZE){1'b0}}; 
-        ifmap_row_i     = {(DATA_WIDTH*PE_SIZE){1'b0}}; 
-        psum_row_i      = {(PSUM_WIDTH*PE_SIZE){1'b0}}; 
-        weight_en_col_i = {(PE_SIZE){1'b0}};
-        ifmap_en_row_i  = {(PE_SIZE){1'b0}};
-        psum_en_row_i   = {(PE_SIZE){1'b0}};
+        clk                 = 1'b0;
+        rst_n               = 1'b1;
+        weight_col_i        = {(DATA_WIDTH*PE_SIZE){1'b0}}; 
+        ifmap_row_i         = {(DATA_WIDTH*PE_SIZE){1'b0}}; 
+        psum_row_i          = {(PSUM_WIDTH*PE_SIZE){1'b0}}; 
+        ifmap_preload_i     = 1'b0;
+        weight_en_col_i     = {(PE_SIZE){1'b0}};
+        psum_en_row_i       = {(PE_SIZE){1'b0}};
     end
     
     
@@ -100,21 +105,20 @@ module SA_TB #(
         @(posedge clk);
         cycle = 1;
         #(`DELTA)
-        ifmap_en_row_i = {(PE_SIZE){1'b1}};
+        ifmap_preload_i = 1'b1;
         ifmap_row_i = 'h0204;
         
         // 2-2) ifmap row2
         @(posedge clk);
         cycle = 2;
         #(`DELTA)
-        ifmap_en_row_i = {(PE_SIZE){1'b0}};
+        ifmap_preload_i = 1'b0;
         ifmap_row_i = 'h0103;
         
         // 3. Ifmap preload stop(enable off)
         @(posedge clk);
         cycle = 3;
         #(`DELTA)
-        ifmap_en_row_i = {(PE_SIZE){1'b0}};
         ifmap_row_i = 'h00_00;  // uncorrect val
         
         // sleep sa weight & psum 
@@ -169,7 +173,6 @@ module SA_TB #(
             @(posedge clk);
             cycle = cycle + 1;
             #(`DELTA)
-            ifmap_en_row_i = {(PE_SIZE){1'b0}};
             weight_en_col_i = {(PE_SIZE){1'b0}};
             psum_en_row_i = {(PE_SIZE){1'b0}};
         end
