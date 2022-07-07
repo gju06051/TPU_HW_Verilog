@@ -47,9 +47,6 @@ module Counter_TB #(
         // 1. Reset
         #(`DELTA)
         rst_n = 'b1;
-        @(posedge clk);
-        #(`DELTA)
-        rst_n = 'b0;
         
         // 2. Start in
         
