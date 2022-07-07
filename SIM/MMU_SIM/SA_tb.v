@@ -72,12 +72,12 @@ module SA_TB #(
     initial begin
         clk             = 1'b0;
         rst_n           = 1'b1;
-        weight_col_i    = {(DATA_WIDTH*PE_SIZE-1){1'b0}}; 
-        ifmap_row_i     = {(DATA_WIDTH*PE_SIZE-1){1'b0}}; 
-        psum_row_i      = {(PSUM_WIDTH*PE_SIZE-1){1'b0}}; 
-        weight_en_col_i = {(PE_SIZE-1){1'b0}};
-        ifmap_en_row_i  = {(PE_SIZE-1){1'b0}};
-        psum_en_row_i   = {(PE_SIZE-1){1'b0}};
+        weight_col_i    = {(DATA_WIDTH*PE_SIZE){1'b0}}; 
+        ifmap_row_i     = {(DATA_WIDTH*PE_SIZE){1'b0}}; 
+        psum_row_i      = {(PSUM_WIDTH*PE_SIZE){1'b0}}; 
+        weight_en_col_i = {(PE_SIZE){1'b0}};
+        ifmap_en_row_i  = {(PE_SIZE){1'b0}};
+        psum_en_row_i   = {(PE_SIZE){1'b0}};
     end
     
     
