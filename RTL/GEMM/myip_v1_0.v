@@ -5,7 +5,7 @@
 	(
 		// Users to add parameters here
 		parameter integer MEM0_DEPTH = 3744,
-		parameter integer MEM0_ADDR_WIDTH = 7,
+		parameter integer MEM0_ADDR_WIDTH = 12,
 		parameter integer MEM0_DATA_WIDTH = 128,
 		// User parameters ends
 		// Do not modify the parameters beyond this line
