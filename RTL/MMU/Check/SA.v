@@ -56,7 +56,6 @@ module SA #(
     assign psum_en_row_w[0] = psum_en_row_i;
 
     
-    
     // Preload logic
     wire preload_done_w;
     // Preload count cycle
@@ -71,21 +70,20 @@ module SA #(
 
 
     // Registering preload signal
-    reg preload;
+    reg preload_r;
     always @(posedge clk, negedge rst_n) begin
         if (!rst_n) begin
-            preload <= 1'b0;
+            preload_r <= 1'b0;
         end else if (ifmap_preload_i) begin
-            preload <= 1'b1;
+            preload_r <= 1'b1;
         end else if (preload_done_w) begin
-            preload <= 1'b0;
+            preload_r <= 1'b0;
         end
     end 
 
     // assignment of ifmap_enable siganl
     // (preload start signal) OR (registerd preload signal)
-    assign ifmap_en_w = (ifmap_preload_i | preload);
-
+    assign ifmap_en_w = (!preload_done_w) & (ifmap_preload_i | preload_r);
 
 
     // Systolic Array MAC body logic
