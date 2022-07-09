@@ -9,18 +9,18 @@ module PE #(
     input   rst_n,
     
     // Primitives(input)
-    input   [DATA_WIDTH-1:0]        weight_i,
     input   [DATA_WIDTH-1:0]        ifmap_i,
+    input   [DATA_WIDTH-1:0]        weight_i,
     input   [PSUM_WIDTH-1:0]        psum_i,
     
     // Register enable signal(output)
-    input                           weight_en_i,
     input                           ifmap_en_i,
+    input                           weight_en_i,
     input                           psum_en_i,
     
     // Primitives(input)
-    output  [DATA_WIDTH-1:0]        weight_o,
     output  [DATA_WIDTH-1:0]        ifmap_o,
+    output  [DATA_WIDTH-1:0]        weight_o,
     output  [PSUM_WIDTH-1:0]        psum_o,
 
     // Register enable signal(output)
@@ -28,18 +28,23 @@ module PE #(
     output                          psum_en_o
     );
     
-    // temp signal 
-    reg     [DATA_WIDTH-1:0]        weight_r;
+    
+    // Register declaration 
+    
+    // Primitives 
     reg     [DATA_WIDTH-1:0]        ifmap_r;
+    reg     [DATA_WIDTH-1:0]        weight_r;
     reg     [PSUM_WIDTH-1:0]        psum_r;
     
-    reg     [(DATA_WIDTH*2)-1:0]    product_r;  
+    // Multiply out buf
+    reg     [(DATA_WIDTH*2)-1:0]    product_r;      // buffering multiply out(prevent timing issue)  
     
+    // Enable signal
     reg                             weight_en_r;
     reg                             psum_en_r;
     
 
-    // forwarding control signal(sync with primitives)
+    // Forwarding control signal(sync with primitives)
     always @(posedge clk, negedge rst_n) begin
         if (!rst_n) begin
             weight_en_r <= 1'b0;
@@ -50,16 +55,6 @@ module PE #(
         end
     end
 
-    // Registering weight
-    always @(posedge clk, negedge rst_n) begin
-        if (!rst_n) begin
-            weight_r <= {(DATA_WIDTH){1'b0}};
-        end 
-        else if (weight_en_i) begin
-            weight_r <= weight_i;
-        end
-    end
-    
     // Registering ifmap
     always @(posedge clk, negedge rst_n) begin
         if (!rst_n) begin
@@ -67,6 +62,16 @@ module PE #(
         end
         else if (ifmap_en_i) begin
             ifmap_r <= ifmap_i;
+        end
+    end
+    
+    // Registering weight
+    always @(posedge clk, negedge rst_n) begin
+        if (!rst_n) begin
+            weight_r <= {(DATA_WIDTH){1'b0}};
+        end 
+        else if (weight_en_i) begin
+            weight_r <= weight_i;
         end
     end
     
@@ -89,12 +94,13 @@ module PE #(
         end
     end
     
+    
     // Accumulation(using dedicatied logic)
     assign psum_o = product_r + psum_r;
 
     // Assignment output(primitives forwarding)
-    assign weight_o = weight_r;
     assign ifmap_o  = ifmap_r;
+    assign weight_o = weight_r;
     
     // Assignment output(control forwarding)
     assign weight_en_o  = weight_en_r;

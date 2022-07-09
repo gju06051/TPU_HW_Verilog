@@ -16,23 +16,22 @@ module PE_TB #(
     reg   rst_n;
     
     // Primitives(input)
-    reg   [DATA_WIDTH-1:0]    weight_i;
     reg   [DATA_WIDTH-1:0]    ifmap_i;
+    reg   [DATA_WIDTH-1:0]    weight_i;
     reg   [PSUM_WIDTH-1:0]    psum_i;
     
     // Register enable signal(output)
-    reg                       weight_en_i;
     reg                       ifmap_en_i;
+    reg                       weight_en_i;
     reg                       psum_en_i;
     
     // Primitives(input)
-    wire  [DATA_WIDTH-1:0]    weight_o;
     wire  [DATA_WIDTH-1:0]    ifmap_o;
+    wire  [DATA_WIDTH-1:0]    weight_o;
     wire  [PSUM_WIDTH-1:0]    psum_o;
 
     // Register enable signal(output)
     wire                      weight_en_o;
-    wire                      ifmap_en_o;
     wire                      psum_en_o; 
 
 
@@ -47,13 +46,13 @@ module PE_TB #(
         .rst_n(rst_n),
         
         // Primitives(input)
-        .weight_i(weight_i),
         .ifmap_i(ifmap_i),
+        .weight_i(weight_i),
         .psum_i(psum_i),
         
         // Register enable signal(output)
-        .weight_en_i(weight_en_i),
         .ifmap_en_i(ifmap_en_i),
+        .weight_en_i(weight_en_i),
         .psum_en_i(psum_en_i),
         
         // Primitives(input)
@@ -63,7 +62,6 @@ module PE_TB #(
     
         // Register enable signal(output)
         .weight_en_o(weight_en_o),
-        .ifmap_en_o(ifmap_en_o),
         .psum_en_o(psum_en_o)  
     );
     
