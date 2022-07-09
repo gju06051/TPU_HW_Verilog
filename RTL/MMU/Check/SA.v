@@ -1,6 +1,6 @@
 module SA #(
     // parameter
-    parameter PE_SIZE       = 2,
+    parameter PE_SIZE       = 4,
     parameter DATA_WIDTH    = 8,
     parameter PSUM_WIDTH    = 32
     )
@@ -47,13 +47,13 @@ module SA #(
     // assignment first side input 
     
     // primitives input assign
-    assign weight_col_w[0] = weight_col_i;
-    assign ifmap_row_w[0] = ifmap_row_i;
-    assign psum_row_w[0] = psum_row_i;
+    assign weight_col_w[0]      = weight_col_i;
+    assign ifmap_row_w[0]       = ifmap_row_i;
+    assign psum_row_w[0]        = psum_row_i;
     
     // enable siganl input assign
-    assign weight_en_col_w[0] = weight_en_col_i;
-    assign psum_en_row_w[0] = psum_en_row_i;
+    assign weight_en_col_w[0]   = weight_en_col_i;
+    assign psum_en_row_w[0]     = psum_en_row_i;
 
     
     // Preload logic

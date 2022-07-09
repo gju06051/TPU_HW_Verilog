@@ -1,6 +1,6 @@
 module Counter #(
     // Parameter
-    parameter COUNT_NUM = 2
+    parameter COUNT_NUM = 4
     )
     (
     // Port

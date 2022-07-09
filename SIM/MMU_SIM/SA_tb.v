@@ -4,7 +4,7 @@
 
 module SA_TB #(
     // parameter
-    parameter PE_SIZE       = 2,
+    parameter PE_SIZE       = 4,
     parameter DATA_WIDTH    = 8,
     parameter PSUM_WIDTH    = 32
     )
@@ -104,62 +104,106 @@ module SA_TB #(
     
     
         // 2. Ifmap preload
-        // 2-1) ifmap row1
+        // 2-1) ifmap row4
         @(posedge clk);
-        cycle = 1;
+        cycle = cycle + 1;
         #(`DELTA)
         ifmap_preload_i = 1'b1;
-        ifmap_row_i = 'h0204;
+        ifmap_row_i = 'h04_04_04_04;
         
-        // 2-2) ifmap row2
+        // 2-2) ifmap row3
         @(posedge clk);
-        cycle = 2;
+        cycle = cycle + 1;
         #(`DELTA)
         ifmap_preload_i = 1'b0;
-        ifmap_row_i = 'h0103;
+        ifmap_row_i = 'h03_03_03_03;
         
-        // 3. Ifmap preload stop(enable off)
+        // 2-3) ifmap row2
         @(posedge clk);
-        cycle = 3;
+        cycle = cycle + 1;
         #(`DELTA)
-        ifmap_row_i = 'h00_00;  // uncorrect val
+        ifmap_preload_i = 1'b0;
+        ifmap_row_i = 'h02_02_02_02;
         
-        // sleep sa weight & psum 
+        // 2-4) ifmap row1
+        @(posedge clk);
+        cycle = cycle + 1;
+        #(`DELTA)
+        ifmap_preload_i = 1'b0;
+        ifmap_row_i = 'h01_01_01_01;
+        
+        // 3. check ifmap enable signal for give uncorrect number
+        // 3-1) give 1row
+        @(posedge clk);
+        cycle = cycle + 1;
+        #(`DELTA)
+        ifmap_row_i = 'h10_10_10_10;  // uncorrect val
+        
+        
+        // 3-2) sleep sa weight & psum 
         repeat (3) begin
             @(posedge clk);
-            cycle = 3;
+            cycle = cycle + 1;
             #(`DELTA)
-            ifmap_row_i = 'h00_00;  // uncorrect val
+            ifmap_row_i = 'h00_00_00_00;  // uncorrect val
         end
         
+        
         // 4. Weight load & psum_enable
-        // 4-1. weight col1
+        // 4-1) weight col1
         @(posedge clk);
-        cycle = 4; 
+        cycle = cycle + 1;
         #(`DELTA)
-        weight_en_col_i = {(PE_SIZE){1'b1}};
-        weight_col_i = 'h01_00;
+        weight_en_col_i = 4'b1000;
+        weight_col_i = 'h01_00_00_00;
         psum_en_row_i = {(PE_SIZE){1'b1}};
-        psum_row_i = 'h0000000000000000;
-        
-        // 4-2. weight col2
-        @(posedge clk);
-        cycle = 5;
-        #(`DELTA)
-        weight_en_col_i = {(PE_SIZE){1'b1}};
-        weight_col_i = 'h02_03;
-        psum_en_row_i = {(PE_SIZE){1'b1}};
-        psum_row_i = 'h0000000000000000;
+        psum_row_i = 'h00000000_00000000_00000000_00000000;
         
         
-        // 4-2. weight col3
+        // 4. Weight load & psum_enable
+        // 4-2) weight col2
         @(posedge clk);
-        cycle = 6;
+        cycle = cycle + 1;
         #(`DELTA)
-        weight_en_col_i = {(PE_SIZE){1'b1}};
-        weight_col_i = 'h00_04;
+        weight_en_col_i = 4'b1100;
+        weight_col_i = 'h02_01_00_00;
         psum_en_row_i = {(PE_SIZE){1'b1}};
-        psum_row_i = 'h0000000000000000;
+        psum_row_i = 'h00000000_00000000_00000000_00000000;
+        
+        
+        // 4. Weight load & psum_enable
+        // 4-3) weight col3
+        @(posedge clk);
+        cycle = cycle + 1;
+        #(`DELTA)
+        weight_en_col_i = 4'b1110;
+        weight_col_i = 'h03_02_01_00;
+        psum_en_row_i = {(PE_SIZE){1'b1}};
+        psum_row_i = 'h00000000_00000000_00000000_00000000;
+        
+        
+        // 4. Weight load & psum_enable
+        // 4-4) weight col4
+        @(posedge clk);
+        cycle = cycle + 1;
+        #(`DELTA)
+        weight_en_col_i = 4'b1111;
+        weight_col_i = 'h04_03_02_01;
+        psum_en_row_i = {(PE_SIZE){1'b1}};
+        psum_row_i = 'h00000000_00000000_00000000_00000000;
+        
+        
+        // 4. Weight load & psum_enable
+        // 4-5. weight col5
+        @(posedge clk);
+        cycle = cycle + 1;
+        #(`DELTA)
+        weight_en_col_i = 4'b1000;
+        weight_col_i = 'h01_00_00_00;
+        psum_en_row_i = {(PE_SIZE){1'b1}};
+        psum_row_i = 'h00000000_00000000_00000000_00000000;
+        
+        
         
         // Weight, Psum load stop(enable off)
         @(posedge clk);
