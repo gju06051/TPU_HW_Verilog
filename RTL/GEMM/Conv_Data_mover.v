@@ -48,7 +48,7 @@
         end
 
         Counter #(
-            .COUNT_NUM(PE_SIZE-1)
+            .COUNT_NUM(PE_SIZE-3)
         ) Counter_for_mem0_wait (
             .clk(clk),
             .rst_n(rst_n),
