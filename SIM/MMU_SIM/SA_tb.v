@@ -102,7 +102,7 @@ module SA_TB #(
         #(`DELTA)
         rst_n = 1'b1;
     
-    
+
         // 2. Ifmap preload
         // 2-1) ifmap row4
         @(posedge clk);
@@ -132,13 +132,13 @@ module SA_TB #(
         ifmap_preload_i = 1'b0;
         ifmap_row_i = 'h01_01_01_01;
         
+        
         // 3. check ifmap enable signal for give uncorrect number
         // 3-1) give 1row
         @(posedge clk);
         cycle = cycle + 1;
         #(`DELTA)
         ifmap_row_i = 'h10_10_10_10;  // uncorrect val
-        
         
         // 3-2) sleep sa weight & psum 
         repeat (3) begin
@@ -159,7 +159,6 @@ module SA_TB #(
         psum_en_row_i = {(PE_SIZE){1'b1}};
         psum_row_i = 'h00000000_00000000_00000000_00000000;
         
-        
         // 4. Weight load & psum_enable
         // 4-2) weight col2
         @(posedge clk);
@@ -169,7 +168,6 @@ module SA_TB #(
         weight_col_i = 'h02_01_00_00;
         psum_en_row_i = {(PE_SIZE){1'b1}};
         psum_row_i = 'h00000000_00000000_00000000_00000000;
-        
         
         // 4. Weight load & psum_enable
         // 4-3) weight col3
@@ -181,7 +179,6 @@ module SA_TB #(
         psum_en_row_i = {(PE_SIZE){1'b1}};
         psum_row_i = 'h00000000_00000000_00000000_00000000;
         
-        
         // 4. Weight load & psum_enable
         // 4-4) weight col4
         @(posedge clk);
@@ -192,30 +189,58 @@ module SA_TB #(
         psum_en_row_i = {(PE_SIZE){1'b1}};
         psum_row_i = 'h00000000_00000000_00000000_00000000;
         
+        // 4. Weight load & psum_enable
+        // 4-5. weight col5
+        @(posedge clk);
+        cycle = cycle + 1;
+        #(`DELTA)
+        weight_en_col_i = 4'b0111;
+        weight_col_i = 'h00_04_03_02;
+        psum_en_row_i = {(PE_SIZE){1'b1}};
+        psum_row_i = 'h00000000_00000000_00000000_00000000;
+        
+        // 4. Weight load & psum_enable
+        // 4-6. weight col6
+        @(posedge clk);
+        cycle = cycle + 1;
+        #(`DELTA)
+        weight_en_col_i = 4'b0011;
+        weight_col_i = 'h00_00_04_03;
+        psum_en_row_i = {(PE_SIZE){1'b1}};
+        psum_row_i = 'h00000000_00000000_00000000_00000000;
+        
+        // 4. Weight load & psum_enable
+        // 4-5. weight col7
+        @(posedge clk);
+        cycle = cycle + 1;
+        #(`DELTA)
+        weight_en_col_i = 4'b0001;
+        weight_col_i = 'h00_00_00_04;
+        psum_en_row_i = {(PE_SIZE){1'b1}};
+        psum_row_i = 'h00000000_00000000_00000000_00000000;
         
         // 4. Weight load & psum_enable
         // 4-5. weight col5
         @(posedge clk);
         cycle = cycle + 1;
         #(`DELTA)
-        weight_en_col_i = 4'b1000;
-        weight_col_i = 'h01_00_00_00;
+        weight_en_col_i = 4'b0000;
+        weight_col_i = 'h00_00_00_00;
         psum_en_row_i = {(PE_SIZE){1'b1}};
         psum_row_i = 'h00000000_00000000_00000000_00000000;
         
         
-        
-        // Weight, Psum load stop(enable off)
+        // 5. Weight, Psum load stop(enable off)
         @(posedge clk);
-        cycle = 7;
+        cycle = cycle + 1;
         #(`DELTA)
-        weight_en_col_i = {(PE_SIZE){1'b1}};
-        weight_col_i = 'h00_00;
+        weight_en_col_i = 4'b0000;
+        weight_col_i = 'h00_00_00_00;
         psum_en_row_i = {(PE_SIZE){1'b1}};
-        psum_row_i = 'h0000000000000000;
+        psum_row_i = 'h00000000_00000000_00000000_00000000;
         
         
-        // Waiting Activation
+        // 6. Waiting Activation
         repeat (3) begin
             @(posedge clk);
             cycle = cycle + 1;
