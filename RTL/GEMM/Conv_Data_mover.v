@@ -13,20 +13,27 @@
         input rst_n,
         input en,
 
-        input  wire [MEM0_DATA_WIDTH-1:0] mem0_q0,
+        input  wire [MEM0_DATA_WIDTH-1:0] mem0_q0_i,
 		output wire	[MEM0_ADDR_WIDTH-1:0] mem0_addr0,
 		output wire	mem0_ce0,
 		output wire	mem0_we0,
 
-        input  wire [MEM1_DATA_WIDTH-1:0] mem1_q0,
+        input  wire [MEM1_DATA_WIDTH-1:0] mem1_q0_i,
 		output wire	[MEM1_ADDR_WIDTH-1:0] mem1_addr0,
 		output wire	mem1_ce0,
-		output wire	mem1_we0
+		output wire	mem1_we0,
+        output wire [MEM0_DATA_WIDTH-1:0] mem0_q0_o,
+        output wire [MEM0_DATA_WIDTH-1:0] mem1_q0_o,
+        output wire wren_o,
+        output wire mem0_q0_vaild
     );
         localparam MEM0_NUM_CNT_WIDTH   = $clog2(MEM0_DEPTH);
         localparam MEM1_NUM_CNT_WIDTH   = $clog2(MEM1_DEPTH);
         localparam MEM0_WAIT_WIDTH      = $clog2(PE_SIZE-1);
 
+        assign mem0_q0_o = mem0_q0_i;
+        assign mem1_q0_o = mem1_q0_i;
+        
         reg [MEM0_NUM_CNT_WIDTH-1:0]    mem0_num_cnt;
         reg [MEM1_NUM_CNT_WIDTH-1:0]    mem1_num_cnt;
         reg mem0_read_en;
@@ -153,5 +160,13 @@
         assign mem1_ce0     = mem1_read_en;
         assign mem0_we0     = 1'b0; // *only read operation
         assign mem1_we0     = 1'b0; // *only read operation
-    
+
+        reg reg_mem0_q0_vaild;
+        reg reg_wren_o;
+        always @(posedge clk) begin
+            reg_mem0_q0_vaild <= mem0_read_en;
+            reg_wren_o        <= mem1_read_en;
+        end
+        assign mem0_q0_vaild = reg_mem0_q0_vaild;
+        assign wren_o = reg_wren_o;
     endmodule

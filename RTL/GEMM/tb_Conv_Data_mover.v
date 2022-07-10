@@ -57,7 +57,8 @@ Conv_Data_mover # (
         .mem1_q0(),
 		.mem1_addr0(mem1_addr0),
 		.mem1_ce0(mem1_ce0),
-		.mem1_we0(mem1_we0)
+		.mem1_we0(mem1_we0),
+        .mem0_q0_vaild(mem0_q0_vaild)
     );
 
     true_dpbram #(
