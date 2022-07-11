@@ -1,3 +1,7 @@
+`timescale 1ps/1ps
+`define DELTA 3
+`define CLOCK_PERIOD 10
+
 module ACC_TB #(
     // Parameter
     parameter PE_SIZE       = 4,
