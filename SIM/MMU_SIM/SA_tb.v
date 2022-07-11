@@ -156,7 +156,7 @@ module SA_TB #(
         #(`DELTA)
         weight_en_col_i = 4'b1000;
         weight_col_i = 'h01_00_00_00;
-        psum_en_row_i = {(PE_SIZE){1'b1}};
+        psum_en_row_i =  4'b1000;
         psum_row_i = 'h00000000_00000000_00000000_00000000;
         
         // 4. Weight load & psum_enable
@@ -166,7 +166,7 @@ module SA_TB #(
         #(`DELTA)
         weight_en_col_i = 4'b1100;
         weight_col_i = 'h02_01_00_00;
-        psum_en_row_i = {(PE_SIZE){1'b1}};
+        psum_en_row_i = 4'b1100;
         psum_row_i = 'h00000000_00000000_00000000_00000000;
         
         // 4. Weight load & psum_enable
@@ -176,7 +176,7 @@ module SA_TB #(
         #(`DELTA)
         weight_en_col_i = 4'b1110;
         weight_col_i = 'h03_02_01_00;
-        psum_en_row_i = {(PE_SIZE){1'b1}};
+        psum_en_row_i = 4'b1110;
         psum_row_i = 'h00000000_00000000_00000000_00000000;
         
         // 4. Weight load & psum_enable
@@ -186,7 +186,7 @@ module SA_TB #(
         #(`DELTA)
         weight_en_col_i = 4'b1111;
         weight_col_i = 'h04_03_02_01;
-        psum_en_row_i = {(PE_SIZE){1'b1}};
+        psum_en_row_i = 4'b1111;
         psum_row_i = 'h00000000_00000000_00000000_00000000;
         
         // 4. Weight load & psum_enable
@@ -196,7 +196,7 @@ module SA_TB #(
         #(`DELTA)
         weight_en_col_i = 4'b0111;
         weight_col_i = 'h00_04_03_02;
-        psum_en_row_i = {(PE_SIZE){1'b1}};
+        psum_en_row_i = 4'b0111;
         psum_row_i = 'h00000000_00000000_00000000_00000000;
         
         // 4. Weight load & psum_enable
@@ -206,7 +206,7 @@ module SA_TB #(
         #(`DELTA)
         weight_en_col_i = 4'b0011;
         weight_col_i = 'h00_00_04_03;
-        psum_en_row_i = {(PE_SIZE){1'b1}};
+        psum_en_row_i = 4'b0011;
         psum_row_i = 'h00000000_00000000_00000000_00000000;
         
         // 4. Weight load & psum_enable
@@ -216,7 +216,7 @@ module SA_TB #(
         #(`DELTA)
         weight_en_col_i = 4'b0001;
         weight_col_i = 'h00_00_00_04;
-        psum_en_row_i = {(PE_SIZE){1'b1}};
+        psum_en_row_i = 4'b0001;
         psum_row_i = 'h00000000_00000000_00000000_00000000;
         
         // 4. Weight load & psum_enable
@@ -226,7 +226,7 @@ module SA_TB #(
         #(`DELTA)
         weight_en_col_i = 4'b0000;
         weight_col_i = 'h00_00_00_00;
-        psum_en_row_i = {(PE_SIZE){1'b1}};
+        psum_en_row_i = 4'b0000;
         psum_row_i = 'h00000000_00000000_00000000_00000000;
         
         
