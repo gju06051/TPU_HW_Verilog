@@ -22,7 +22,7 @@ module SA_TB #(
     reg     [PSUM_WIDTH*PE_SIZE-1:0]    psum_row_i;
     
     // input enable signal
-    reg                               ifmap_preload_i;
+    reg                                 ifmap_preload_i;
     reg     [PE_SIZE-1:0]               weight_en_col_i;
     reg     [PE_SIZE-1:0]               psum_en_row_i;
     
