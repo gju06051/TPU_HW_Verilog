@@ -87,36 +87,51 @@ module ACC_TB #(
         cycle = cycle + 1;
         #(`DELTA)
         psum_en_i = 4'b1111;
-        psum_row_i = 'h01_02_03_04;
+        psum_row_i = 'h00000001_00000002_00000003_00000004;
         
         // 2-2) psum row2
         @(posedge clk);
         cycle = cycle + 1;
         #(`DELTA)
         psum_en_i = 4'b1111;
-        psum_row_i = 'h02_03_04_05;
+        psum_row_i = 'h00000002_00000003_00000004_00000005;
         
         // 2-3) psum row3
         @(posedge clk);
         cycle = cycle + 1;
         #(`DELTA)
         psum_en_i = 4'b1111;
-        psum_row_i = 'h03_04_05_06;
+        psum_row_i = 'h00000003_00000004_00000005_00000006;
         
         // 2-4) psum row4
         @(posedge clk);
         cycle = cycle + 1;
         #(`DELTA)
         psum_en_i = 4'b1111;
-        psum_row_i = 'h04_05_06_07;
+        psum_row_i = 'h00000004_00000005_00000006_00000007;
         
         // 3. Accumulation
-        repeat (12) begin
+        repeat (3) begin
             @(posedge clk);
             cycle = cycle + 1;
             #(`DELTA)
             psum_en_i = 4'b1111;
-            psum_row_i = 'h01_01_01_01;
+            psum_row_i = 'h00000010_00000010_00000010_00000010;
+            @(posedge clk);
+            cycle = cycle + 1;
+            #(`DELTA)
+            psum_en_i = 4'b1111;
+            psum_row_i = 'h00000100_00000100_00000100_00000100;
+            @(posedge clk);
+            cycle = cycle + 1;
+            #(`DELTA)
+            psum_en_i = 4'b1111;
+            psum_row_i = 'h00001000_00001000_00001000_00001000;
+            @(posedge clk);
+            cycle = cycle + 1;
+            #(`DELTA)
+            psum_en_i = 4'b1111;
+            psum_row_i = 'h00010000_00010000_00010000_00010000;
         end
         
         // 4. Rden give for checking value
@@ -132,6 +147,8 @@ module ACC_TB #(
         repeat (4) begin
             @(posedge clk);
             psum_en_i = 4'b0000;
+            #(`DELTA)
+            rden_i = 4'b0000;
             cycle = cycle + 1;
         end
     

@@ -26,8 +26,17 @@ module ACC #(
     wire    [DATA_WIDTH-1:0]    feedback_w  [0:PE_SIZE-1];  // Zero or FIFO rdata
     
     // Wire port for control
+    reg     [PE_SIZE-1:0]       wren_r;                     // FIFO write enable signal
     wire    [PE_SIZE-1:0]       rden_w;                     // FIFO read enable signal
     wire    [PE_SIZE-1:0]       acc_en_w;                   // Accumulation enable signal(use for reset fifo rdata)
+    
+    always @(posedge clk, negedge rst_n) begin
+        if (!rst_n) begin
+            wren_r <= 1'b0;
+        end else begin
+            wren_r <= psum_en_i;
+        end
+    end
     
     
     // Data flow of accumulation FIFO
@@ -45,7 +54,7 @@ module ACC #(
             assign fifo_in_w[j] = feedback_w[j] + psum_w[j];
             
             // Read FIFO when accumulation or GLB read activation
-            assign rden_w[j] = (psum_en_i[j] & acc_en_w[j]) | rden_i[j];
+            assign rden_w[j] = (wren_r[j] & acc_en_w[j]) | rden_i[j];
         end
     endgenerate
     
@@ -63,11 +72,11 @@ module ACC #(
                 .clk        (clk),              // clock signal
                 .rst_n      (rst_n),            // negedge pointer reset signal(don't need to reset data in fifo)
                 // R/W input signal
-                .wren_i     (psum_en_i[i]),     // write enable signal
+                .wren_i     (wren_r[i]),     // write enable signal
                 .rden_i     (rden_w[i]),        // read denable signal
                 // F/E output signal
                 .full_o     (acc_en_w[i]),      // check fifo is full, if full the signal is high
-                .empty_o    (),       // chcek fifo is empty, if empty the signal is high
+                .empty_o    (),                 // chcek fifo is empty, if empty the signal is high
                 // In/Out data signal
                 .wdata_i    (fifo_in_w[i]),     // write data
                 .rdata_o    (fifo_out_w[i])     // read data
