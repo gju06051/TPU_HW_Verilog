@@ -137,6 +137,7 @@ module ACC_TB #(
         // 4. Rden give for checking value
         repeat (4) begin
             @(posedge clk);
+            #(`DELTA)
             psum_en_i = 4'b0000;
             cycle = cycle + 1;
             #(`DELTA)
