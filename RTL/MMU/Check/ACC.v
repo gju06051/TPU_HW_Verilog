@@ -1,8 +1,8 @@
 module ACC #(
     // Parameter
-    parameter PE_SIZE       = 16,
+    parameter PE_SIZE       = 4,
     parameter DATA_WIDTH    = 32,
-    parameter FIFO_DEPTH    = 64
+    parameter FIFO_DEPTH    = 4
     )
     (
     // Special input
