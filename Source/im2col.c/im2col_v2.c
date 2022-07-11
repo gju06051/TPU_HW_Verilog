@@ -18,85 +18,66 @@
 #define PE_SIZE 16
 #define padding 1
 
-typedef union  {
-		unsigned int axi_write_data;
-		struct {
-			uint8_t data_0;
-			uint8_t data_1;
-			uint8_t data_2;
-			uint8_t data_3;
-		} bit_data;
+typedef struct  {
+        unsigned int data_0 : DATA_WIDTH;
+        unsigned int data_1 : DATA_WIDTH;  
+        unsigned int data_2 : DATA_WIDTH;
+        unsigned int data_3 : DATA_WIDTH;
     } Flags;
 
 int main(void) {
 
     // AXI_WRITE for test
-	printf("start");
-
-    Flags bitfild_init;
-    //uint8_t INIT_IN_TENSOR[IC][IN_X][IN_Y];
-    uint8_t *** INIT_IN_TENSOR = (uint8_t***)malloc(sizeof(uint8_t**)*IC);
+    Flags bitfild_init[4];
+    int *** INIT_IN_TENSOR = (int***)malloc(sizeof(int**)*IC);
     for(int i = 0; i < IC ; i++) {
-        INIT_IN_TENSOR[i] = (uint8_t**)malloc(sizeof(uint8_t*)*IN_X);
+        INIT_IN_TENSOR[i] = (int**)malloc(sizeof(int*)*IN_X);
         for(int k = 0; k < IN_X; k++){
-            INIT_IN_TENSOR[i][k] = (uint8_t*)malloc(sizeof(uint8_t)*IN_Y);
+            INIT_IN_TENSOR[i][k] = (int*)malloc(sizeof(int)*IN_Y);
         }
     }
-
-
-
-
+    
     for(int i = 0; i < IC ; i++) {
         for(int k = 0; k < IN_X; k++){
             for(int l = 0; l <IN_Y; l++){
                 INIT_IN_TENSOR[i][k][l] = (l+1)+(k*IN_X)+i;
-                //printf("%2d \n",(l+1)+(k*IN_X)+i);
-
+                printf("%2d ",INIT_IN_TENSOR[i][k][l]);
+                /*
                 if(l != 0 && l != 1){
-                	//printf("index : %d mod : %d  data : %d ",l,(l%4),INIT_IN_TENSOR[i][k][l]);
                     switch (l % 4){
                             case 0:
-                            	printf("%u ",INIT_IN_TENSOR[i][k][l]);
-                                bitfild_init.bit_data.data_1 = INIT_IN_TENSOR[i][k][l];
-                                printf("%u \n",bitfild_init.bit_data.data_1);
+                                bitfild_init[((l-2)/4)+1].data_1 =IN_TENSOR[i][k][l];
                                 break;
                             case 1:
-                            	printf("%u ",INIT_IN_TENSOR[i][k][l]);
-                                bitfild_init.bit_data.data_0 = INIT_IN_TENSOR[i][k][l];
-                                printf("%u \n",bitfild_init.bit_data.data_0);
-                                printf("result %d \n\n",bitfild_init.axi_write_data);
-                                //Xil_Out32((XPAR_MYIP_V1_0_0_BASEADDR) + ( (((l-2)/4)+1)*AXI_DATA_BYTE), bitfild_init.axi_write_data);
+                                bitfild_init[((l-2)/4)+1].data_0 =IN_TENSOR[i][k][l];
                                 break;
                             case 2:
-                            	printf("%u ",INIT_IN_TENSOR[i][k][l]);
-                                bitfild_init.bit_data.data_3 = INIT_IN_TENSOR[i][k][l];
-                                printf("%u \n",bitfild_init.bit_data.data_3);
+                                bitfild_init[((l-2)/4)+1].data_3 =IN_TENSOR[i][k][l];
                                 break;
                             case 3:
-                            	printf("%u ",INIT_IN_TENSOR[i][k][l]);
-                                bitfild_init.bit_data.data_2 = INIT_IN_TENSOR[i][k][l];
-                                printf("%u \n",bitfild_init.bit_data.data_2);
+                                bitfild_init[((l-2)/4)+1].data_2 =IN_TENSOR[i][k][l];
+                                //printf("%d ",bitfild);
+                                Xil_Out32((XPAR_LAB13_MATBI_0_BASEADDR) + ((MEM0_DATA_REG+m*4)*AXI_DATA_BYTE), bitfild_init[((l-2)/4)+1]);
                                 break;
-                    }
+                    };
                 } else {
                     switch (l % 2){
                             case 0:
-                            	bitfild_init.bit_data.data_3 = 0;
-                            	bitfild_init.bit_data.data_2 = 0;
-                            	bitfild_init.bit_data.data_1 = INIT_IN_TENSOR[i][k][l];
+                                bitfild_init[0].data_3 = 0;
+                                bitfild_init[0].data_2 = 0;
+                                bitfild_init[0].data_1 = IN_TENSOR[i][k][l];
                                 break;
                             case 1:
-                            	bitfild_init.bit_data.data_0 = INIT_IN_TENSOR[i][k][l];
-                            	//printf("%d ",bitfild_init.axi_write_data);
-                                //Xil_Out32((XPAR_MYIP_V1_0_0_BASEADDR)+(0*AXI_DATA_BYTE), bitfild_init.axi_write_data);
+                                bitfild_init[0].data_0 = IN_TENSOR[i][k][l];
+                                Xil_Out32((XPAR_LAB13_MATBI_0_BASEADDR) + ((MEM0_DATA_REG+m*4)*AXI_DATA_BYTE), bitfild_init[0]);
                                 break;
                     }
                 }
-
+                */
             }
-            //printf("\n");
+            printf("\n");
         }
-        //printf("\n\n");
+        printf("\n\n");
     }
 
 
@@ -113,7 +94,7 @@ int main(void) {
     */
 
     //// AXI_READ ////
-    //Flags bitfild[4];
+    Flags bitfild[4];
 
     /* no padding
     Flags bitfild[4];
@@ -157,23 +138,21 @@ int main(void) {
             } else {
               for(int l = 0 ; l < IN_Y; l++) {
                 IN_TENSOR[i][k][l] = 0;
-              }
+              }      
             }
         };
     };
     */
 
-
     // padding
-    //uint8_t IN_TENSOR[IC][IN_X+2][IN_Y+2];
-    uint8_t *** IN_TENSOR = (uint8_t***)malloc(sizeof(uint8_t**)*IC);
+    //unsigned int IN_TENSOR[IC][IN_X+2][IN_Y+2];
+    int *** IN_TENSOR = (int***)malloc(sizeof(int**)*IC);
     for(int i = 0; i < IC ; i++) {
-        IN_TENSOR[i] = (uint8_t**)malloc(sizeof(uint8_t*)*(IN_X+2));
+        IN_TENSOR[i] = (int**)malloc(sizeof(int*)*(IN_X+2));
         for(int k = 0; k < (IN_X+2); k++){
-            IN_TENSOR[i][k] = (uint8_t*)malloc(sizeof(uint8_t)*(IN_Y+2));
+            IN_TENSOR[i][k] = (int*)malloc(sizeof(int)*(IN_Y+2));
         }
     }
-
     for(int i = 0; i < IC ; i++) {
         for(int k = 0; k < IN_X+2; k++){
             if(k != 0 && k != IN_X+1) {
@@ -184,7 +163,7 @@ int main(void) {
                         IN_TENSOR[i][k][l] = 0;
                     }
                     printf("%-3d ",IN_TENSOR[i][k][l]);
-                }
+                }  
             } else {
                 for(int l = 0 ; l < IN_Y+2; l++){
                     IN_TENSOR[i][k][l] = 0;
@@ -195,7 +174,7 @@ int main(void) {
         }
         printf("\n\n");
     }
-    printf("%d",IN_TENSOR[3][2][2]);
+
 
     // free INIT_IN_TENSOR
     for(int i = 0; i < IC ; i++) {
@@ -209,7 +188,9 @@ int main(void) {
     }
 
     free(INIT_IN_TENSOR);
-    /*
+
+
+    /* 
     for(int i = 0; i < IC ; i++) {
         for(int k = 0; k < IN_X+2; k++){
             if(k != 0 && k != IN_X-1) {
@@ -249,39 +230,37 @@ int main(void) {
                     } else {
                         IN_TENSOR[i][k][l] = 0;
                     };
-                }
+                } 
             } else {
                 for(int l = 0 ; l < IN_Y+2; l++) {
                     IN_TENSOR[i][k][l] = 0;
-                }
+                }      
             }
         };
     };
     */
 
 
-
     //// im2col transform + extension ////
-    uint8_t OUT_MATRIX[OUT_X][OUT_Y] = {0,};
+    unsigned int OUT_MATRIX[OUT_X][OUT_Y];
     unsigned int in_channel;
     unsigned int row;
     unsigned int col;
-    for(int i = 0; i < OUT_Y; i++){
-        for(int k = 0; k < OUT_X; k++){
-            if(i < OUT_Y-12){
-                in_channel = k / (K*K);
-                row = (i / 14) + (k / K) % K; // change 14 to variable = striding num
-                col = (k % K) + (i % 14);
-                OUT_MATRIX[k][i] = IN_TENSOR[in_channel][row][col];
-
-                //printf("[%d %d %d] : %d \n",in_channel, row, col, OUT_MATRIX[k][i]);
-            } else {
-                OUT_MATRIX[k][i] = 0;
-            }
-        }
-        //printf("\n\n");
-    }
-
+     for(int i = 0; i < OUT_Y; i++){
+         for(int k = 0; k < OUT_X; k++){
+                if(i < OUT_Y-12){
+                    in_channel = k / (K*K);
+                    row = (i / 14) + (k / K) % K; // change 14 to variable = striding num
+                    col = (k % K) + (i % 14);
+                    OUT_MATRIX[k][i] = IN_TENSOR[in_channel][row][col];
+                    if(i < 20)
+                        printf("[%d %d %d] ",in_channel, row, col);
+                } else {
+                    OUT_MATRIX[k][i] = 0;
+                }
+         };
+         printf("\n\n");
+     }
 
     //free IN_TENSOR
     for(int i = 0; i < IC ; i++) {
@@ -294,25 +273,22 @@ int main(void) {
             free(IN_TENSOR[i]);
     }
 
-    free(IN_TENSOR);    
+    free(IN_TENSOR);
 
-
-
-     for(int i = 0; i < OUT_X; i++){
+     
+     for(int i = 0; i < 9; i++){
          for(int k = 0; k < OUT_Y; k++){
-            printf("%d ",OUT_MATRIX[i][k]);
-         }
+            printf("%-3d ",OUT_MATRIX[i][k]);
+         };
          printf("\n\n");
          if(i!=0 && i%9 == 8)
              printf("\n");
-     }
-
-
+     };
+    
 
     //// AXI_WRITE ////
-     
-    Flags bitfild_write;
-    uint8_t check_arr[3744][16];
+    /*
+    Flags bitfild;
     int out_col = OUT_Y / PE_SIZE;
     int out_row = OUT_X / PE_SIZE;
 
@@ -320,22 +296,21 @@ int main(void) {
         for(int k = 0; k < out_row; k++){
             for(int l = 0; l < PE_SIZE; l++){
                 for(int m = 0; m < PE_SIZE; m++){
-                	check_arr[i+k+l][m] = OUT_MATRIX[(k*PE_SIZE)+PE_SIZE-1-l][m+(PE_SIZE*i)];
                     printf("%d %d ",(k*PE_SIZE)+PE_SIZE-1-l,m+(PE_SIZE*i));
                     switch (m % 4){
                         case 0:
-                        	bitfild_write.bit_data.data_3 = OUT_MATRIX[(k*PE_SIZE)+PE_SIZE-1-l][m+(PE_SIZE*i)];
+                            bitfild.data_3 = OUT_MATRIX[(k*PE_SIZE)+PE_SIZE-1-l][m+(PE_SIZE*i)];
                             break;
                         case 1:
-                        	bitfild_write.bit_data.data_2 = OUT_MATRIX[(k*PE_SIZE)+PE_SIZE-1-l][m+(PE_SIZE*i)];
+                            bitfild.data_2 = OUT_MATRIX[(k*PE_SIZE)+PE_SIZE-1-l][m+(PE_SIZE*i)];
                             break;
                         case 2:
-                        	bitfild_write.bit_data.data_1 = OUT_MATRIX[(k*PE_SIZE)+PE_SIZE-1-l][m+(PE_SIZE*i)];
+                            bitfild.data_1 = OUT_MATRIX[(k*PE_SIZE)+PE_SIZE-1-l][m+(PE_SIZE*i)];
                             break;
                         case 3:
-                        	bitfild_write.bit_data.data_0 = OUT_MATRIX[(k*PE_SIZE)+PE_SIZE-1-l][m+(PE_SIZE*i)];
+                            bitfild.data_0 = OUT_MATRIX[(k*PE_SIZE)+PE_SIZE-1-l][m+(PE_SIZE*i)];
                             //printf("%d ",bitfild);
-                            //Xil_Out32((XPAR_MYIP_V1_0_0_BASEADDR) + ((m/4)*AXI_DATA_BYTE), bitfild_write.axi_write_data);
+                            Xil_Out32((XPAR_LAB13_MATBI_0_BASEADDR) + ((MEM0_DATA_REG+m*4)*AXI_DATA_BYTE), bitfild);
                         break;
                     };
                 };
@@ -343,36 +318,6 @@ int main(void) {
             };
         };
     }
-
-    //AXI_READ_FOR_TEST
-    Flags bitfild_read[4];
-    uint8_t axi_check_arr[3744][16];
-    for(int i = 0 ; i < 3744 ; i ++){
-    	 bitfild_read[0].axi_write_data = Xil_In32((XPAR_MYIP_V1_0_0_BASEADDR) + (4*AXI_DATA_BYTE));
-    	 bitfild_read[1].axi_write_data = Xil_In32((XPAR_MYIP_V1_0_0_BASEADDR) + (5*AXI_DATA_BYTE));
-    	 bitfild_read[2].axi_write_data = Xil_In32((XPAR_MYIP_V1_0_0_BASEADDR) + (6*AXI_DATA_BYTE));
-    	 bitfild_read[3].axi_write_data = Xil_In32((XPAR_MYIP_V1_0_0_BASEADDR) + (7*AXI_DATA_BYTE));
-
-		 for(int m = 0 ; m < 13 ; m = m + 4)
-		 {
-			 axi_check_arr[i][m]   = bitfild_read[m/4].bit_data.data_3;
-			 axi_check_arr[i][m+1] = bitfild_read[m/4].bit_data.data_2;
-			 axi_check_arr[i][m+2] = bitfild_read[m/4].bit_data.data_1;
-			 axi_check_arr[i][m+3] = bitfild_read[m/4].bit_data.data_0;
-		 };
-	};
-
-    for(int i = 0 ; i<3744; i ++) {
-    	for ( int k = 0 ; k < 16; k++){
-    		if(axi_check_arr[i][k]!=check_arr[i][k]){
-    			printf("error!\n");
-    			break;
-    		} else {
-    			printf("success!! sw : %d hw : %d\n",check_arr[i][k],axi_check_arr[i][k]);
-    		}
-    	};
-    };
-
-
+    */
     return 0;
-}
+}   
