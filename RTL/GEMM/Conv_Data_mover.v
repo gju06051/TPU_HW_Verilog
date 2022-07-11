@@ -115,11 +115,34 @@
         end
         */
         // first(version2): mem0_ce(mem0_read_en)
+        /*
         always @(posedge clk or negedge rst_n) begin
             if(!rst_n) begin
                 mem0_read_en <= 0;
             end else if(en) begin
                 if((mem0_num_cnt[3:0] == (PE_SIZE-1)) || (mem1_read_en)) begin
+                    mem0_read_en <= 0;
+                end else if(!mem0_wait) begin
+                    mem0_read_en <= 1;
+                end
+            end
+        end
+        */
+        // first(version23): mem0_ce(mem0_read_en) PE_SIZE change to 14
+        wire mem0_read_en_done;
+         Counter #(
+            .COUNT_NUM(PE_SIZE-1)
+        ) Counter_for_mem0_read_en_done (
+            .clk(clk),
+            .rst_n(rst_n),
+            .start_i(mem0_read_en),
+            .done_o(mem0_read_en_done)
+        );
+        always @(posedge clk or negedge rst_n) begin
+            if(!rst_n) begin
+                mem0_read_en <= 0;
+            end else if(en) begin
+                if((mem0_read_en_done) || (mem1_read_en)) begin
                     mem0_read_en <= 0;
                 end else if(!mem0_wait) begin
                     mem0_read_en <= 1;

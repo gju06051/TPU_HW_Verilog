@@ -6,14 +6,16 @@ module tb_Top_GLB;
     parameter integer MEM1_DEPTH = 896;
     parameter integer MEM0_ADDR_WIDTH = 10;
     parameter integer MEM1_ADDR_WIDTH = 10;
-    parameter integer MEM0_DATA_WIDTH = 128;
-    parameter integer MEM1_DATA_WIDTH = 128;
+    parameter integer MEM0_DATA_WIDTH = 112;
+    parameter integer MEM1_DATA_WIDTH = 112;
 
     reg clk;
     reg rst_n;
     reg en;
     wire [MEM0_DATA_WIDTH-1:0] mem0_q0_o;
     wire mem0_q0_vaild;
+    wire [MEM1_DATA_WIDTH-1:0] rdata_o;
+    wire [PE_SIZE-1:0] weight_en_col_o;
     Top_GLB # (
         .FIFO_DATA_WIDTH(FIFO_DATA_WIDTH),
         .FIFO_DEPTH(FIFO_DEPTH),
@@ -31,7 +33,9 @@ module tb_Top_GLB;
         .en(en),
 
         .mem0_q0_o(mem0_q0_o),
-        .mem0_q0_vaild(mem0_q0_vaild)
+        .mem0_q0_vaild(mem0_q0_vaild),
+        .rdata_o(rdata_o),
+        .weight_en_col_o(weight_en_col_o)
     );
     always #5 clk = ~clk;
     initial begin

@@ -15,8 +15,9 @@ module Top_GLB # (
     input en,
 
     output wire [MEM0_DATA_WIDTH-1:0] mem0_q0_o,
-    output wire mem0_q0_vaild
-
+    output wire mem0_q0_vaild,
+    output [MEM1_DATA_WIDTH-1:0] rdata_o,
+    output [PE_SIZE-1:0] weight_en_col_o
     
 );
     wire wren_o;
@@ -29,6 +30,7 @@ module Top_GLB # (
     wire   [MEM0_DATA_WIDTH-1:0] mem0_q0_i;
     wire   [MEM1_DATA_WIDTH-1:0] mem1_q0_i;
     wire   [MEM1_DATA_WIDTH-1:0] mem1_q0_o;
+    wire    rden_o;
     Conv_Data_mover # (
         .MEM0_DEPTH(MEM0_DEPTH),
         .MEM1_DEPTH(MEM1_DEPTH),
@@ -55,7 +57,8 @@ module Top_GLB # (
         .mem0_q0_o(mem0_q0_o),
         .mem1_q0_o(mem1_q0_o),
         .wren_o(wren_o),
-        .mem0_q0_vaild(mem0_q0_vaild)
+        .mem0_q0_vaild(mem0_q0_vaild),
+        .rden_o(rden_o)
     );
 
      GLB # (
@@ -67,13 +70,15 @@ module Top_GLB # (
         .clk(clk),
         .rst_n(rst_n),
         .wren_i(wren_o),
-        .rden_i(rden_i),
+        .rden_i(rden_o),
 
         .full_o(full_o),
         .empty_o(empty_o),
         
         .wdata_i(mem1_q0_o),
-        .rdata_o(rdata_o)
+        .rdata_o(rdata_o),
+
+        .weight_en_col_o(weight_en_col_o)
     );
 
     true_dpbram #(
