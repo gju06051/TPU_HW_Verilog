@@ -13,8 +13,9 @@
         output  [PE_SIZE-1:0] full_o,
         output  [PE_SIZE-1:0] empty_o,
         
-        input   [FIFO_DATA_WIDTH*PE_SIZE-1:0] wdata_i,
-        output  [FIFO_DATA_WIDTH*PE_SIZE-1:0] rdata_o
+        input   [FIFO_DATA_WIDTH*PE_SIZE-1:0]   wdata_i,
+        output  [FIFO_DATA_WIDTH*PE_SIZE-1:0]   rdata_o,
+        output  [PE_SIZE-1:0]                   weight_en_col_o
     );
 
         // shift_register for delayed rden_i 
@@ -43,6 +44,12 @@
             endgenerate
         assign w_rden_i_row[0] = rden_i;
 
+        genvar l;
+            generate
+                for (l=0; l < PE_SIZE; l=l+1) begin 
+                    assign weight_en_col_o[l] = w_rden_i_row[l]; 
+                end
+            endgenerate
 
         // instance 16(PE_SIZE) FIFOs
         genvar j;
