@@ -6,7 +6,7 @@ module SA_Data_mover # (
     parameter integer MEM1_DEPTH = 896,
     parameter integer MEM0_ADDR_WIDTH = 7,
     parameter integer MEM1_ADDR_WIDTH = 7,
-    parameter integer MEM0_DATA_WIDTH = 128,
+    parameter integer MEM0_DATA_WIDTH = 112,
     parameter integer MEM1_DATA_WIDTH = 128,
     parameter integer OC = 64
 )
@@ -14,9 +14,11 @@ module SA_Data_mover # (
     input clk,
     input rst_n,
     input wire en,
-    input wire [(FIFO_DATA_WIDTH*PE_SIZE)-1:0] rdata_i
+    input wire [(FIFO_DATA_WIDTH*PE_SIZE)-1:0] rdata_i,
+    output wire [MEM0_DATA_WIDTH-1:0] mem0_d0
 );
     localparam BUFF_ADDR = $clog2(PE_SIZE);
+    localparam OC_ADDR_WIDTH = $clog2(OC);
     localparam OUT_CNT = PE_SIZE*OC;
     localparam OUT_CNT_ADDR = $clog2(PE_SIZE*OC);
     // make #(PE_SIZE-1) buffer_en signal
@@ -48,6 +50,7 @@ module SA_Data_mover # (
     reg  [BUFF_ADDR-1:0] reg_buffer_addr [0:PE_SIZE-2];
     wire buffer_is_done;
 
+    // Check 1st row complete
     up_counter #(
         .CNT(PE_SIZE),
         .CNT_WIDTH(BUFF_ADDR)
@@ -80,7 +83,7 @@ module SA_Data_mover # (
         for (i=0; i < PE_SIZE; i=i+1) begin 
             always @(posedge clk) begin
                 if(buffer_en[i]) begin
-                    buffer[(PE_SIZE*i)+buffer_addr[i]] <= rdata_i[(FIFO_DATA_WIDTH)*(PE_SIZE-1-i)+:FIFO_DATA_WIDTH];
+                    buffer[(PE_SIZE*i)+buffer_addr[i]] <= rdata_i[(FIFO_DATA_WIDTH)*(PE_SIZE)-1-(i*FIFO_DATA_WIDTH)-:FIFO_DATA_WIDTH];
                 end
             end
         end
@@ -89,7 +92,7 @@ module SA_Data_mover # (
     // overall operating count
     wire data_mover_done;
     Counter #(
-        .COUNT_NUM(OUT_CNT)
+        .COUNT_NUM(OUT_CNT-1)
     ) Counter_for_mem0_wait (
         .clk(clk),
         .rst_n(rst_n),
@@ -102,13 +105,54 @@ module SA_Data_mover # (
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
             reg_mem0_ce0 <= 0;
-        end else if(buffer_is_done) begin
-            reg_mem0_ce0 <= 1'b1;
         end else if(data_mover_done) begin
             reg_mem0_ce0 <= 0;
+        end else if(buffer_is_done) begin
+            reg_mem0_ce0 <= 1'b1;
         end
     end
-    assign mem0_addr0 = 
-    assign mem0_ce0 = reg_mem0_ce0;
+    
+    // make mem0_addr
+    wire [OC_ADDR_WIDTH-1:0] wire_mem0_addr;
+    reg  [BUFF_ADDR-1:0] mem0_addr_offset;
+    wire offset_up;
+    up_counter #(
+        .CNT(OC),
+        .CNT_WIDTH(OC_ADDR_WIDTH)
+    ) up_counter_for_mem0_addr (
+        .clk(clk),
+        .rst_n(rst_n),
+        .en(reg_mem0_ce0),
+        .cnt_o(wire_mem0_addr),
+        .is_done_o(offset_up)
+    );
 
+    always @(posedge clk or negedge rst_n) begin
+        if(!rst_n) begin
+            mem0_addr_offset <= 0;
+        end else if(offset_up) begin
+            mem0_addr_offset <= mem0_addr_offset + 1;
+        end else if(mem0_addr_offset == PE_SIZE) begin
+            mem0_addr_offset <= 0;
+        end
+    end
+    wire [BUFF_ADDR-1:0] buffer_index;
+    up_counter #(
+        .CNT(PE_SIZE),
+        .CNT_WIDTH(BUFF_ADDR)
+    ) up_counter_for_buffer_index (
+        .clk(clk),
+        .rst_n(rst_n),
+        .en(reg_mem0_ce0),
+        .cnt_o(buffer_index),
+        .is_done_o()
+    );
+
+    wire [MEM0_ADDR_WIDTH-1:0] mem0_addr0   = wire_mem0_addr * (PE_SIZE) + mem0_addr_offset;
+    assign mem0_ce0     = reg_mem0_ce0;
+    generate
+        for (i=0; i < PE_SIZE; i=i+1) begin   
+            assign mem0_d0[(PE_SIZE)*(FIFO_DATA_WIDTH)-1-(i*(FIFO_DATA_WIDTH))-: FIFO_DATA_WIDTH] = buffer[buffer_index*(PE_SIZE) + i];
+        end
+    endgenerate
 endmodule

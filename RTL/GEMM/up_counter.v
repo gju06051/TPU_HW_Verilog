@@ -22,5 +22,5 @@ module up_counter #(
         end
     end
     assign cnt_o = cnt;
-    assign is_done_o = (en) && (cnt == CNT_WIDTH-1);
+    assign is_done_o = (en) && (cnt == CNT-1);
 endmodule
