@@ -1,6 +1,5 @@
     module GLB # (
         parameter FIFO_DATA_WIDTH = 8,
-        parameter FIFO_DEPTH = 16,
         parameter PE_SIZE = 16
     )
 
@@ -57,7 +56,7 @@
                 for (j=0; j < PE_SIZE; j=j+1) begin : Buffer
                         FIFO #(
                             .DATA_WIDTH(FIFO_DATA_WIDTH),
-                            .FIFO_DEPTH(FIFO_DEPTH)
+                            .FIFO_DEPTH(PE_SIZE)
                         ) FIFO_INST (   
                             .clk            (clk), 
                             .rst_n          (rst_n), 

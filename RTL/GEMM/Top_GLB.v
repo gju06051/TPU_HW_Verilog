@@ -1,6 +1,5 @@
 module Top_GLB # (
     parameter FIFO_DATA_WIDTH = 8,
-    parameter FIFO_DEPTH = 16,
     parameter PE_SIZE = 16,
     parameter integer MEM0_DEPTH = 896,
     parameter integer MEM1_DEPTH = 896,
@@ -68,7 +67,6 @@ module Top_GLB # (
 
      GLB # (
         .FIFO_DATA_WIDTH(FIFO_DATA_WIDTH),
-        .FIFO_DEPTH(FIFO_DEPTH),
         .PE_SIZE(PE_SIZE)
     ) GLB
     (
