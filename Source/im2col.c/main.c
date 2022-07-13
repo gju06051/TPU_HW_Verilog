@@ -51,7 +51,7 @@ int main(void) {
             for(int l = 0; l <IN_Y; l++){
                 INIT_IN_TENSOR[i][k][l] = (l+1)+(k*IN_X)+i;
                 //printf("%2d \n",(l+1)+(k*IN_X)+i);
-
+                /*
                 if(l != 0 && l != 1){
                 	//printf("index : %d mod : %d  data : %d ",l,(l%4),INIT_IN_TENSOR[i][k][l]);
                     switch (l % 4){
@@ -92,11 +92,11 @@ int main(void) {
                                 break;
                     }
                 }
-
+                */
             }
-            //printf("\n");
+            printf("\n");
         }
-        //printf("\n\n");
+        printf("\n\n");
     }
 
 
@@ -274,12 +274,12 @@ int main(void) {
                 col = (k % K) + (i % 14);
                 OUT_MATRIX[k][i] = IN_TENSOR[in_channel][row][col];
 
-                //printf("[%d %d %d] : %d \n",in_channel, row, col, OUT_MATRIX[k][i]);
+                printf("[%d %d %d] : %d \n",in_channel, row, col, OUT_MATRIX[k][i]);
             } else {
                 OUT_MATRIX[k][i] = 0;
             }
         }
-        //printf("\n\n");
+        printf("\n\n");
     }
 
 
@@ -310,7 +310,7 @@ int main(void) {
 
 
     //// AXI_WRITE ////
-     
+    /*
     Flags bitfild_write;
     uint8_t check_arr[3744][16];
     int out_col = OUT_Y / PE_SIZE;
@@ -372,7 +372,7 @@ int main(void) {
     		}
     	};
     };
-
+*/
 
     return 0;
 }
