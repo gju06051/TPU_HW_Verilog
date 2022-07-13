@@ -1,7 +1,8 @@
 module ACC #(
     // Parameter
     parameter PE_SIZE       = 4,
-    parameter DATA_WIDTH    = 32,
+    parameter DATA_WIDTH    = 8,
+    parameter PSUM_WIDTH    = 32,
     parameter FIFO_DEPTH    = 4
     )
     (
@@ -14,16 +15,16 @@ module ACC #(
     input   [PE_SIZE-1:0]   rden_i,             // signal from Top control, read data from fifo to GLB
     
     // I/O data
-    input   [DATA_WIDTH*PE_SIZE-1:0]    psum_row_i,
+    input   [PSUM_WIDTH*PE_SIZE-1:0]    psum_row_i,
     output  [DATA_WIDTH*PE_SIZE-1:0]    psum_row_o
     
     );
     
     // Wire port for data, 2D array var[fifo_col_idx][bit_idx]
-    wire    [DATA_WIDTH-1:0]    psum_w      [0:PE_SIZE-1];
-    wire    [DATA_WIDTH-1:0]    fifo_in_w   [0:PE_SIZE-1];  // FIFO wdata
-    wire    [DATA_WIDTH-1:0]    fifo_out_w  [0:PE_SIZE-1];  // FIFO rdate
-    wire    [DATA_WIDTH-1:0]    feedback_w  [0:PE_SIZE-1];  // Zero or FIFO rdata
+    wire    [PSUM_WIDTH-1:0]    psum_w      [0:PE_SIZE-1];
+    wire    [PSUM_WIDTH-1:0]    fifo_in_w   [0:PE_SIZE-1];  // FIFO wdata
+    wire    [PSUM_WIDTH-1:0]    fifo_out_w  [0:PE_SIZE-1];  // FIFO rdate
+    wire    [PSUM_WIDTH-1:0]    feedback_w  [0:PE_SIZE-1];  // Zero or FIFO rdata
     
     // Wire port for control
     wire    [PE_SIZE-1:0]       rden_w;                     // FIFO read enable signal
@@ -37,10 +38,10 @@ module ACC #(
     generate
         for (j=0; j < PE_SIZE; j=j+1) begin : GEN_ACC_OP
             // flatten input data with each wire
-            assign psum_w[j] = psum_row_i[DATA_WIDTH*(PE_SIZE-j)-1 : DATA_WIDTH*(PE_SIZE-j-1)];     
+            assign psum_w[j] = psum_row_i[PSUM_WIDTH*(PE_SIZE-j)-1 : PSUM_WIDTH*(PE_SIZE-j-1)];     
             
             // checking preload psum, not_full -> preload psum by giving feedback zero
-            assign feedback_w[j] = acc_en_w[j] ? fifo_out_w[j] : {(DATA_WIDTH){1'b0}};              
+            assign feedback_w[j] = acc_en_w[j] ? fifo_out_w[j] : {(PSUM_WIDTH){1'b0}};              
             
             // FIFO accumulation
             assign fifo_in_w[j] = feedback_w[j] + psum_w[j];
@@ -57,7 +58,7 @@ module ACC #(
         for (i=0; i < PE_SIZE; i=i+1) begin : GEN_FIFO
             FIFO #(
                 // Parameter
-                .DATA_WIDTH (DATA_WIDTH),       // data bit width
+                .DATA_WIDTH (PSUM_WIDTH),       // data bit width
                 .FIFO_DEPTH (FIFO_DEPTH)        // FIFO entry num
             ) FIFO_INST (   
                 // special signal
@@ -78,11 +79,12 @@ module ACC #(
     
     
     // Output assignment
+    // Output need to be quantized with high 8bit num
     genvar k;
     generate
         for (k=0; k < PE_SIZE; k=k+1) begin : GEN_OUT
             // concatenate flatten output data
-            assign psum_row_o[DATA_WIDTH*(PE_SIZE-k)-1 : DATA_WIDTH*(PE_SIZE-k-1)] = fifo_out_w[k];
+            assign psum_row_o[DATA_WIDTH*(PE_SIZE-k)-1 : DATA_WIDTH*(PE_SIZE-k-1)] = fifo_out_w[k][PSUM_WIDTH-1:PSUM_WIDTH-DATA_WIDTH];
         end
     endgenerate
     

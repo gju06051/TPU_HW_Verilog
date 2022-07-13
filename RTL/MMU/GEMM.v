@@ -12,11 +12,19 @@ module GEMM #(
     ) 
     (
     // Port
+    
+    // Special Input
     input clk,
     input rst_n,
-
+    
+    // Control Input
     input gemm_start_i,
-
+    
+    // SA_DATA_MOVER BRAM I/O PORT
+    output      [MEM0_DATA_WIDTH-1:0]   mem0_d0,
+    output      [MEM0_ADDR_WIDTH-1:0]   mem0_addr,
+    output                              mem0_ce0,
+    output                              mem0_we0
 
     );
     
@@ -42,6 +50,9 @@ module GEMM #(
     
     wire    [PSUM_WIDTH*PE_SIZE-1:0]    psum_row_w;
     wire    [PE_SIZE-1:0]               psum_en_row_w;
+    
+    wire    [PE_SIZE-1:0]               rden_w;
+    wire    [MEM0_DATA_WIDTH-1:0]       actmp_row_w;
     
     Top_GLB #(
         .FIFO_DATA_WIDTH    ( DATA_WIDTH        ),
@@ -102,6 +113,7 @@ module GEMM #(
     ACC #(
         .PE_SIZE    ( PE_SIZE       ),
         .DATA_WIDTH ( DATA_WIDTH    ),
+        .PSUM_WIDTH ( PSUM_WIDTH    ),
         .FIFO_DEPTH ( OUT_CH        )
     ) u_ACC (
         // Special Input
@@ -109,28 +121,40 @@ module GEMM #(
         .rst_n      ( rst_n         ),      // FIFO reset signal, initialize fifo R/W counter
         // Control Input 
         .psum_en_i  ( psum_en_row_w ),      // FIFO write enable signal (SA -> ACC)
-        .rden_i     ( rden_i        ),      // FIFO read enable signal  (SA_DATA_MOVER -> ACC)
+        .rden_i     ( rden_w        ),      // FIFO read enable signal  (SA_DATA_MOVER -> ACC)
         // Primitives Input
         .psum_row_i ( psum_row_w    ),      // SA output (SA -> ACC)
         // Primitives Output
-        .psum_row_o ( psum_row_o    )       // Accumulated output activation map value (ACC -> SA_DATA_MOVER)
+        .psum_row_o ( actmp_row_w   )       // Accumulated output activation map value (ACC -> SA_DATA_MOVER)
     );
+
+
 
     
     SA_Data_mover #(
         .FIFO_DATA_WIDTH    ( DATA_WIDTH        ),
         .PE_SIZE            ( PE_SIZE           ),
         .MEM0_DEPTH         ( MEM0_DEPTH        ),
-        .MEM1_DEPTH         ( MEM1_DEPTH        ),
         .MEM0_ADDR_WIDTH    ( MEM0_ADDR_WIDTH   ),
-        .MEM1_ADDR_WIDTH    ( MEM1_ADDR_WIDTH   ),
         .MEM0_DATA_WIDTH    ( MEM0_DATA_WIDTH   ),
-        .MEM1_DATA_WIDTH    ( MEM1_DATA_WIDTH   ),
         .OC                 ( OUT_CH            )
-    )u_SA_Data_mover(
-        .rdata_i(),
-        .mem0_d0()
+    ) u_SA_Data_mover (
+        // Special Input
+        .clk                ( clk                   ),
+        .rst_n              ( rst_n                 ),
+        // Control Input
+        .en                 ( sa_data_mover_en_w    ),
+        // Control Output
+        .rden_o             ( rden_w                ),
+        // Primtives Input
+        .rdata_i            ( actmp_row_w           ),
+        // BRAM I/O 
+        .mem0_d0            ( mem0_d0               ),
+        .mem0_addr0         ( mem0_addr0            ),
+        .mem0_ce0           ( mem0_ce0              ),
+        .mem0_we0           ( mem0_we0              )
     );
+
 
 
 

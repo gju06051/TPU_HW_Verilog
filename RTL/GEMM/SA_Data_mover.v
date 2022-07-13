@@ -2,11 +2,8 @@ module SA_Data_mover # (
     parameter FIFO_DATA_WIDTH = 8,
     parameter PE_SIZE = 16,
     parameter integer MEM0_DEPTH = 896,
-    parameter integer MEM1_DEPTH = 896,
     parameter integer MEM0_ADDR_WIDTH = 7,
-    parameter integer MEM1_ADDR_WIDTH = 7,
     parameter integer MEM0_DATA_WIDTH = 112,
-    parameter integer MEM1_DATA_WIDTH = 128,
     parameter integer OC = 64
 )
 (
