@@ -1,14 +1,14 @@
 module GEMM #(
     // Primitive DATA_WIDTH
-    parameter DATA_WIDTH = 8,       // Weight, Ifmap
-    parameter PSUM_WIDTH = 32,      // Partial Sum
-    
-    parameter PE_SIZE = 14,         // Systolic Array PE NUM 
-                                    // ex. if PE_SIZE = 14, use 196(=14x14) PE  
-    
-    parameter IN_CH = 32,           // Input Channel
-    parameter OUT_CH = 64,          // Output Channel
-    parameter KERNAL_SIZE = 3
+    parameter DATA_WIDTH    = 8,        // Weight, Ifmap
+    parameter PSUM_WIDTH    = 32,       // Partial Sum
+    // HW Const(=Ifmap width)
+    parameter PE_SIZE       = 14,       // Systolic Array PE NUM 
+                                        // ex. if PE_SIZE = 14, use 196(=14x14) PE  
+    // Model Const
+    parameter IN_CH         = 32,       // Input Channel
+    parameter OUT_CH        = 64,       // Output Channel
+    parameter KERNAL_SIZE   = 3
     ) 
     (
     // Port
@@ -41,18 +41,22 @@ module GEMM #(
     localparam MEM1_DATA_WIDTH  = PE_SIZE * DATA_WIDTH;                                     // 112(=14*8)
     localparam MEM1_ADDR_WIDTH  = $clog2(MEM1_DEPTH);                                       // 11 = clog2(1470)
     
+    
     // Port Declation
-    wire    [MEM0_DATA_WIDTH-1:0]       ifmap_row_w;
-    wire                                ifmap_valid_w;
-    wire    [MEM1_DATA_WIDTH-1:0]       weight_col_w;
-    wire    [PE_SIZE-1:0]               weight_en_col_w;
-    wire                                sa_data_mover_en_w;
+    wire    [MEM0_DATA_WIDTH-1:0]       ifmap_row_w;            // TOP_GLB -> SA
+    wire                                ifmap_valid_w;          // TOP_GLB -> SA
+    wire    [MEM1_DATA_WIDTH-1:0]       weight_col_w;           // TOP_GLB -> SA
+    wire    [PE_SIZE-1:0]               weight_en_col_w;        // TOP_GLB -> SA
     
-    wire    [PSUM_WIDTH*PE_SIZE-1:0]    psum_row_w;
-    wire    [PE_SIZE-1:0]               psum_en_row_w;
+    wire                                sa_data_mover_en_w;     // TOP_GLB -> SA_DATA_MOVER
     
-    wire    [PE_SIZE-1:0]               rden_w;
-    wire    [MEM0_DATA_WIDTH-1:0]       actmp_row_w;
+    wire    [PSUM_WIDTH*PE_SIZE-1:0]    psum_row_w;             // SA -> ACC
+    wire    [PE_SIZE-1:0]               psum_en_row_w;          // SA -> ACC
+    
+    wire    [PE_SIZE-1:0]               rden_w;                 // SA_DATA_MOVER -> ACC
+    wire    [MEM0_DATA_WIDTH-1:0]       actmp_row_w;            // ACC -> SA_DATA_MOVER
+    
+    
     
     Top_GLB #(
         .FIFO_DATA_WIDTH    ( DATA_WIDTH        ),
@@ -84,53 +88,53 @@ module GEMM #(
     
     
     SA #(
-        .PE_SIZE         ( PE_SIZE          ),
-        .DATA_WIDTH      ( DATA_WIDTH       ),
-        .PSUM_WIDTH      ( PSUM_WIDTH       )
+        .PE_SIZE            ( PE_SIZE          ),
+        .DATA_WIDTH         ( DATA_WIDTH       ),
+        .PSUM_WIDTH         ( PSUM_WIDTH       )
     ) u_SA (
         // Special Input
-        .clk             ( clk              ),
-        .rst_n           ( rst_n            ),
+        .clk                ( clk              ),
+        .rst_n              ( rst_n            ),
         // Primitives Input (TOP_GLB -> SA)
-        .ifmap_row_i     ( ifmap_row_w      ), 
-        .weight_col_i    ( weight_col_w     ), 
-        .psum_row_i      ( {(PE_SIZE*PSUM_WIDTH-1){1'b0}} ),   // partial sum(In this logic, zero partial sum for SA)
+        .ifmap_row_i        ( ifmap_row_w      ), 
+        .weight_col_i       ( weight_col_w     ), 
+        .psum_row_i         ( {(PE_SIZE*PSUM_WIDTH-1){1'b0}} ),   // partial sum(In this logic, zero partial sum for SA)
         // Control Input (TOP_GBL -> SA)
-        .ifmap_preload_i ( ifmap_valid_w    ),  // preload start signal 
-        .weight_en_col_i ( weight_en_col_w  ),
-        .psum_en_row_i   ( weight_en_col_w  ),  // partial sum sync with weight data
+        .ifmap_preload_i    ( ifmap_valid_w    ),  // preload start signal 
+        .weight_en_col_i    ( weight_en_col_w  ),
+        .psum_en_row_i      ( weight_en_col_w  ),  // partial sum sync with weight data
         // Primitives Output (SA -> ACC)
-        .ifmap_row_o     ( ),                   // not use
-        .weight_col_o    ( ),                   // not use
-        .psum_row_o      ( psum_row_w       ),  // SA output -> ACC input
+        .ifmap_row_o        ( ),                   // not use
+        .weight_col_o       ( ),                   // not use
+        .psum_row_o         ( psum_row_w       ),  // SA output -> ACC input
         // Control Output (SA -> ACC)
-        .weight_en_col_o ( ),                   // not use
-        .psum_en_row_o   ( psum_en_row_w    )   // Used for FIFO write signal
+        .weight_en_col_o    ( ),                   // not use
+        .psum_en_row_o      ( psum_en_row_w    )   // Used for FIFO write signal
     );
 
-    
-    
+
+
     ACC #(
-        .PE_SIZE    ( PE_SIZE       ),
-        .DATA_WIDTH ( DATA_WIDTH    ),
-        .PSUM_WIDTH ( PSUM_WIDTH    ),
-        .FIFO_DEPTH ( OUT_CH        )
+        .PE_SIZE            ( PE_SIZE       ),
+        .DATA_WIDTH         ( DATA_WIDTH    ),
+        .PSUM_WIDTH         ( PSUM_WIDTH    ),
+        .FIFO_DEPTH         ( OUT_CH        )
     ) u_ACC (
         // Special Input
-        .clk        ( clk           ),
-        .rst_n      ( rst_n         ),      // FIFO reset signal, initialize fifo R/W counter
+        .clk                ( clk           ),
+        .rst_n              ( rst_n         ),      // FIFO reset signal, initialize fifo R/W counter
         // Control Input 
-        .psum_en_i  ( psum_en_row_w ),      // FIFO write enable signal (SA -> ACC)
-        .rden_i     ( rden_w        ),      // FIFO read enable signal  (SA_DATA_MOVER -> ACC)
+        .psum_en_i          ( psum_en_row_w ),      // FIFO write enable signal (SA -> ACC)
+        .rden_i             ( rden_w        ),      // FIFO read enable signal  (SA_DATA_MOVER -> ACC)
         // Primitives Input
-        .psum_row_i ( psum_row_w    ),      // SA output (SA -> ACC)
+        .psum_row_i         ( psum_row_w    ),      // SA output (SA -> ACC)
         // Primitives Output
-        .psum_row_o ( actmp_row_w   )       // Accumulated output activation map value (ACC -> SA_DATA_MOVER)
+        .psum_row_o         ( actmp_row_w   )       // Accumulated output activation map value (ACC -> SA_DATA_MOVER)
     );
 
 
 
-    
+
     SA_Data_mover #(
         .FIFO_DATA_WIDTH    ( DATA_WIDTH        ),
         .PE_SIZE            ( PE_SIZE           ),
@@ -154,7 +158,6 @@ module GEMM #(
         .mem0_ce0           ( mem0_ce0              ),
         .mem0_we0           ( mem0_we0              )
     );
-
 
 
 
