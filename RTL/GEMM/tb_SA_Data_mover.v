@@ -14,6 +14,7 @@ module tb_SA_Data_mover;
     reg rst_n;
     reg  en;
     reg  [(FIFO_DATA_WIDTH*PE_SIZE)-1:0] rdata_i;
+    wire [PE_SIZE-1:0] rden_o;
     wire [MEM0_DATA_WIDTH-1:0] mem0_d0;
     /*wire [FIFO_DATA_WIDTH*PE_SIZE-1:0] buffer_1,buffer_2,buffer_3,buffer_4,buffer_5,buffer_6,buffer_7,buffer_8,buffer_9,buffer_10,
                                         buffer_11,buffer_12,buffer_13,buffer_14;
@@ -60,6 +61,7 @@ module tb_SA_Data_mover;
         .clk(clk),
         .rst_n(rst_n),
         .en(en),
+        .rden_o(rden_o),
         .rdata_i(rdata_i),
         .mem0_d0(mem0_d0)
     );

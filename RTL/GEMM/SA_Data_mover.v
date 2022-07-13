@@ -13,8 +13,9 @@ module SA_Data_mover # (
 (
     input clk,
     input rst_n,
-    input wire en,
-    input wire [(FIFO_DATA_WIDTH*PE_SIZE)-1:0] rdata_i,
+    input  wire en,
+    output wire [PE_SIZE-1:0] rden_o,
+    input  wire [(FIFO_DATA_WIDTH*PE_SIZE)-1:0] rdata_i,
     output wire [MEM0_DATA_WIDTH-1:0] mem0_d0
 );
     localparam BUFF_ADDR = $clog2(PE_SIZE);
@@ -43,7 +44,11 @@ module SA_Data_mover # (
             end
         endgenerate
     assign buffer_en[0] = en;
-
+    generate
+        for (i=0; i < PE_SIZE; i=i+1) begin 
+            assign rden_o[i] = buffer_en[i]; 
+        end
+    endgenerate
 
 
     wire [BUFF_ADDR-1:0] buffer_addr [0:PE_SIZE-1];
@@ -155,4 +160,5 @@ module SA_Data_mover # (
             assign mem0_d0[(PE_SIZE)*(FIFO_DATA_WIDTH)-1-(i*(FIFO_DATA_WIDTH))-: FIFO_DATA_WIDTH] = buffer[buffer_index*(PE_SIZE) + i];
         end
     endgenerate
+
 endmodule
