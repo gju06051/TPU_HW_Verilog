@@ -7,7 +7,9 @@ module Top_GLB # (
     parameter integer MEM0_ADDR_WIDTH = 7,
     parameter integer MEM1_ADDR_WIDTH = 7,
     parameter integer MEM0_DATA_WIDTH = 128,
-    parameter integer MEM1_DATA_WIDTH = 128
+    parameter integer MEM1_DATA_WIDTH = 128,
+    parameter integer WEIGHT_ROW_NUM = 70, // 64 + 6
+    parameter integer WEIGHT_COL_NUM = 294 // 288 + 6
 )
 (
     input clk,
@@ -17,8 +19,8 @@ module Top_GLB # (
     output wire [MEM0_DATA_WIDTH-1:0] mem0_q0_o,
     output wire mem0_q0_vaild,
     output [MEM1_DATA_WIDTH-1:0] rdata_o,
-    output [PE_SIZE-1:0] weight_en_col_o
-    
+    output [PE_SIZE-1:0] weight_en_col_o,
+    output wire sa_data_mover_en
 );
     wire wren_o;
     wire    mem1_ce0;
@@ -30,15 +32,17 @@ module Top_GLB # (
     wire   [MEM0_DATA_WIDTH-1:0] mem0_q0_i;
     wire   [MEM1_DATA_WIDTH-1:0] mem1_q0_i;
     wire   [MEM1_DATA_WIDTH-1:0] mem1_q0_o;
-    wire    rden_o;
-    Conv_Data_mover # (
+    wire    rden_o;   
+    Conv_Data_mover_v2 # (
         .MEM0_DEPTH(MEM0_DEPTH),
         .MEM1_DEPTH(MEM1_DEPTH),
 		.MEM0_ADDR_WIDTH(MEM0_ADDR_WIDTH),
         .MEM1_ADDR_WIDTH(MEM1_ADDR_WIDTH),
 		.MEM0_DATA_WIDTH(MEM0_DATA_WIDTH),
         .MEM1_DATA_WIDTH(MEM1_DATA_WIDTH),
-        .PE_SIZE(PE_SIZE)
+        .PE_SIZE(PE_SIZE),
+        .WEIGHT_ROW_NUM(WEIGHT_ROW_NUM), // 64 + 6
+        .WEIGHT_COL_NUM(WEIGHT_COL_NUM) // 288 + 6
     ) Conv_data_mover
     (
         .clk(clk),
@@ -58,7 +62,8 @@ module Top_GLB # (
         .mem1_q0_o(mem1_q0_o),
         .wren_o(wren_o),
         .mem0_q0_vaild(mem0_q0_vaild),
-        .rden_o(rden_o)
+        .rden_o(rden_o),
+        .sa_data_mover_en(sa_data_mover_en)
     );
 
      GLB # (
