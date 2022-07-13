@@ -32,7 +32,8 @@ module Top_GLB # (
     wire   [MEM1_DATA_WIDTH-1:0] mem1_q0_i;
     wire   [MEM1_DATA_WIDTH-1:0] mem1_q0_o;
     wire    rden_o;   
-    Conv_Data_mover_v2 # (
+    
+    Conv_Data_mover_v2 #(
         .MEM0_DEPTH(MEM0_DEPTH),
         .MEM1_DEPTH(MEM1_DEPTH),
 		.MEM0_ADDR_WIDTH(MEM0_ADDR_WIDTH),
@@ -65,7 +66,7 @@ module Top_GLB # (
         .sa_data_mover_en(sa_data_mover_en)
     );
 
-     GLB # (
+    GLB #(
         .FIFO_DATA_WIDTH(FIFO_DATA_WIDTH),
         .PE_SIZE(PE_SIZE)
     ) GLB

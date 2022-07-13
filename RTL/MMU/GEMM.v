@@ -6,123 +6,132 @@ module GEMM #(
     parameter PE_SIZE = 14,         // Systolic Array PE NUM 
                                     // ex. if PE_SIZE = 14, use 196(=14x14) PE  
     
-    parameter IC = 32,              // Input Channel
-    parameter OC = 64,              // Output Channel
+    parameter IN_CH = 32,           // Input Channel
+    parameter OUT_CH = 64,          // Output Channel
     parameter KERNAL_SIZE = 3
     ) 
     (
     // Port
     input clk,
-    input rst_n
+    input rst_n,
 
+    input gemm_start_i,
 
 
     );
     
-    localparam IM2COL_ROW = IC * (KERNAL_SIZE**2);                              // 288(=32*3*3)
-    localparam WEIGHT_ROW_NUM = IM2COL_ROW + (PE_SIZE - (IM2COL_ROW%PE_SIZE));  // 294(=288+14-8)
-    localparam WEIGHT_COL_NUM = OC + (PE_SIZE - (IM2COL_ROW%PE_SIZE));          // 70(=64+14-8)
+    // Local Parameter
+    localparam IM2COL_ROW       = IN_CH * (KERNAL_SIZE**2);                                 // 288(=32*(3**2))
+    localparam WEIGHT_ROW_NUM   = IM2COL_ROW + (PE_SIZE - (IM2COL_ROW%PE_SIZE));            // 294(=288+14-(288%14))
+    localparam WEIGHT_COL_NUM   = OUT_CH + (PE_SIZE - (IM2COL_ROW%PE_SIZE));                // 70(=64+14-(288%14))
     
-    localparam MEM0_DEPTH = (PE_SIZE**2)*WEIGHT_ROW_NUM / PE_SIZE;              // 4116(=196*294/14)
-    localparam MEM0_DATA_WIDTH = PE_SIZE * DATA_WIDTH;                          // 112(=14*8)
-    localparam MEM0_ADDR_WIDTH = $clog2(MEM0_DEPTH);                            // 13 = clog2(4116)
+    localparam MEM0_DEPTH       = (PE_SIZE**2)*WEIGHT_ROW_NUM / PE_SIZE;                    // 4116(=196*294/14)
+    localparam MEM0_DATA_WIDTH  = PE_SIZE * DATA_WIDTH;                                     // 112(=14*8)
+    localparam MEM0_ADDR_WIDTH  = $clog2(MEM0_DEPTH);                                       // 13 = clog2(4116)
     
-    localparam MEM1_DEPTH = (WEIGHT_COL_NUM)*WEIGHT_ROW_NUM / PE_SIZE;          // 1470(=70*294/14)
-    localparam MEM1_DATA_WIDTH = PE_SIZE * DATA_WIDTH;                          // 112(=14*8)
-    localparam MEM1_ADDR_WIDTH = $clog2(MEM1_DEPTH);                            // 11 = clog2(1470)
+    localparam MEM1_DEPTH       = (WEIGHT_COL_NUM)*WEIGHT_ROW_NUM / PE_SIZE;                // 1470(=70*294/14)
+    localparam MEM1_DATA_WIDTH  = PE_SIZE * DATA_WIDTH;                                     // 112(=14*8)
+    localparam MEM1_ADDR_WIDTH  = $clog2(MEM1_DEPTH);                                       // 11 = clog2(1470)
+    
+    // Port Declation
+    wire    [MEM0_DATA_WIDTH-1:0]       ifmap_row_w;
+    wire                                ifmap_valid_w;
+    wire    [MEM1_DATA_WIDTH-1:0]       weight_col_w;
+    wire    [PE_SIZE-1:0]               weight_en_col_w;
+    wire                                sa_data_mover_en_w;
+    
+    wire    [PSUM_WIDTH*PE_SIZE-1:0]    psum_row_w;
+    wire    [PE_SIZE-1:0]               psum_en_row_w;
     
     Top_GLB #(
-        .FIFO_DATA_WIDTH    ( DATA_WIDTH),
-        .PE_SIZE            ( PE_SIZE),
-        .MEM0_DEPTH         (MEM0_DEPTH),
-        .MEM1_DEPTH         (),
-        .MEM0_ADDR_WIDTH    (),
-        .MEM1_ADDR_WIDTH    (),
-        .MEM0_DATA_WIDTH    (),
-        .MEM1_DATA_WIDTH    (),
-        .WEIGHT_ROW_NUM     (),
-        .WEIGHT_COL_NUM     ()
+        .FIFO_DATA_WIDTH    ( DATA_WIDTH        ),
+        .PE_SIZE            ( PE_SIZE           ),
+        .MEM0_DEPTH         ( MEM0_DEPTH        ),
+        .MEM1_DEPTH         ( MEM1_DEPTH        ),
+        .MEM0_ADDR_WIDTH    ( MEM0_ADDR_WIDTH   ),
+        .MEM1_ADDR_WIDTH    ( MEM1_ADDR_WIDTH   ),
+        .MEM0_DATA_WIDTH    ( MEM0_DATA_WIDTH   ),
+        .MEM1_DATA_WIDTH    ( MEM1_DATA_WIDTH   ),
+        .WEIGHT_ROW_NUM     ( WEIGHT_ROW_NUM    ),
+        .WEIGHT_COL_NUM     ( WEIGHT_COL_NUM    )
     ) u_Top_GLB (
-        .clk                ( clk               ),
-        .rst_n              ( rst_n             ),
-        .en                 ( en                ),
-        .mem0_q0_o          ( mem0_q0_o         ),
-        .mem0_q0_vaild      ( mem0_q0_vaild     ),
-        .rdata_o            ( rdata_o           ),
-        .weight_en_col_o    ( weight_en_col_o   ),
-        .sa_data_mover_en   ( sa_data_mover_en  )
+        // Special Input
+        .clk                ( clk                   ),
+        .rst_n              ( rst_n                 ),
+        // Control Input
+        .en                 ( gemm_start_i          ),
+        // Ifmap Output
+        .mem0_q0_o          ( ifmap_row_w           ),  // ifmap
+        .mem0_q0_vaild      ( ifmap_valid_w         ),  // ifmap enable signal for forwarding
+        // Weight Output
+        .rdata_o            ( weight_col_w          ),  // weight
+        .weight_en_col_o    ( weight_en_col_w       ),  // weight enable signal for forwarding
+        // Control Output
+        .sa_data_mover_en   ( sa_data_mover_en_w    )   // Read Activation Map from sa_data_mover
     );
     
     
     
     SA #(
-        .PE_SIZE         ( 4    ),
-        .DATA_WIDTH      ( 8    ),
-        .PSUM_WIDTH      ( 32   )
+        .PE_SIZE         ( PE_SIZE          ),
+        .DATA_WIDTH      ( DATA_WIDTH       ),
+        .PSUM_WIDTH      ( PSUM_WIDTH       )
     ) u_SA (
-        .clk             ( clk             ),
-        .rst_n           ( rst_n           ),
-        .ifmap_row_i     ( ifmap_row_i     ),
-        .weight_col_i    ( weight_col_i    ),
-        .psum_row_i      ( psum_row_i      ),
-        .ifmap_preload_i ( ifmap_preload_i ),
-        .weight_en_col_i ( weight_en_col_i ),
-        .psum_en_row_i   ( psum_en_row_i   ),
-        .ifmap_row_o     ( ifmap_row_o     ),
-        .weight_col_o    ( weight_col_o    ),
-        .psum_row_o      ( psum_row_o      ),
-        .weight_en_col_o ( weight_en_col_o ),
-        .psum_en_row_o   ( psum_en_row_o   )
+        // Special Input
+        .clk             ( clk              ),
+        .rst_n           ( rst_n            ),
+        // Primitives Input (TOP_GLB -> SA)
+        .ifmap_row_i     ( ifmap_row_w      ), 
+        .weight_col_i    ( weight_col_w     ), 
+        .psum_row_i      ( {(PE_SIZE*PSUM_WIDTH-1){1'b0}} ),   // partial sum(In this logic, zero partial sum for SA)
+        // Control Input (TOP_GBL -> SA)
+        .ifmap_preload_i ( ifmap_valid_w    ),  // preload start signal 
+        .weight_en_col_i ( weight_en_col_w  ),
+        .psum_en_row_i   ( weight_en_col_w  ),  // partial sum sync with weight data
+        // Primitives Output (SA -> ACC)
+        .ifmap_row_o     ( ),                   // not use
+        .weight_col_o    ( ),                   // not use
+        .psum_row_o      ( psum_row_w       ),  // SA output -> ACC input
+        // Control Output (SA -> ACC)
+        .weight_en_col_o ( ),                   // not use
+        .psum_en_row_o   ( psum_en_row_w    )   // Used for FIFO write signal
     );
 
     
     
     ACC #(
-        .PE_SIZE    ( 4             ),
-        .DATA_WIDTH ( 32            ),
-        .FIFO_DEPTH ( 4             )
+        .PE_SIZE    ( PE_SIZE       ),
+        .DATA_WIDTH ( DATA_WIDTH    ),
+        .FIFO_DEPTH ( OUT_CH        )
     ) u_ACC (
+        // Special Input
         .clk        ( clk           ),
-        .rst_n      ( rst_n         ),
-        .psum_en_i  ( psum_en_i     ),
-        .rden_i     ( rden_i        ),
-        .psum_row_i ( psum_row_i    ),
-        .psum_row_o ( psum_row_o    )
+        .rst_n      ( rst_n         ),      // FIFO reset signal, initialize fifo R/W counter
+        // Control Input 
+        .psum_en_i  ( psum_en_row_w ),      // FIFO write enable signal (SA -> ACC)
+        .rden_i     ( rden_i        ),      // FIFO read enable signal  (SA_DATA_MOVER -> ACC)
+        // Primitives Input
+        .psum_row_i ( psum_row_w    ),      // SA output (SA -> ACC)
+        // Primitives Output
+        .psum_row_o ( psum_row_o    )       // Accumulated output activation map value (ACC -> SA_DATA_MOVER)
     );
 
     
-
-    
-        
-    Conv_Data_mover_v2 #(
-        .MEM0_DEPTH      ( 896 ),
-        .MEM1_DEPTH      ( 896 ),
-        .MEM0_ADDR_WIDTH ( 7 ),
-        .MEM1_ADDR_WIDTH ( 7 ),
-        .MEM0_DATA_WIDTH ( 128 ),
-        .MEM1_DATA_WIDTH ( 128 ),
-        .PE_SIZE         ( 16 ),
-        .WEIGHT_ROW_NUM  ( 70 ),
-        .WEIGHT_COL_NUM  ( 294 )
-    ) u_Conv_Data_mover_v2 (
-        .clk                ( clk             ),
-        .rst_n              ( rst_n           ),
-        .en                 ( en              ),
-        .mem0_q0_i          ( mem0_q0_i       ),
-        .mem0_addr0         ( mem0_addr0      ),
-        .mem0_ce0           ( mem0_ce0        ),
-        .mem0_we0           ( mem0_we0        ),
-        .mem1_q0_i          ( mem1_q0_i       ),
-        .mem1_addr0         ( mem1_addr0      ),
-        .mem1_ce0           ( mem1_ce0        ),
-        .mem1_we0           ( mem1_we0        ),
-        .mem0_q0_o          ( mem0_q0_o       ),
-        .mem0_q0_vaild      ( mem0_q0_vaild   ),
-        .mem1_q0_o          ( mem1_q0_o       ),
-        .wren_o             ( wren_o          ),
-        .rden_o             ( rden_o          ),
-        .sa_data_mover_en   ( sa_data_mover_en  )
+    SA_Data_mover #(
+        .FIFO_DATA_WIDTH    ( DATA_WIDTH        ),
+        .PE_SIZE            ( PE_SIZE           ),
+        .MEM0_DEPTH         ( MEM0_DEPTH        ),
+        .MEM1_DEPTH         ( MEM1_DEPTH        ),
+        .MEM0_ADDR_WIDTH    ( MEM0_ADDR_WIDTH   ),
+        .MEM1_ADDR_WIDTH    ( MEM1_ADDR_WIDTH   ),
+        .MEM0_DATA_WIDTH    ( MEM0_DATA_WIDTH   ),
+        .MEM1_DATA_WIDTH    ( MEM1_DATA_WIDTH   ),
+        .OC                 ( OUT_CH            )
+    )u_SA_Data_mover(
+        .rdata_i(),
+        .mem0_d0()
     );
+
 
 
 endmodule
