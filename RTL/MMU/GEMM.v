@@ -50,9 +50,9 @@ module GEMM #(
     input   [MEM1_DATA_WIDTH-1:0]   mem1_q0_i, 
 
     // BRAM2(Activation map) I/O
-    output  [MEM2_ADDR_WIDTH-1:0]   mem2_addr0,
     output                          mem2_ce0,
     output                          mem2_we0,
+    output  [MEM2_ADDR_WIDTH-1:0]   mem2_addr0,
     output  [MEM2_DATA_WIDTH-1:0]   mem2_d0
 
     );
