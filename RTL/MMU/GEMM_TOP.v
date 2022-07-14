@@ -32,6 +32,29 @@ module GEMM_TOP #(
     localparam MEM2_DATA_WIDTH  = PE_SIZE * DATA_WIDTH;                                     // 112(=14*8)
     localparam MEM2_ADDR_WIDTH  = $clog2(MEM2_DEPTH);                                       // 10 = clog2(896)
 
+    // Wire Decalation
+    wire                            mem0_ce0_w;
+    wire                            mem0_we0_w;
+    wire    [MEM0_ADDR_WIDTH-1:0]   mem0_addr0_w;
+    wire    [MEM0_DATA_WIDTH-1:0]   mem0_d0_w;
+    wire    [MEM0_DATA_WIDTH-1:0]   mem0_q0_w;
+    
+    // BRAM1(Weight) I/O
+    wire                            mem1_ce0_w;
+    wire                            mem1_we0_w;
+    wire    [MEM1_ADDR_WIDTH-1:0]   mem1_addr0_w;
+    wire    [MEM1_DATA_WIDTH-1:0]   mem1_d0_w;
+    wire    [MEM1_DATA_WIDTH-1:0]   mem1_q0_w;
+
+    // BRAM2(Activation map) I/O
+    wire    [MEM2_ADDR_WIDTH-1:0]   mem2_addr0_w;
+    wire                            mem2_ce0_w;
+    wire                            mem2_we0_w;
+    wire    [MEM2_DATA_WIDTH-1:0]   mem2_d0_w;
+    wire    [MEM2_DATA_WIDTH-1:0]   mem2_q0_w;
+    
+    
+    // CORE INST
     GEMM #(
         .DATA_WIDTH      ( DATA_WIDTH ),
         .PSUM_WIDTH      ( PSUM_WIDTH ),
@@ -53,40 +76,101 @@ module GEMM_TOP #(
         .MEM2_DATA_WIDTH ( MEM2_DATA_WIDTH ),
         .MEM2_ADDR_WIDTH ( MEM2_ADDR_WIDTH )
     ) u_GEMM (
-        .clk             ( clk             ),
-        .rst_n           ( rst_n           ),
-        .gemm_start_i    ( gemm_start_i    ),
-        .mem0_ce0        ( mem0_ce0        ),
-        .mem0_we0        ( mem0_we0        ),
-        .mem0_addr0      ( mem0_addr0      ),
-        .mem0_q0_i       ( mem0_q0_i       ),
-        .mem1_ce0        ( mem1_ce0        ),
-        .mem1_we0        ( mem1_we0        ),
-        .mem1_addr0      ( mem1_addr0      ),
-        .mem1_q0_i       ( mem1_q0_i       ),
-        .mem2_addr0      ( mem2_addr0      ),
-        .mem2_ce0        ( mem2_ce0        ),
-        .mem2_we0        ( mem2_we0        ),
-        .mem2_d0         ( mem2_d0         )
+        // Special Input
+        .clk             ( clk ),
+        .rst_n           ( rst_n ),
+        // Gemm Start control signal
+        .gemm_start_i    ( gemm_start_i ),
+        // BRAM0
+        .mem0_ce0        ( mem0_ce0_w   ),
+        .mem0_we0        ( mem0_we0_w   ),
+        .mem0_addr0      ( mem0_addr0_W ),
+        .mem0_q0_i       ( mem0_q0_w    ),
+        // BRAM1
+        .mem1_ce0        ( mem1_ce0_w   ),
+        .mem1_we0        ( mem1_we0_w   ),
+        .mem1_addr0      ( mem1_addr0_w ),
+        .mem1_q0_i       ( mem1_q0_w    ),
+        // BRAM2
+        .mem2_addr0      ( mem2_addr0_w ),
+        .mem2_ce0        ( mem2_ce0_w   ),
+        .mem2_we0        ( mem2_we0_w   ),
+        .mem2_d0         ( mem2_d0_w    )
     );
 
+
+    //  MEMORY PART  //
+    
+    
+    // BRAM0(Ifmap)
     true_dpbram #(
-        .DWIDTH     ( 16 ),
-        .AWIDTH     ( 12 ),
-        .MEM_SIZE   ( 3840 )
-    ) u_true_dpbram (
-        .clk        ( clk     ),
-        .addr0_i    ( addr0_i ),
-        .ce0_i      ( ce0_i   ),
-        .we0_i      ( we0_i   ),
-        .d0_i       ( d0_i    ),
-        .addr1_i    ( addr1_i ),
-        .ce1_i      ( ce1_i   ),
-        .we1_i      ( we1_i   ),
-        .d1_i       ( d1_i    ),
-        .q0_o       ( q0_o    ),
-        .q1_o       ( q1_o    )
+        .DWIDTH     ( MEM0_DATA_WIDTH ),
+        .AWIDTH     ( MEM0_ADDR_WIDTH ),
+        .MEM_SIZE   ( MEM0_DEPTH )
+    ) mem0 (
+        .clk        ( clk ),
+        // Mem0 Input Port0
+        .addr0_i    ( mem0_addr0_W ),
+        .ce0_i      ( mem0_ce0_w   ),
+        .we0_i      ( mem0_we0_w   ),
+        .d0_i       ( mem0_d0_w    ),
+        // Mem0 Input Port1
+        .addr1_i    ( ),
+        .ce1_i      ( ),
+        .we1_i      ( ),
+        .d1_i       ( ),
+        // Mem0 Output Port0
+        .q0_o       ( mem0_q0_w ),
+        // Mem0 Output Port1
+        .q1_o       ( )
     );
 
 
+    // BRAM1(Weight)
+    true_dpbram #(
+        .DWIDTH     ( MEM1_DATA_WIDTH ),
+        .AWIDTH     ( MEM1_ADDR_WIDTH ),
+        .MEM_SIZE   ( MEM1_DEPTH )
+    ) mem1 (
+        .clk        ( clk ),
+        // Mem1 Input Port0
+        .addr0_i    ( mem1_addr0_W ),
+        .ce0_i      ( mem1_ce0_w   ),
+        .we0_i      ( mem1_we0_w   ),
+        .d0_i       ( mem1_d0_w    ),
+        // Mem1 Input Port1 (not use)
+        .addr1_i    ( ),
+        .ce1_i      ( ),
+        .we1_i      ( ),
+        .d1_i       ( ),
+        // Mem1 Output Port0
+        .q0_o       ( mem1_q0_w ),
+        // Mem1 Output Port1 (not use)
+        .q1_o       ( )
+    );
+    
+    
+    // BRAM2(Activation Map)
+    true_dpbram #(
+        .DWIDTH     ( MEM0_DATA_WIDTH ),
+        .AWIDTH     ( MEM0_ADDR_WIDTH ),
+        .MEM_SIZE   ( MEM0_DEPTH )
+    ) mem2 (
+        .clk        ( clk ),
+        // Mem2 Input Port0
+        .addr0_i    ( mem2_addr0_W ),
+        .ce0_i      ( mem2_ce0_w   ),
+        .we0_i      ( mem2_we0_w   ),
+        .d0_i       ( mem2_d0_w    ),
+        // Mem2 Input Port1 (not use)
+        .addr1_i    ( ),
+        .ce1_i      ( ),
+        .we1_i      ( ),
+        .d1_i       ( ),
+        // Mem2 Output Port0
+        .q0_o       ( mem2_q0_w ),
+        // Mem2 Output Port1 (not use)
+        .q1_o       ( )
+    );
+    
 endmodule

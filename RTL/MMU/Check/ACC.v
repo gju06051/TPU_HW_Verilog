@@ -3,7 +3,8 @@ module ACC #(
     parameter PE_SIZE       = 4,
     parameter DATA_WIDTH    = 8,
     parameter PSUM_WIDTH    = 32,
-    parameter FIFO_DEPTH    = 4
+    parameter FIFO_DEPTH    = 4,
+    parameter SLICING_IDX   = 32
     )
     (
     // Special input
@@ -84,7 +85,7 @@ module ACC #(
     generate
         for (k=0; k < PE_SIZE; k=k+1) begin : GEN_OUT
             // concatenate flatten output data
-            assign psum_row_o[DATA_WIDTH*(PE_SIZE-k)-1 : DATA_WIDTH*(PE_SIZE-k-1)] = fifo_out_w[k][PSUM_WIDTH-1:PSUM_WIDTH-DATA_WIDTH];
+            assign psum_row_o[DATA_WIDTH*(PE_SIZE-k)-1 : DATA_WIDTH*(PE_SIZE-k-1)] = fifo_out_w[k][SLICING_IDX-1 -: DATA_WIDTH];
         end
     endgenerate
     
