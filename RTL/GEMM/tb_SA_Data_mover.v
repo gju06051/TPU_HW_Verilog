@@ -30,15 +30,20 @@ module tb_SA_Data_mover;
         #50
             rst_n = 1'b1;
         #20
-            for(i = 0; i < PE_SIZE+PE_SIZE-1; i = i +1) begin
+            for(i = 0; i < 70+70-1; i = i +1) begin
                 @(posedge clk);
                     #1;
                         if(i == 0) begin
                             en <= 1;
                             rdata_i <= {((FIFO_DATA_WIDTH*PE_SIZE)){1'b0}};
                         end
-                        else if(i < PE_SIZE) begin
-                            rdata_i <= (rdata_i >> 8) | {{i[FIFO_DATA_WIDTH-1:0]},{((FIFO_DATA_WIDTH*PE_SIZE)-FIFO_DATA_WIDTH){1'b0}}};
+                        else if(i < 70) begin
+                            if(i == 69) begin
+                                en <= 1'b0;
+                                rdata_i <= 0;
+                            end else begin
+                                rdata_i <= (rdata_i >> 8) | {{i[FIFO_DATA_WIDTH-1:0]},{((FIFO_DATA_WIDTH*PE_SIZE)-FIFO_DATA_WIDTH){1'b0}}};
+                            end
                         end else begin
                             rdata_i <= (rdata_i >> 8) | {{8'b0},{((FIFO_DATA_WIDTH*PE_SIZE)-FIFO_DATA_WIDTH){1'b0}}};
                         end

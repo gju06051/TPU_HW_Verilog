@@ -19,8 +19,17 @@ module SA_Data_mover # (
 );
     localparam BUFF_ADDR = $clog2(PE_SIZE);
     localparam OC_ADDR_WIDTH = $clog2(OC);
-    localparam OUT_CNT = PE_SIZE*OC;
+
+    // (fixed)
+    localparam OUT_CNT = OC;
+    
     localparam OUT_CNT_ADDR = $clog2(PE_SIZE*OC);
+
+    //(added)
+    localparam  buffer_index_overflow = OC / PE_SIZE;
+    localparam  buffer_index_overflow_width = $clog2((OC / PE_SIZE)+1);
+    localparam  buffer_index_remainder = (OC % PE_SIZE);
+    
     // make #(PE_SIZE-1) buffer_en signal
     reg r_buffer_en [0:PE_SIZE-2];
     wire buffer_en [0:PE_SIZE-1];
@@ -141,6 +150,9 @@ module SA_Data_mover # (
         end
     end
     wire [BUFF_ADDR-1:0] buffer_index;
+    wire buffer_index_done_1;
+    wire buffer_index_done_2;
+    /*
     up_counter #(
         .CNT(PE_SIZE),
         .CNT_WIDTH(BUFF_ADDR)
@@ -149,8 +161,40 @@ module SA_Data_mover # (
         .rst_n(rst_n),
         .en(reg_mem0_ce0),
         .cnt_o(buffer_index),
-        .is_done_o()
+        .is_done_o(buffer_index_done)
     );
+    */
+    
+    reg         [buffer_index_overflow_width-1:0] buffer_index_overflow_check;
+    reg         buffer_index_sel;
+    up_counter_v2 #(
+        .CNT_1(PE_SIZE),
+        .CNT_2(buffer_index_remainder),
+        .CNT_WIDTH(BUFF_ADDR)
+    ) up_counter_for_buffer_index (
+        .clk(clk),
+        .rst_n(rst_n),
+        .en(reg_mem0_ce0),
+        .sel(buffer_index_sel),
+        .cnt_o(buffer_index),
+        .is_done_o_1(buffer_index_done_1),
+        .is_done_o_2(buffer_index_done_2)
+    );
+
+    always @(posedge clk or negedge rst_n) begin
+        if(!rst_n) begin
+            buffer_index_overflow_check <= 0;
+            buffer_index_sel <= 0;
+        end else if(buffer_index_overflow_check == buffer_index_overflow) begin
+            buffer_index_overflow_check <= 0;
+            buffer_index_sel <= 1;
+        end else if(buffer_index_done_2) begin
+            buffer_index_overflow_check <= 0;
+            buffer_index_sel <= 0;
+        end else if(buffer_index_done_1) begin
+            buffer_index_overflow_check <= buffer_index_overflow_check + 1;
+        end
+    end
 
     assign mem0_addr0   = wire_mem0_addr * (PE_SIZE) + mem0_addr_offset;
     assign mem0_ce0     = reg_mem0_ce0;
