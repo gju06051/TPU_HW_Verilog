@@ -32,14 +32,14 @@ module Top_GLB # (
     output wire sa_data_mover_en
 );
     wire    wren_o;
-   // wire    mem1_ce0;
-   // wire    mem1_we0;
-   // wire    mem0_ce0;
-   // wire    mem0_we0;
-   // wire    [MEM0_ADDR_WIDTH-1:0] mem0_addr0;
-   // wire    [MEM1_ADDR_WIDTH-1:0] mem1_addr0;
-   // wire    [MEM0_DATA_WIDTH-1:0] mem0_q0_i;
-   // wire    [MEM1_DATA_WIDTH-1:0] mem1_q0_i;
+    // wire    mem1_ce0;
+    // wire    mem1_we0;
+    // wire    mem0_ce0;
+    // wire    mem0_we0;
+    // wire    [MEM0_ADDR_WIDTH-1:0] mem0_addr0;
+    // wire    [MEM1_ADDR_WIDTH-1:0] mem1_addr0;
+    // wire    [MEM0_DATA_WIDTH-1:0] mem0_q0_i;
+    // wire    [MEM1_DATA_WIDTH-1:0] mem1_q0_i;
     wire    [MEM1_DATA_WIDTH-1:0] mem1_q0_o;
     wire    rden_o;   
     

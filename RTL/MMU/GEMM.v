@@ -1,15 +1,28 @@
 module GEMM #(
     // Primitive DATA_WIDTH
-    parameter DATA_WIDTH    = 8,        // Weight, Ifmap
-    parameter PSUM_WIDTH    = 32,       // Partial Sum
-    // HW Const(=Ifmap width)
-    parameter PE_SIZE       = 14,       // Systolic Array PE NUM 
-                                        // ex. if PE_SIZE = 14, use 196(=14x14) PE  
-    // Model Const
-    parameter IN_CH         = 32,       // Input Channel
-    parameter OUT_CH        = 64,       // Output Channel
-    parameter KERNAL_SIZE   = 3
-    ) 
+    parameter DATA_WIDTH    = 8,            // Weight, Ifmap
+    parameter PSUM_WIDTH    = 32,           // Partial Sum
+    
+    // HW Const
+    parameter PE_SIZE       = 14,           // Systolic Array PE NUM 
+                                            // ex. if PE_SIZE = 14, use 196(=14x14) PE  
+    // GEMM parameter
+    parameter WEIGHT_ROW_NUM   = 294,       // 294(=288+14-(288%14))
+    parameter WEIGHT_COL_NUM   = 70,        // 70(=64+14-(288%14))
+    
+    // BRAM0(Ifmap)
+    parameter MEM0_DEPTH       = 4116,      // 4116(=196*294/14)
+    parameter MEM0_DATA_WIDTH  = 112,       // 112(=14*8)
+    parameter MEM0_ADDR_WIDTH  = 13,        // 13 = clog2(4116)
+    // BRAM1(Weight)
+    parameter MEM1_DEPTH       = 1470,      // 1470(=70*294/14)
+    parameter MEM1_DATA_WIDTH  = 112,       // 112(=14*8)
+    parameter MEM1_ADDR_WIDTH  = 11,        // 11 = clog2(1470)
+    // BRAM2(Activation Map)
+    parameter MEM2_DEPTH        = 896,      // 896(=14*64)
+    parameter MEM2_DATA_WIDTH   = 112,      // 112(=14*8)
+    parameter MEM2_ADDR_WIDTH   = 10        // 10 = clog2(896)
+    )
     (
     // Port
     
@@ -20,26 +33,26 @@ module GEMM #(
     // Control Input
     input gemm_start_i,
     
-    // SA_DATA_MOVER BRAM I/O PORT
-    output      [MEM0_DATA_WIDTH-1:0]   mem0_d0,
-    output      [MEM0_ADDR_WIDTH-1:0]   mem0_addr,
-    output                              mem0_ce0,
-    output                              mem0_we0
+    // BRAM0(Ifmap) I/O 
+    output                          mem0_ce0,  
+    output                          mem0_we0,  
+    output  [MEM0_ADDR_WIDTH-1:0]   mem0_addr0,
+    input   [MEM0_DATA_WIDTH-1:0]   mem0_q0_i, 
+    
+    // BRAM1(Weight) I/O
+    output                          mem1_ce0,  
+    output                          mem1_we0,  
+    output  [MEM1_ADDR_WIDTH-1:0]   mem1_addr0,
+    input   [MEM1_DATA_WIDTH-1:0]   mem1_q0_i, 
+
+    // BRAM2(Activation map) I/O
+    output  [MEM2_ADDR_WIDTH-1:0]   mem2_addr0,
+    output                          mem2_ce0,
+    output                          mem2_we0,
+    output  [MEM2_DATA_WIDTH-1:0]   mem2_d0
 
     );
     
-    // Local Parameter
-    localparam IM2COL_ROW       = IN_CH * (KERNAL_SIZE**2);                                 // 288(=32*(3**2))
-    localparam WEIGHT_ROW_NUM   = IM2COL_ROW + (PE_SIZE - (IM2COL_ROW%PE_SIZE));            // 294(=288+14-(288%14))
-    localparam WEIGHT_COL_NUM   = OUT_CH + (PE_SIZE - (IM2COL_ROW%PE_SIZE));                // 70(=64+14-(288%14))
-    
-    localparam MEM0_DEPTH       = (PE_SIZE**2)*WEIGHT_ROW_NUM / PE_SIZE;                    // 4116(=196*294/14)
-    localparam MEM0_DATA_WIDTH  = PE_SIZE * DATA_WIDTH;                                     // 112(=14*8)
-    localparam MEM0_ADDR_WIDTH  = $clog2(MEM0_DEPTH);                                       // 13 = clog2(4116)
-    
-    localparam MEM1_DEPTH       = (WEIGHT_COL_NUM)*WEIGHT_ROW_NUM / PE_SIZE;                // 1470(=70*294/14)
-    localparam MEM1_DATA_WIDTH  = PE_SIZE * DATA_WIDTH;                                     // 112(=14*8)
-    localparam MEM1_ADDR_WIDTH  = $clog2(MEM1_DEPTH);                                       // 11 = clog2(1470)
     
     
     // Port Declation
@@ -58,6 +71,7 @@ module GEMM #(
     
     
     
+    
     Top_GLB #(
         .FIFO_DATA_WIDTH    ( DATA_WIDTH        ),
         .PE_SIZE            ( PE_SIZE           ),
@@ -71,22 +85,35 @@ module GEMM #(
         .WEIGHT_COL_NUM     ( WEIGHT_COL_NUM    )
     ) u_Top_GLB (
         // Special Input
-        .clk                ( clk                   ),
-        .rst_n              ( rst_n                 ),
-        // Control Input
-        .en                 ( gemm_start_i          ),
-        // Ifmap Output
-        .mem0_q0_o          ( ifmap_row_w           ),  // ifmap
-        .mem0_q0_vaild      ( ifmap_valid_w         ),  // ifmap enable signal for forwarding
-        // Weight Output
-        .rdata_o            ( weight_col_w          ),  // weight
-        .weight_en_col_o    ( weight_en_col_w       ),  // weight enable signal for forwarding
-        // Control Output
-        .sa_data_mover_en   ( sa_data_mover_en_w    )   // Read Activation Map from sa_data_mover
+        .clk                ( clk               ),
+        .rst_n              ( rst_n             ),
+        // SA activation signal (outside -> GEMM)
+        .en                 ( gemm_start_i      ),
+        // BRAM0(Ifmap) control signal (Top_GLB -> BRAM0)
+        .mem0_ce0           ( mem0_ce0          ),
+        .mem0_we0           ( mem0_we0          ),
+        .mem0_addr0         ( mem0_addr0        ),
+        // BRAM0(Ifmap) data (BRAM0 -> Top_GLB)
+        .mem0_q0_i          ( mem0_q0_i         ),
+        // BRAM1(Weight) control signal (Top_GLB -> BRAM1)
+        .mem1_ce0           ( mem1_ce0          ),
+        .mem1_we0           ( mem1_we0          ),
+        .mem1_addr0         ( mem1_addr0        ),
+        // BRAM1(Weight) data (BRAM1 -> Top_GLB)
+        .mem1_q0_i          ( mem1_q0_i         ),
+        // BRAM0(Ifmap) output  (Top_GLB -> SA)
+        .mem0_q0_o          ( ifmap_row_w       ),
+        .mem0_q0_vaild      ( ifmap_valid_w     ),
+        // BRAM1(Weight) output (Top_GLB -> SA)
+        .rdata_o            ( weight_col_w      ),
+        .weight_en_col_o    ( weight_en_col_w   ),
+        // Activation map read enable signal from SA_DATA_MOVER (GLB -> SA_DATA_MOVER)
+        .sa_data_mover_en   ( sa_data_mover_en  )
     );
-    
-    
-    
+
+
+
+
     SA #(
         .PE_SIZE            ( PE_SIZE          ),
         .DATA_WIDTH         ( DATA_WIDTH       ),
@@ -111,6 +138,7 @@ module GEMM #(
         .weight_en_col_o    ( ),                   // not use
         .psum_en_row_o      ( psum_en_row_w    )   // Used for FIFO write signal
     );
+
 
 
 
@@ -144,19 +172,19 @@ module GEMM #(
         .OC                 ( OUT_CH            )
     ) u_SA_Data_mover (
         // Special Input
-        .clk                ( clk                   ),
-        .rst_n              ( rst_n                 ),
+        .clk                ( clk           ),
+        .rst_n              ( rst_n         ),
         // Control Input
         .en                 ( sa_data_mover_en_w    ),
         // Control Output
-        .rden_o             ( rden_w                ),
+        .rden_o             ( rden_w        ),
         // Primtives Input
-        .rdata_i            ( actmp_row_w           ),
+        .rdata_i            ( actmp_row_w   ),
         // BRAM I/O 
-        .mem0_d0            ( mem0_d0               ),
-        .mem0_addr0         ( mem0_addr0            ),
-        .mem0_ce0           ( mem0_ce0              ),
-        .mem0_we0           ( mem0_we0              )
+        .mem0_d0            ( mem2_d0       ),
+        .mem0_addr0         ( mem2_addr0    ),
+        .mem0_ce0           ( mem2_ce0      ),
+        .mem0_we0           ( mem2_we0      )
     );
 
 
