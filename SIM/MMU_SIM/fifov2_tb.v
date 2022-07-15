@@ -64,7 +64,7 @@ module FIFO_v2_TB #(
         
         @(posedge clk);
         #(`DELTA)
-        rst_n = 1'b0;   // reset off
+        rst_n = 1'b1;   // reset off
         
         
         // 2. Write activation
@@ -74,23 +74,56 @@ module FIFO_v2_TB #(
             wren_i = 1'b1;
             wdata_i = i;
         end
-        
         // Write off
         @(posedge clk);
         #(`DELTA)
         wren_i = 1'b0;    
         
+        
         // 3. Read activation
-        for (i=0; i< FIFO_DEPTH+2; i=i+1) begin
+        for (i=0; i < FIFO_DEPTH+2; i=i+1) begin
             @(posedge clk);
             #(`DELTA)
             rden_i = 1'b1;
         end
-
         // Read off
         @(posedge clk);
         #(`DELTA)
         rden_i = 1'b0;
+            
+        // Test WR activation
+        
+        // initialize
+        @(posedge clk);
+        #(`DELTA)
+        rst_n = 1'b0;
+        
+        @(posedge clk);
+        #(`DELTA)
+        rst_n = 1'b1;
+        
+        // Preload
+        for (i=0; i < FIFO_DEPTH; i=i+1) begin
+            @(posedge clk);
+            #(`DELTA)
+            wren_i = 1'b1;
+            wdata_i = i;
+        end
+        
+        // RW sync activation
+        for (i=0; i < FIFO_DEPTH; i=i+1) begin
+            @(posedge clk);
+            #(`DELTA)
+            wren_i = 1'b1;
+            rden_i = 1'b1;
+            wdata_i = i+10;
+        end
+        
+        @(posedge clk);
+        @(`DELTA)
+        wren_i = 1'b0;
+        rden_i = 1'b0;
+        wdata_i = 'd0;
     end
     
     endmodule
