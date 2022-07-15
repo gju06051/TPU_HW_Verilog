@@ -22,16 +22,16 @@ module ACC_v2_TB #(
     );
     
     // Special input
-    wire   clk;
-    wire   rst_n;
+    reg   clk;
+    reg   rst_n;
     
     // R/W enable signal
-    wire    [PE_SIZE-1:0]   psum_en_row_i;              // signal from SA, used for fifo write signal
+    reg    [PE_SIZE-1:0]   psum_en_row_i;              // signal from SA, used for fifo write signal
     
     // I/O data
-    wire    [PSUM_WIDTH*PE_SIZE-1:0]    psum_row_i;
-    reg     [DATA_WIDTH*PE_SIZE-1:0]    ofmap_row_o;
-    reg                                 ofmap_valid_o;   // first fifo ofmap valid signal
+    reg    [PSUM_WIDTH*PE_SIZE-1:0]     psum_row_i;
+    wire   [DATA_WIDTH*PE_SIZE-1:0]     ofmap_row_o;
+    wire                                ofmap_valid_o;   // first fifo ofmap valid signal
     
     reg [PSUM_WIDTH-1:0]    test_num;
     
