@@ -88,7 +88,7 @@ module ACC_v2_TB #(
         for (i=0; i < PE_SIZE; i=i+1) begin
             @(posedge clk);
             #(`DELTA)
-            psum_en_row_i = {(i+1){1'b1}, (PE_SIZE-i-1){1'b0}};
+            psum_en_row_i[(PE_SIZE-i)-1] = 1'b1;
             psum_row_i = {(PE_SIZE){test_num}};
         end
         
@@ -106,8 +106,8 @@ module ACC_v2_TB #(
         for (i=0; i < PE_SIZE; i=i+1) begin
             @(posedge clk);
             #(`DELTA)
-            psum_en_row_i = {(i+1){1'b0}, (PE_SIZE-i-1){1'b1}};
-            psum_row_i = {(PE_SIZE),{test_num}};
+            psum_en_row_i[(PE_SIZE-i)-1] = 1'b0;
+            psum_row_i = {(PE_SIZE){test_num}};
         end
         
         test_num = 'd0;
@@ -116,8 +116,8 @@ module ACC_v2_TB #(
         repeat (5) begin
             @(posedge clk);
             #(`DELTA)
-            sum_en_row_i = {(PE_SIZE){1'b0}};
-            psum_row_i = {(PE_SIZE),{test_num}};
+            psum_en_row_i = {(PE_SIZE){1'b0}};
+            psum_row_i = {(PE_SIZE){test_num}};
         end
         
         // 3. Psum accumulation
@@ -129,7 +129,7 @@ module ACC_v2_TB #(
             for (i=0; i < PE_SIZE; i=i+1) begin
                 @(posedge clk);
                 #(`DELTA)
-                psum_en_row_i = {(i+1){1'b1}, (PE_SIZE-i-1){1'b0}};
+                psum_en_row_i[(PE_SIZE-i)-1] = 1'b1;
                 psum_row_i = {(PE_SIZE){test_num}};
             end
             
@@ -143,8 +143,8 @@ module ACC_v2_TB #(
             for (i=0; i < PE_SIZE; i=i+1) begin
                 @(posedge clk);
                 #(`DELTA)
-                psum_en_row_i = {(i+1){1'b0}, (PE_SIZE-i-1){1'b1}};
-                psum_row_i = {(PE_SIZE),{test_num}};
+                psum_en_row_i[(PE_SIZE-i)-1] = 1'b1;
+                psum_row_i = {(PE_SIZE){test_num}};
             end
             
             
@@ -155,8 +155,8 @@ module ACC_v2_TB #(
             repeat (5) begin
                 @(posedge clk);
                 #(`DELTA)
-                sum_en_row_i = {(PE_SIZE){1'b0}};
-                psum_row_i = {(PE_SIZE),{test_num}};
+                psum_en_row_i = {(PE_SIZE){1'b0}};
+                psum_row_i = {(PE_SIZE){test_num}};
             end
             
         end
@@ -169,7 +169,7 @@ module ACC_v2_TB #(
         for (i=0; i < PE_SIZE; i=i+1) begin
                 @(posedge clk);
                 #(`DELTA)
-                psum_en_row_i = {(i+1){1'b1}, (PE_SIZE-i-1){1'b0}};
+                psum_en_row_i[(PE_SIZE-i)-1] = 1'b1;
                 psum_row_i = {(PE_SIZE){test_num}};
             end
             
@@ -183,8 +183,8 @@ module ACC_v2_TB #(
         for (i=0; i < PE_SIZE; i=i+1) begin
             @(posedge clk);
             #(`DELTA)
-            psum_en_row_i = {(i+1){1'b0}, (PE_SIZE-i-1){1'b1}};
-            psum_row_i = {(PE_SIZE),{test_num}};
+            psum_en_row_i[(PE_SIZE-i)-1] = 1'b1;
+            psum_row_i = {(PE_SIZE){test_num}};
         end
         
 
@@ -194,8 +194,8 @@ module ACC_v2_TB #(
         repeat (5) begin
             @(posedge clk);
             #(`DELTA)
-            sum_en_row_i = {(PE_SIZE){1'b0}};
-            psum_row_i = {(PE_SIZE),{test_num}};
+            psum_en_row_i = {(PE_SIZE){1'b0}};
+            psum_row_i = {(PE_SIZE){test_num}};
         end
 
     end
