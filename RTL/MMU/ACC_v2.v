@@ -2,7 +2,7 @@ module ACC_v2 #(
     // Parameter
     
     // Primitives Param
-    parameter PE_SIZE           = 4,
+    parameter PE_SIZE           = 14,
     parameter DATA_WIDTH        = 8,
     parameter PSUM_WIDTH        = 32,
     // Quantization Param

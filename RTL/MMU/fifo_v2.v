@@ -1,7 +1,7 @@
 module FIFO_v2 #(
     // Parameter
     parameter DATA_WIDTH = 32,  // data bit width
-    parameter FIFO_DEPTH = 8    // fifo entry num
+    parameter FIFO_DEPTH = 70   // fifo entry num
     )
     (   
     // Port
