@@ -55,8 +55,9 @@
         reg mem1_read_en;
 
     
-
-
+        wire mem1_read_en_done;
+        wire mem1_num_cnt_en;
+        
         reg [MEM0_WAIT_WIDTH-1:0]       mem0_wait;
         wire counter_is_done;
         always @(posedge clk or negedge rst_n) begin
@@ -173,14 +174,14 @@
                 mem1_num_cnt <= mem1_num_cnt + 1;
             end
         end
-        wire mem1_num_cnt_en;
-        wire mem1_read_en_done;
+        //wire mem1_num_cnt_en;
+        //wire mem1_read_en_done;
         Counter_v2 #(
             .COUNT_NUM(WEIGHT_ROW_NUM)
         ) Counter_for_mem1_addr (
             .clk(clk),
             .rst_n(rst_n),
-            .start_i(mem1_read_en),
+            .start_i(mem1_read_en_run), //(changed)
             .run_o(mem1_num_cnt_en),
             .done_o(mem1_read_en_done)
         );
@@ -217,7 +218,7 @@
         assign mem0_addr0   = mem0_num_cnt;
         assign mem1_addr0   = mem1_num_cnt;
         assign mem0_ce0     = mem0_read_en;
-        assign mem1_ce0     = mem1_read_en;
+        assign mem1_ce0     = mem1_read_en && (!mem1_read_en_done); //(changed)
         assign mem0_we0     = 1'b0; // *only read operation
         assign mem1_we0     = 1'b0; // *only read operation
 
