@@ -40,6 +40,7 @@ module ACC_COUNTER_TB #(
     end
 
     integer i;
+    integer j;
     // Stimulus
     initial begin
         // 0. Initialize

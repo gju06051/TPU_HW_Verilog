@@ -50,7 +50,7 @@ module ACC_COUNTER #(
     
     // 1-3) generate acc counter enable signal by using psum counter
     wire psum_cnt_done;
-    assign psum_cnt_done_w = (psum_cnt==WEIGHT_COL_NUM);
+    assign psum_cnt_done = (psum_cnt==WEIGHT_COL_NUM);
     
     
     
