@@ -122,7 +122,7 @@ module ACC_v2_TB #(
         
         repeat (19) begin   // preload 1time, acc 19time -> 21th value ofmap
             
-            test_num = 'd1;
+            test_num = 'h0100_0000;
             
             for (i=0; i < PE_SIZE; i=i+1) begin
                 @(posedge clk);
@@ -162,7 +162,7 @@ module ACC_v2_TB #(
         
         // 4. Ofmap check
         
-        test_num = 'h1000;
+        test_num = 'h0100_0000;
         
         for (i=0; i < PE_SIZE; i=i+1) begin
                 @(posedge clk);
