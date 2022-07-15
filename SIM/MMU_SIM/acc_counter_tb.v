@@ -2,7 +2,7 @@
 `define DELTA 3
 `define CLOCK_PERIOD 10
 
-module ACC_COUNTER #(
+module ACC_COUNTER_TB #(
     // Parameter
     parameter PE_SIZE = 14,
     parameter WEIGHT_ROW_NUM = 294,

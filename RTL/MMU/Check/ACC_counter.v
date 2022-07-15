@@ -74,7 +74,7 @@ module ACC_COUNTER #(
             end else begin
                 acc_cnt_n = acc_cnt + 'd1;
             end
-        else begin
+        end else begin
             acc_cnt_n = acc_cnt;    // maintain
         end
     end
