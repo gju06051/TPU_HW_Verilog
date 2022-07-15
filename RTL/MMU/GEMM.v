@@ -65,7 +65,7 @@ module GEMM #(
     wire    [MEM1_DATA_WIDTH-1:0]       weight_col_w;           // TOP_GLB -> SA
     wire    [PE_SIZE-1:0]               weight_en_col_w;        // TOP_GLB -> SA
     
-    wire                                sa_data_mover_en_w;     // TOP_GLB -> SA_DATA_MOVER
+    wire                                sa_data_mover_en_w;     // TOP_GLB -> SA_DATA_MOVER     // Need Modify
     
     wire    [PSUM_WIDTH*PE_SIZE-1:0]    psum_row_w;             // SA -> ACC
     wire    [PE_SIZE-1:0]               psum_en_row_w;          // SA -> ACC
