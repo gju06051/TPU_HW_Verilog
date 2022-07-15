@@ -97,7 +97,7 @@ module ACC_v2 #(
             ) FIFO_INST (   
                 // special signal
                 .clk        ( clk   ),                  // clock signal
-                .rst_n      ( rst_n | fifo_rst_n[i] ),  // negedge pointer reset signal(don't need to reset data in fifo)
+                .rst_n      ( rst_n|fifo_rst_n[i] ),  // negedge pointer reset signal(don't need to reset data in fifo)
                 // R/W input signal
                 .wren_i     ( psum_en_row_i[i] ),   // write enable signal
                 .rden_i     ( rden_w[i]    ),       // read denable signal
