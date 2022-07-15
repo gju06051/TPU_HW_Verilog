@@ -71,8 +71,8 @@ module GEMM #(
     wire    [PE_SIZE-1:0]               psum_en_row_w;          // SA -> ACC
     
     wire    [PE_SIZE-1:0]               rden_w;                 // SA_DATA_MOVER -> ACC
-    wire    [MEM0_DATA_WIDTH-1:0]       actmp_row_w;            // ACC -> SA_DATA_MOVER
-    
+    wire    [MEM0_DATA_WIDTH-1:0]       ofmap_row_w;            // ACC -> SA_DATA_MOVER
+    wire                                ofmap_valid_w;
     
     
     
@@ -112,7 +112,7 @@ module GEMM #(
         .rdata_o            ( weight_col_w  ),
         .weight_en_col_o    ( weight_en_col_w ),
         // Activation map read enable signal from SA_DATA_MOVER (GLB -> SA_DATA_MOVER)
-        .sa_data_mover_en   ( sa_data_mover_en )
+        .sa_data_mover_en   ( sa_data_mover_en )        // Need Modify
     );
 
 
@@ -144,25 +144,23 @@ module GEMM #(
     );
 
 
-
-
-    ACC #(
-        .PE_SIZE            ( PE_SIZE     ),
-        .DATA_WIDTH         ( DATA_WIDTH  ),
-        .PSUM_WIDTH         ( PSUM_WIDTH  ),
-        .FIFO_DEPTH         ( OUT_CH      ),
-        .SLICING_IDX        ( SLICING_IDX )
-    ) u_ACC (
+    ACC_v2 #(
+        .PE_SIZE        ( PE_SIZE ),
+        .DATA_WIDTH     ( DATA_WIDTH ),
+        .PSUM_WIDTH     ( PSUM_WIDTH ),
+        .SLICING_IDX    ( SLICING_IDX ),
+        .WEIGHT_ROW_NUM ( WEIGHT_ROW_NUM ),
+        .WEIGHT_COL_NUM ( WEIGHT_COL_NUM )
+    )u_ACC_v2(
         // Special Input
-        .clk                ( clk   ),
-        .rst_n              ( rst_n ),      // FIFO reset signal, initialize fifo R/W counter
-        // Control Input 
-        .psum_en_i          ( psum_en_row_w ),      // FIFO write enable signal (SA -> ACC)
-        .rden_i             ( rden_w        ),      // FIFO read enable signal  (SA_DATA_MOVER -> ACC)
-        // Primitives Input
-        .psum_row_i         ( psum_row_w    ),      // SA output (SA -> ACC)
-        // Primitives Output
-        .psum_row_o         ( actmp_row_w   )       // Accumulated output activation map value (ACC -> SA_DATA_MOVER)
+        .clk            ( clk            ),
+        .rst_n          ( rst_n          ),
+        // Control Input
+        .psum_en_row_i  ( psum_en_row_w  ),     // FIFO write enable signal (SA -> ACC)
+        // Data I/O
+        .psum_row_i     ( psum_row_w     ),     // SA output (SA -> ACC)
+        .ofmap_row_o    ( ofmap_row_w    ),     // Accumulated output activation map value (ACC -> SA_DATA_MOVER)
+        .ofmap_valid_o  ( ofmap_valid_w  )
     );
 
 
@@ -182,9 +180,9 @@ module GEMM #(
         // Control Input
         .en                 ( sa_data_mover_en_w ),
         // Control Output
-        .rden_o             ( rden_w ),
+        .rden_o             ( rden_w ),             // Need Modify
         // Primtives Input
-        .rdata_i            ( actmp_row_w ),
+        .rdata_i            ( ofmap_row_w ),
         // BRAM I/O 
         .mem0_d0            ( mem2_d0     ),
         .mem0_addr0         ( mem2_addr0  ),
