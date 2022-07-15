@@ -18,7 +18,7 @@
 //          clk: special inputs. Clock
 //          reset_n: special input. reset (active low)
 //
-//      Signal From Register
+//      Signal From Controller
 //          start_run_i: active high. Signal for start running the data mover.
 //          run_count_i: number of data that module should take
 //      
@@ -38,6 +38,9 @@
 //          ce_b0_o/ce_b1_o: chip enable
 //          we_b0_o/we_b1_o: write enable. 0 means read mode and 1 means write mode
 //          d_b0_o/d_b1_o: data that user wants to write
+//
+//      Calculation_Result
+//          result_o: calculation result. that is, 7 core's result
 // Notice
 //      this data mover will read the data from BRAM0 and BRAM1
 //      So BRAM0 and BRAM1 is read-only 
@@ -67,7 +70,7 @@ module data_mover_bram
     /* Memory I/F Input for BRAM0 */
     input [DWIDTH - 1 : 0] q_b0_i,
 
-    /* Memory I/F Input for BRAM0 */
+    /* Memory I/F Input for BRAM1 */
     input [DWIDTH - 1 : 0] q_b1_i,
 
     /* State_Outputs */
@@ -89,10 +92,11 @@ module data_mover_bram
     output [DWIDTH - 1 : 0] d_b1_o,
 
     /* result for 4 Core */
-    output[DWIDTH - 1 : 0] result_0_o,
-    output[DWIDTH - 1 : 0] result_1_o,
-    output[DWIDTH - 1 : 0] result_2_o,
-    output[DWIDTH - 1 : 0] result_3_o
+    // output[DWIDTH - 1 : 0] result_0_o,
+    // output[DWIDTH - 1 : 0] result_1_o,
+    // output[DWIDTH - 1 : 0] result_2_o,
+    // output[DWIDTH - 1 : 0] result_3_o
+    output [DWIDTH - 1 : 0] result_o
 );
 
 /* localparam to define the state */
@@ -308,9 +312,11 @@ fully_connected_core
 
 /* Making Output */
 assign result_valid = w_valid_0 & w_valid_1 & w_valid_2 & w_valid_3;
-assign result_0_o     = w_result_0;
-assign result_1_o     = w_result_1;
-assign result_2_o     = w_result_2;
-assign result_3_o     = w_result_3;
+// assign result_0_o     = w_result_0;
+// assign result_1_o     = w_result_1;
+// assign result_2_o     = w_result_2;
+// assign result_3_o     = w_result_3;
+
+assign reuslt_o = w_result_0 + w_result_1 + w_result_2 + w_result_3; 
 endmodule
 

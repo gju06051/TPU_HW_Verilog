@@ -13,10 +13,10 @@
 
 `define CNT_BIT 31
 `define ADDR_WIDTH 12
-`define DATA_WIDTH 32
+`define DATA_WIDTH 56
 `define MEM_DEPTH 4096
 `define IN_DATA_WIDTH 8
-`define NUM_CORE 4
+`define NUM_CORE 7
 
 module tb_data_mover_bram();
     reg                     clk, reset_n;
@@ -47,11 +47,17 @@ module tb_data_mover_bram();
     reg [`IN_DATA_WIDTH - 1 : 0] a_1;
     reg [`IN_DATA_WIDTH - 1 : 0] a_2;
     reg [`IN_DATA_WIDTH - 1 : 0] a_3;
+    reg [`IN_DATA_WIDTH - 1 : 0] a_4;
+    reg [`IN_DATA_WIDTH - 1 : 0] a_5;
+    reg [`IN_DATA_WIDTH - 1 : 0] a_6;
 
     wire [`DATA_WIDTH - 1 : 0]  result_0;
     wire [`DATA_WIDTH - 1 : 0]  result_1;
     wire [`DATA_WIDTH - 1 : 0]  result_2;
     wire [`DATA_WIDTH - 1 : 0]  result_3;
+    wire [`DATA_WIDTH - 1 : 0]  result_4;
+    wire [`DATA_WIDTH - 1 : 0]  result_5;
+    wire [`DATA_WIDTH - 1 : 0]  result_6;
 
     always begin
         #5 clk = ~clk;
@@ -61,9 +67,9 @@ module tb_data_mover_bram();
 
     initial begin
         // read file open, write file open
-        f_in_node = $fopen("C:/FPGA_prj/URP/DATA_MOVER_BRAM/test_file/ref_c_rand_input_node.txt", "rb");
-        f_in_weight = $fopen("C:/FPGA_prj/URP/DATA_MOVER_BRAM/test_file/ref_c_rand_input_weight.txt", "rb");
-        f_ot = $fopen("C:/FPGA_prj/URP/DATA_MOVER_BRAM/test_file/ref_c_result.txt", "wb");
+        f_in_node = $fopen("C:/FPGA_prj/URP/DATA_MOVER_BRAM_FC/test_file/ref_c_rand_input_node_7.txt", "rb");
+        f_in_weight = $fopen("C:/FPGA_prj/URP/DATA_MOVER_BRAM_FC/test_file/ref_c_rand_input_weight_7.txt", "rb");
+        f_ot = $fopen("C:/FPGA_prj/URP/DATA_MOVER_BRAM_FC/test_file/ref_c_result_7_v.txt", "wb");
     end
 
     initial begin
@@ -82,10 +88,10 @@ module tb_data_mover_bram();
         // give BRAM to test data
         $display("Mem Write to BRAM0 [%0d]", $time);
         for(i = 0; i < run_count_i; i = i + 1) begin     
-            status = $fscanf(f_in_node, "%d %d %d %d \n", a_0, a_1, a_2, a_3);
-            BRAM0_inst.ram[i] = {a_0, a_1, a_2, a_3};
-            status = $fscanf(f_in_weight, "%d %d %d %d \n", a_0, a_1, a_2, a_3);
-            BRAM1_inst.ram[i] = {a_0, a_1, a_2, a_3};
+            status = $fscanf(f_in_node, "%d %d %d %d %d %d %d\n", a_0, a_1, a_2, a_3, a_4, a_5, a_6);
+            BRAM0_inst.ram[i] = {a_0, a_1, a_2, a_3, a_4, a_5, a_6};
+            status = $fscanf(f_in_weight, "%d %d %d %d %d %d %d\n", a_0, a_1, a_2, a_3, a_4, a_5, a_6);
+            BRAM1_inst.ram[i] = {a_0, a_1, a_2, a_3, a_4, a_5, a_6};
         end
 
         // Check Idle
@@ -103,7 +109,7 @@ module tb_data_mover_bram();
         wait(done_o);
 
         $display("Read Result [%0d]", $time);
-        $fwrite(f_ot, "%0d %0d %0d %0d ", result_0, result_1, result_2, result_3);
+        $fwrite(f_ot, "%d %d %d %d %d %d %d", result_6, result_5, result_4, result_3, result_2, result_1, result_0);
 
         $fclose(f_in_node);
         $fclose(f_in_weight);
@@ -156,11 +162,14 @@ module tb_data_mover_bram();
         .we_b1_o(we0_b1),
         .d_b1_o(d0_b1),
 
-        /* result for 4 Core */
+        /* result for 7 Core */
         .result_0_o(result_0),
         .result_1_o(result_1),
         .result_2_o(result_2),
-        .result_3_o(result_3)
+        .result_3_o(result_3),
+        .result_4_o(result_4),
+        .result_5_o(result_5),
+        .result_6_o(result_6)
     );
 
     true_dpbram
@@ -218,4 +227,6 @@ module tb_data_mover_bram();
         /* output for port 1 */
         .q1_o()
     );
+
+    
 endmodule

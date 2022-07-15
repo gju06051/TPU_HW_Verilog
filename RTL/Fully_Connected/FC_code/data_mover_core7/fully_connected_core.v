@@ -34,10 +34,10 @@ module fully_connected_core
 	input 	[IN_DATA_WIDTH - 1:0]		weight_i,
 
 	output  							valid_o,
-	output  [(4*IN_DATA_WIDTH) - 1:0]	result_o
+	output  [(7*IN_DATA_WIDTH) - 1:0]	result_o
 );
 
-// 2 cycle delay
+// 2 cycle delay - 1 MAC operation need more than 1 clk period
 reg 	[1 : 0]					  r_valid;
 reg 	[(4*IN_DATA_WIDTH) - 1:0] r_mult;
 wire  	[(2*IN_DATA_WIDTH) - 1:0] w_mult;
