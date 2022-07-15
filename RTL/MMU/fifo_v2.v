@@ -53,8 +53,8 @@ module FIFO_v2 #(
         // read pointer modify
         if (rden_i) begin
             if (rdptr==FIFO_DEPTH-1) begin  // overflow case
-                wrptr_n[FIFO_DEPTH_LG2] = wrptr[FIFO_DEPTH_LG2] + 'd1;      // update msb
-                wrptr_n[FIFO_DEPTH_LG2-1:0] = {(FIFO_DEPTH_LG2){1'b0}};     // reset fifo addr
+                rdptr_n[FIFO_DEPTH_LG2] = rdptr[FIFO_DEPTH_LG2] + 'd1;      // update msb
+                rdptr_n[FIFO_DEPTH_LG2-1:0] = {(FIFO_DEPTH_LG2){1'b0}};     // reset fifo addr
             end else begin
                 rdptr_n = rdptr + 'd1;      // update rdptr add1 after read activation
             end
