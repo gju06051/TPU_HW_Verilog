@@ -46,7 +46,7 @@ module ACC_v2 #(
     generate
         for (j=0; j < PE_SIZE; j=j+1) begin : GEN_ACC_OP
             // flatten input data with each wire
-            assign psum_w[j] = psum_row_i[PSUM_WIDTH*j -: PSUM_WIDTH];     
+            assign psum_w[j] = psum_row_i[PSUM_WIDTH*j +: PSUM_WIDTH];     
             
             // checking preload psum, not_full -> preload psum by giving feedback zero
             assign feedback_w[j] = acc_en_w[j] ? fifo_out_w[j] : {(PSUM_WIDTH){1'b0}};              
@@ -121,6 +121,6 @@ module ACC_v2 #(
         end
     endgenerate
     
-    assign ofmap_valid_w = ofmap_valid_o;
+    assign ofmap_valid_o = ofmap_valid_w;
     
 endmodule
