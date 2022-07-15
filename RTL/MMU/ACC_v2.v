@@ -16,9 +16,8 @@ module ACC_v2 #(
     
     // I/O data
     input   [PSUM_WIDTH*PE_SIZE-1:0]    psum_row_i,
-    output                              ofmap_valid_o,  // first fifo ofmap valid signal
-    output  [DATA_WIDTH*PE_SIZE-1:0]    ofmap_row_o
-    
+    output  [DATA_WIDTH*PE_SIZE-1:0]    ofmap_row_o,
+    output                              ofmap_valid_o   // first fifo ofmap valid signal
     
     );
     

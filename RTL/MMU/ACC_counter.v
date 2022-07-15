@@ -13,7 +13,8 @@ module ACC_COUNTER #(
     // Control Input
     input   psum_en_i,
     // Valid Output
-    output  ofmap_valid_o
+    output  ofmap_valid_o,
+    output  fifo_rst_n_o
     );
 
 
@@ -81,5 +82,5 @@ module ACC_COUNTER #(
     
     // 2-3) output assignment
     assign ofmap_valid_o = (acc_cnt==ACC_CNT_NUM-1) & psum_en_i;    // ex. acc_cnt = 20, psum_en_i come
-
+    assign fifo_rst_n_o = (acc_cnt==ACC_CNT_NUM-1) & psum_cnt_done; // last valid ofmap timing
 endmodule

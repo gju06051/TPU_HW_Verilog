@@ -13,10 +13,11 @@ module ACC_COUNTER_TB #(
     // This is TB
     );    
     
-    reg   clk;
-    reg   rst_n;
-    reg   psum_en_i;
-    wire  ofmap_valid_o;
+    reg     clk;
+    reg     rst_n;
+    reg     psum_en_i;
+    wire    ofmap_valid_o;
+    wire    fifo_rst_n_o;
     
 
     // DUT INST
@@ -28,7 +29,8 @@ module ACC_COUNTER_TB #(
         .clk            ( clk            ),
         .rst_n          ( rst_n          ),
         .psum_en_i      ( psum_en_i      ),
-        .ofmap_valid_o  ( ofmap_valid_o  )
+        .ofmap_valid_o  ( ofmap_valid_o  ),
+        .fifo_rst_n_o   ( fifo_rst_n_o   )
     );
     
     // clock signal
