@@ -6,10 +6,9 @@ module ACC_v2_TB #(
     // Parameter
     
     // Primitives Param
-    parameter PE_SIZE           = 4,
+    parameter PE_SIZE           = 14,
     parameter DATA_WIDTH        = 8,
     parameter PSUM_WIDTH        = 32,
-    parameter FIFO_DEPTH        = 4,
     // Quantization Param
     parameter SLICING_IDX       = 32,
     // Matrix Param for counter
@@ -41,7 +40,6 @@ module ACC_v2_TB #(
         .PE_SIZE        ( PE_SIZE ),
         .DATA_WIDTH     ( DATA_WIDTH ),
         .PSUM_WIDTH     ( PSUM_WIDTH ),
-        .FIFO_DEPTH     ( FIFO_DEPTH ),
         .SLICING_IDX    ( SLICING_IDX ),
         .WEIGHT_ROW_NUM ( WEIGHT_ROW_NUM ),
         .WEIGHT_COL_NUM ( WEIGHT_COL_NUM )
