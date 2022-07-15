@@ -78,9 +78,9 @@ module ACC_v2 #(
     // FIFO reset seq logic  
     always @(posedge clk, negedge rst_n) begin
         if (!rst_n) begin
-            fifo_rst_n <= {(PE_SIZE){1'b0}};
+            fifo_rst_n <= {(PE_SIZE){1'b1}};
         end else begin
-            fifo_rst_n <= {fifo_rst_n_w, fifo_rst_n[PE_SIZE-1:1]}; // shift left
+            fifo_rst_n <= {!fifo_rst_n_w, fifo_rst_n[PE_SIZE-1:1]}; // shift left
         end
     end
     
@@ -95,8 +95,8 @@ module ACC_v2 #(
                 .FIFO_DEPTH ( WEIGHT_COL_NUM )    // FIFO entry num
             ) FIFO_INST (   
                 // special signal
-                .clk        ( clk   ),                  // clock signal
-                .rst_n      ( rst_n|fifo_rst_n[i] ),  // negedge pointer reset signal(don't need to reset data in fifo)
+                .clk        ( clk   ),                      // clock signal
+                .rst_n      ( rst_n & fifo_rst_n[i] ),   // negedge pointer reset signal(don't need to reset data in fifo)
                 // R/W input signal
                 .wren_i     ( psum_en_row_i[i] ),   // write enable signal
                 .rden_i     ( rden_w[i]    ),       // read denable signal
@@ -117,7 +117,7 @@ module ACC_v2 #(
     generate
         for (k=0; k < PE_SIZE; k=k+1) begin : GEN_OUT
             // concatenate flatten output data
-            assign ofmap_row_o[DATA_WIDTH*(PE_SIZE-k)-1 -: DATA_WIDTH] = fifo_out_w[k][SLICING_IDX-1 -: DATA_WIDTH];
+            assign ofmap_row_o[DATA_WIDTH*(PE_SIZE-k)-1 -: DATA_WIDTH] = fifo_out_w[(PE_SIZE-k)-1][SLICING_IDX-1 -: DATA_WIDTH];
         end
     endgenerate
     

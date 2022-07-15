@@ -79,7 +79,7 @@ module ACC_v2_TB #(
         #(`DELTA)
         rst_n = 1'b1;       
         
-        test_num = 'h10;
+        test_num = 'h0000_1000;
         
         // 2. Psum preload
         // 2-1) psum load
@@ -90,7 +90,7 @@ module ACC_v2_TB #(
             psum_row_i = {(PE_SIZE){test_num}};
         end
         
-        test_num = 'h20;
+        test_num = 'h0000_0100;
         
         for (i=0; i < PE_SIZE*4; i=i+1) begin
             @(posedge clk);
@@ -99,9 +99,9 @@ module ACC_v2_TB #(
             psum_row_i = {(PE_SIZE){test_num}};
         end
         
-        test_num = 'h30;
+        test_num = 'h0000_0010;
         
-        for (i=0; i < PE_SIZE; i=i+1) begin
+        for (i=0; i < PE_SIZE-1; i=i+1) begin
             @(posedge clk);
             #(`DELTA)
             psum_en_row_i[(PE_SIZE-i)-1] = 1'b0;
