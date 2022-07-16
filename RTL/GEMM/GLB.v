@@ -46,7 +46,7 @@
         genvar l;
             generate
                 for (l=0; l < PE_SIZE; l=l+1) begin 
-                    assign weight_en_col_o[l] = w_rden_i_row[l]; 
+                    assign weight_en_col_o[l] = w_rden_i_row[PE_SIZE-1-l]; //changed 
                 end
             endgenerate
 
