@@ -7,7 +7,7 @@
 `define PE_SIZE 14
 
 // Model Param
-`define SLICING_IDX 32
+`define SLICING_IDX 8
 `define IN_CH 32
 `define OUT_CH 64
 
@@ -174,8 +174,11 @@ module tb_GEMM_v2;
         
         wait(finish)
         
+        @(posedge clk)'
         #(`DELTA)
         start_i = 1'b0;
+        rst_n = 1'b0;
+        
 
 
 
