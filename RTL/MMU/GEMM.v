@@ -185,10 +185,10 @@ module GEMM #(
         // Primtives Input
         .rdata_i            ( ofmap_row_w ),
         // BRAM I/O 
-        .mem0_d0            ( mem2_d0     ),
-        .mem0_addr0         ( mem2_addr0  ),
-        .mem0_ce0           ( mem2_ce0    ),
-        .mem0_we0           ( mem2_we0    ),
+        .mem2_d0            ( mem2_d0     ),
+        .mem2_addr0         ( mem2_addr0  ),
+        .mem2_ce0           ( mem2_ce0    ),
+        .mem2_we0           ( mem2_we0    ),
         .finish             ( finish_o    )
     );
 

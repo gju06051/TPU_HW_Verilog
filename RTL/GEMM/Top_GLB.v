@@ -86,8 +86,8 @@ module Top_GLB # (
         .wren_i(wren_o),
         .rden_i(rden_o),
 
-        .full_o(full_o),
-        .empty_o(empty_o),
+        .full_o(),
+        .empty_o(),
         
         .wdata_i(mem1_q0_o),
         .rdata_o(rdata_o),

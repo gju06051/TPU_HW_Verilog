@@ -79,7 +79,7 @@ module tb_GEMM;
 
     // BRAM2(Activation map) I/O
     reg [`MEM2_ADDR_WIDTH-1:0] mem2_addr1;
-    reg [`MEM2_DATA_WIDTH-1:0] mem2_q1;
+    wire [`MEM2_DATA_WIDTH-1:0] mem2_q1;
     reg mem2_ce1;
     reg mem2_we1;
     reg [`DATA_WIDTH-1:0]   a_0, a_1, a_2, a_3, a_4, a_5, a_6, a_7,a_8, a_9, a_10,
@@ -196,7 +196,7 @@ module tb_GEMM;
                 a_11 = mem2_q1[(`MEM2_DATA_WIDTH-1)-((11)*(`DATA_WIDTH)) -:`DATA_WIDTH];
                 a_12 = mem2_q1[(`MEM2_DATA_WIDTH-1)-((12)*(`DATA_WIDTH)) -:`DATA_WIDTH];
                 a_13 = mem2_q1[(`MEM2_DATA_WIDTH-1)-((13)*(`DATA_WIDTH)) -:`DATA_WIDTH];
-                status = $fprintf(fp_ot_Ofmap_tb, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d \n", 
+                $fwrite(fp_ot_Ofmap_tb, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d \n", 
                                         a_0, a_1, a_2, a_3, a_4, a_5, a_6, a_7,a_8, a_9, a_10,
                                         a_11, a_12, a_13);
             end
