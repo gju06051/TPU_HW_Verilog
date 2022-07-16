@@ -5,8 +5,8 @@
 module ACC_COUNTER_TB #(
     // Parameter
     parameter PE_SIZE = 14,
-    parameter WEIGHT_ROW_NUM = 294,
-    parameter WEIGHT_COL_NUM = 70
+    parameter WEIGHT_ROW_NUM = 70,
+    parameter WEIGHT_COL_NUM = 294
     )
     (
     // No Port
@@ -59,8 +59,8 @@ module ACC_COUNTER_TB #(
         rst_n = 1'b1;
         
         // 2. Psum Counting & ACC Counting
-        for (i=0; i < (WEIGHT_ROW_NUM/PE_SIZE) + 3; i=i+1) begin
-            for (j=0; j < WEIGHT_COL_NUM; j=j+1) begin
+        for (i=0; i < (WEIGHT_COL_NUM/PE_SIZE) + 3; i=i+1) begin
+            for (j=0; j < WEIGHT_ROW_NUM; j=j+1) begin
                 @(posedge clk);
                 #(`DELTA)
                 psum_en_i = 1'b1;

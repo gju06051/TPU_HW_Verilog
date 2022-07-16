@@ -20,9 +20,9 @@ module ACC_COUNTER #(
 
     // Local parameter
     localparam PSUM_CNT_NUM = WEIGHT_ROW_NUM;           // 70
-    localparam PSUM_CNT_WIDTH = $clog2(PSUM_CNT_NUM);
+    localparam PSUM_CNT_WIDTH = $clog2(PSUM_CNT_NUM);   // 7
     localparam ACC_CNT_NUM = WEIGHT_COL_NUM / PE_SIZE;  // 294 / 14 = 21
-    localparam ACC_CNT_WIDTH = $clog2(ACC_CNT_NUM);
+    localparam ACC_CNT_WIDTH = $clog2(ACC_CNT_NUM);     // 5
     
     
     
@@ -82,5 +82,5 @@ module ACC_COUNTER #(
     
     // 2-3) output assignment
     assign ofmap_valid_o = (acc_cnt==ACC_CNT_NUM-1) & psum_en_i;    // ex. acc_cnt = 20, psum_en_i come
-    assign fifo_rst_n_o = (acc_cnt==ACC_CNT_NUM-1) & psum_cnt_done; // last valid ofmap timing
+    assign fifo_rst_n_o = (acc_cnt==ACC_CNT_NUM-1) & psum_cnt_done; // last valid ofmap timing high
 endmodule
