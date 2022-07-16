@@ -173,17 +173,15 @@ module tb_GEMM_v2;
         start_i = 1'b1;
         
         wait(finish)
-        
-        @(posedge clk)'
+        @(posedge clk);
         #(`DELTA)
         start_i = 1'b0;
         rst_n = 1'b0;
         
 
-
-
         // make fp_ot_Ofmap_tb files
         for(i = 0; i < `MEM2_DEPTH + 1; i = i+1) begin
+        @(posedge clk) #1;
             if(i != 0) begin
                 a_0  = mem2_q1[(`MEM2_DATA_WIDTH-1)-((0) *(`DATA_WIDTH)) -:`DATA_WIDTH];
                 a_1  = mem2_q1[(`MEM2_DATA_WIDTH-1)-((1) *(`DATA_WIDTH)) -:`DATA_WIDTH];
@@ -204,20 +202,17 @@ module tb_GEMM_v2;
                                         a_11, a_12, a_13);
             end
             if(i != `MEM2_DEPTH) begin
-                @(posedge clk) #1;
                     mem2_ce1 = 1'b1;
                     mem2_we1 = 1'b0;
                     mem2_addr1 = i;
+            end else begin
+                mem2_ce1 = 1'b0;
+                mem2_we1 = 1'b0;
+                mem2_addr1 = 0;
             end
         end
 
-        // finish mem2
-        mem2_ce1 = 1'b0;
-        mem2_we1 = 1'b0;
-        mem2_addr1 = 0;
     end
-
-
 
 // DUT INST
 // ----------------------------------------------------------------------------------------------------------------------
