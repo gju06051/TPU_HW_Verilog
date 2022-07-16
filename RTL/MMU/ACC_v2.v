@@ -117,7 +117,7 @@ module ACC_v2 #(
     generate
         for (k=0; k < PE_SIZE; k=k+1) begin : GEN_OUT
             // concatenate flatten output data
-            assign ofmap_row_o[DATA_WIDTH*(PE_SIZE-k)-1 -: DATA_WIDTH] = fifo_in_w[(PE_SIZE-k)-1][SLICING_IDX-1 -: DATA_WIDTH];
+            assign ofmap_row_o[DATA_WIDTH*k +: DATA_WIDTH] = fifo_in_w[k][SLICING_IDX-1 -: DATA_WIDTH];
         end
     endgenerate
     
