@@ -100,9 +100,9 @@ module tb_GEMM;
 
     initial begin
         // read file open, write file open
-        fp_reshape_weight = $fopen("C:/FPGA_pj/CNN_golden_ref/ref_c_rand_reshape_weight.txt", "rb");
-        fp_im2col_Ifmap = $fopen("C:/FPGA_pj/CNN_golden_ref/ref_c_rand_im2col_Ifmap.txt", "rb");
-        fp_ot_Ofmap_tb = $fopen("C:/FPGA_pj/CNN_golden_ref/ref_c_ot_Ofmap_tb.txt", "wb");
+        fp_reshape_weight = $fopen("C:/FPGA_Proj/CNN_golden_ref/ref_c_rand_reshape_weight.txt", "rb");
+        fp_im2col_Ifmap = $fopen("C:/FPGA_Proj/CNN_golden_ref/ref_c_rand_im2col_Ifmap.txt", "rb");
+        fp_ot_Ofmap_tb = $fopen("C:/FPGA_Proj/CNN_golden_ref/ref_c_ot_Ofmap_tb.txt", "wb");
     end
 
     initial begin
