@@ -12,10 +12,11 @@ module SA_Data_mover # (
     input  wire en,
     output wire [PE_SIZE-1:0] rden_o,
     input  wire [(FIFO_DATA_WIDTH*PE_SIZE)-1:0] rdata_i,
-    output wire [MEM0_DATA_WIDTH-1:0] mem0_d0,
-    output wire [MEM0_ADDR_WIDTH-1:0] mem0_addr0,
-    output wire mem0_ce0,
-    output wire mem0_we0
+    output wire [MEM0_DATA_WIDTH-1:0] mem2_d0,
+    output wire [MEM0_ADDR_WIDTH-1:0] mem2_addr0,
+    output wire mem2_ce0,
+    output wire mem2_we0,
+    output wire finish //(added)
 );
     localparam BUFF_ADDR = $clog2(PE_SIZE);
     localparam OC_ADDR_WIDTH = $clog2(OC);
@@ -196,13 +197,22 @@ module SA_Data_mover # (
         end
     end
 
-    assign mem0_addr0   = wire_mem0_addr * (PE_SIZE) + mem0_addr_offset;
-    assign mem0_ce0     = reg_mem0_ce0;
-    assign mem0_we0     = 1'b1;
+    assign mem2_addr0   = wire_mem0_addr * (PE_SIZE) + mem0_addr_offset;
+    assign mem2_ce0     = reg_mem0_ce0;
+    assign mem2_we0     = 1'b1;
     generate
         for (i=0; i < PE_SIZE; i=i+1) begin   
-            assign mem0_d0[(PE_SIZE)*(FIFO_DATA_WIDTH)-1-(i*(FIFO_DATA_WIDTH))-: FIFO_DATA_WIDTH] = buffer[buffer_index*(PE_SIZE) + i];
+            assign mem2_d0[(PE_SIZE)*(FIFO_DATA_WIDTH)-1-(i*(FIFO_DATA_WIDTH))-: FIFO_DATA_WIDTH] = buffer[buffer_index*(PE_SIZE) + i];
         end
     endgenerate
 
+    reg r_finish;
+    always @(*) begin
+        if(mem2_addr0 == MEM0_DEPTH-1) begin
+            r_finish <= 1'b1;
+        end else begin
+            r_finish <= 1'b0;
+        end
+    end
+    assign finish = r_finish;
 endmodule
