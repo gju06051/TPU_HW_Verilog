@@ -7,7 +7,7 @@
 `define PE_SIZE 14
 
 // Model Param
-`define SLICING_IDX 32
+`define SLICING_IDX 8
 `define IN_CH 32
 `define OUT_CH 64
 
@@ -173,45 +173,45 @@ module tb_GEMM;
         start_i = 1'b1;
         
         wait(finish)
-        
+        @(posedge clk);
         #(`DELTA)
         start_i = 1'b0;
-
+        rst_n = 1'b0;
 
 
         // make fp_ot_Ofmap_tb files
         for(i = 0; i < `MEM2_DEPTH + 1; i = i+1) begin
-            if(i != 0) begin
-                a_0  = mem2_q1[(`MEM2_DATA_WIDTH-1)-((0) *(`DATA_WIDTH)) -:`DATA_WIDTH];
-                a_1  = mem2_q1[(`MEM2_DATA_WIDTH-1)-((1) *(`DATA_WIDTH)) -:`DATA_WIDTH];
-                a_2  = mem2_q1[(`MEM2_DATA_WIDTH-1)-((2) *(`DATA_WIDTH)) -:`DATA_WIDTH];
-                a_3  = mem2_q1[(`MEM2_DATA_WIDTH-1)-((3) *(`DATA_WIDTH)) -:`DATA_WIDTH];
-                a_4  = mem2_q1[(`MEM2_DATA_WIDTH-1)-((4) *(`DATA_WIDTH)) -:`DATA_WIDTH];
-                a_5  = mem2_q1[(`MEM2_DATA_WIDTH-1)-((5) *(`DATA_WIDTH)) -:`DATA_WIDTH];
-                a_6  = mem2_q1[(`MEM2_DATA_WIDTH-1)-((6) *(`DATA_WIDTH)) -:`DATA_WIDTH];
-                a_7  = mem2_q1[(`MEM2_DATA_WIDTH-1)-((7) *(`DATA_WIDTH)) -:`DATA_WIDTH];
-                a_8  = mem2_q1[(`MEM2_DATA_WIDTH-1)-((8) *(`DATA_WIDTH)) -:`DATA_WIDTH];
-                a_9  = mem2_q1[(`MEM2_DATA_WIDTH-1)-((9) *(`DATA_WIDTH)) -:`DATA_WIDTH];
-                a_10 = mem2_q1[(`MEM2_DATA_WIDTH-1)-((10)*(`DATA_WIDTH)) -:`DATA_WIDTH];
-                a_11 = mem2_q1[(`MEM2_DATA_WIDTH-1)-((11)*(`DATA_WIDTH)) -:`DATA_WIDTH];
-                a_12 = mem2_q1[(`MEM2_DATA_WIDTH-1)-((12)*(`DATA_WIDTH)) -:`DATA_WIDTH];
-                a_13 = mem2_q1[(`MEM2_DATA_WIDTH-1)-((13)*(`DATA_WIDTH)) -:`DATA_WIDTH];
-                $fwrite(fp_ot_Ofmap_tb, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d \n", 
-                                        a_0, a_1, a_2, a_3, a_4, a_5, a_6, a_7,a_8, a_9, a_10,
-                                        a_11, a_12, a_13);
-            end
-            if(i != `MEM2_DEPTH) begin
-                @(posedge clk) #1;
-                    mem2_ce1 = 1'b1;
+            @(posedge clk) #1;
+                if(i != 0) begin
+                    a_0  = mem2_q1[(`MEM2_DATA_WIDTH-1)-((0) *(`DATA_WIDTH)) -:`DATA_WIDTH];
+                    a_1  = mem2_q1[(`MEM2_DATA_WIDTH-1)-((1) *(`DATA_WIDTH)) -:`DATA_WIDTH];
+                    a_2  = mem2_q1[(`MEM2_DATA_WIDTH-1)-((2) *(`DATA_WIDTH)) -:`DATA_WIDTH];
+                    a_3  = mem2_q1[(`MEM2_DATA_WIDTH-1)-((3) *(`DATA_WIDTH)) -:`DATA_WIDTH];
+                    a_4  = mem2_q1[(`MEM2_DATA_WIDTH-1)-((4) *(`DATA_WIDTH)) -:`DATA_WIDTH];
+                    a_5  = mem2_q1[(`MEM2_DATA_WIDTH-1)-((5) *(`DATA_WIDTH)) -:`DATA_WIDTH];
+                    a_6  = mem2_q1[(`MEM2_DATA_WIDTH-1)-((6) *(`DATA_WIDTH)) -:`DATA_WIDTH];
+                    a_7  = mem2_q1[(`MEM2_DATA_WIDTH-1)-((7) *(`DATA_WIDTH)) -:`DATA_WIDTH];
+                    a_8  = mem2_q1[(`MEM2_DATA_WIDTH-1)-((8) *(`DATA_WIDTH)) -:`DATA_WIDTH];
+                    a_9  = mem2_q1[(`MEM2_DATA_WIDTH-1)-((9) *(`DATA_WIDTH)) -:`DATA_WIDTH];
+                    a_10 = mem2_q1[(`MEM2_DATA_WIDTH-1)-((10)*(`DATA_WIDTH)) -:`DATA_WIDTH];
+                    a_11 = mem2_q1[(`MEM2_DATA_WIDTH-1)-((11)*(`DATA_WIDTH)) -:`DATA_WIDTH];
+                    a_12 = mem2_q1[(`MEM2_DATA_WIDTH-1)-((12)*(`DATA_WIDTH)) -:`DATA_WIDTH];
+                    a_13 = mem2_q1[(`MEM2_DATA_WIDTH-1)-((13)*(`DATA_WIDTH)) -:`DATA_WIDTH];
+                    $fwrite(fp_ot_Ofmap_tb, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d \n", 
+                                            a_0, a_1, a_2, a_3, a_4, a_5, a_6, a_7,a_8, a_9, a_10,
+                                            a_11, a_12, a_13);
+                end
+                if(i != `MEM2_DEPTH) begin
+                        mem2_ce1 = 1'b1;
+                        mem2_we1 = 1'b0;
+                        mem2_addr1 = i;
+                end else begin
+                    mem2_ce1 = 1'b0;
                     mem2_we1 = 1'b0;
-                    mem2_addr1 = i;
-            end
+                    mem2_addr1 = 0;
+                end
         end
-
-        // finish mem2
-        mem2_ce1 = 1'b0;
-        mem2_we1 = 1'b0;
-        mem2_addr1 = 0;
+        
     end
 
 
