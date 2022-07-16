@@ -17,15 +17,24 @@
 #define MEM_DEPTH 4096 
 #define NUM_CORE 4
 
+typedef union {
+    int result;
+    struct {
+        uint8_t b0;
+        uint8_t b1;
+        uint8_t b2;
+        uint8_t b3;
+    } bdata;
+} Bitfild;
 
 
 int main(int argc, char **argv) {
 	srand(time(NULL));
 
 	FILE *fp_reshape_weight, *fp_im2col_Ifmap, *fp_ot_Ofmap;
-	fp_reshape_weight = fopen("ref_c_rand_reshape_weight.txt","w");
-	fp_im2col_Ifmap = fopen("ref_c_rand_im2col_Ifmap.txt","w");
-	fp_ot_Ofmap = fopen("ref_c_ot_Ofmap.txt","w");
+	fp_reshape_weight = fopen("C:/FPGA_pj/CNN_golden_ref/ref_c_rand_reshape_weight.txt","w");
+	fp_im2col_Ifmap = fopen("C:/FPGA_pj/CNN_golden_ref/ref_c_rand_im2col_Ifmap.txt","w");
+	fp_ot_Ofmap = fopen("C:/FPGA_pj/CNN_golden_ref/ref_c_ot_Ofmap.txt","w");
 	
 
     // make random reshape_weight_matrix
@@ -95,15 +104,18 @@ int main(int argc, char **argv) {
         //printf("\n\n");
     }
     
-
+    Bitfild bitfild; 
     // make Ofmap
     uint8_t Ofmap_matrix[OFMAP_ROW][OFMAP_COL];
+    int result;
     for(int i = 0 ; i < OFMAP_ROW; i++) {
         for(int k = 0; k < OFMAP_COL; k++) {
-            Ofmap_matrix[i][k] = 0;
+            result = 0;
             for(int l = 0; l < IM2COL_IFMAP_ROW; l++){
-                Ofmap_matrix[i][k] += reshape_weight_matrix[i][l] * im2col_ifmap_matrix[l][k];
+                result += reshape_weight_matrix[i][l] * im2col_ifmap_matrix[l][k];
             }
+            bitfild.result = result;
+            Ofmap_matrix[i][k] = bitfild.bdata.b0;
         }
     }
 
