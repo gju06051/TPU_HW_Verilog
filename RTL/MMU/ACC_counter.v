@@ -81,6 +81,6 @@ module ACC_COUNTER #(
     end
     
     // 2-3) output assignment
-    assign ofmap_valid_o = (acc_cnt==ACC_CNT_NUM-1) & psum_en_i;    // ex. acc_cnt = 20, psum_en_i come
+    assign ofmap_valid_o = (acc_cnt==ACC_CNT_NUM-1) & psum_en_i & (!psum_cnt_done);    // ex. acc_cnt = 20, psum_en_i come
     assign fifo_rst_n_o = (acc_cnt==ACC_CNT_NUM-1) & psum_cnt_done; // last valid ofmap timing high
 endmodule

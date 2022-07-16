@@ -60,6 +60,13 @@ module ACC_COUNTER_TB #(
         
         // 2. Psum Counting & ACC Counting
         for (i=0; i < (WEIGHT_COL_NUM/PE_SIZE) + 3; i=i+1) begin
+            // Ifmap preload
+            repeat(14) begin
+                @(posedge clk);
+                #(`DELTA)
+                psum_en_i = 1'b0;
+            end
+            // Weight 
             for (j=0; j < WEIGHT_ROW_NUM; j=j+1) begin
                 @(posedge clk);
                 #(`DELTA)
