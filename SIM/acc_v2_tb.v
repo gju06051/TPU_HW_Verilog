@@ -168,7 +168,7 @@ module ACC_v2_TB #(
             @(posedge clk);
             #(`DELTA)
             psum_en_row_i[(PE_SIZE-i)-1] = 1'b1;
-            psum_row_i = {(PE_SIZE){test_num*i}};
+            psum_row_i[(PE_SIZE-i)*PSUM_WIDTH-1 -: PSUM_WIDTH] = test_num;
         end
             
         for (i=0; i < PE_SIZE*4; i=i+1) begin
@@ -182,7 +182,7 @@ module ACC_v2_TB #(
             @(posedge clk);
             #(`DELTA)
             psum_en_row_i[(PE_SIZE-i)-1] = 1'b0;
-            psum_row_i = {(PE_SIZE){test_num}};
+            psum_row_i[(PE_SIZE-i)*PSUM_WIDTH-1 -: PSUM_WIDTH] = {(PSUM_WIDTH){1'b0}};
         end
         
         
