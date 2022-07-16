@@ -54,7 +54,7 @@
         genvar j;
             generate
                 for (j=0; j < PE_SIZE; j=j+1) begin : Buffer
-                        FIFO #(
+                        FIFO_v2 #(
                             .DATA_WIDTH(FIFO_DATA_WIDTH),
                             .FIFO_DEPTH(PE_SIZE)
                         ) FIFO_INST (   
