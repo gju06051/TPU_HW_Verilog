@@ -31,7 +31,7 @@
 `define MEM2_DEPTH 896
 `define MEM2_ADDR_WIDTH 10
 
-module tb_GEMM;
+module tb_GEMM_v2;
 
     // Special signal
     reg clk;
