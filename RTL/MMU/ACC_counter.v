@@ -1,8 +1,8 @@
 module ACC_COUNTER #(
     // Parameter
     parameter PE_SIZE = 14,
-    parameter WEIGHT_ROW_NUM = 294,
-    parameter WEIGHT_COL_NUM = 70
+    parameter WEIGHT_ROW_NUM = 70,
+    parameter WEIGHT_COL_NUM = 294
     )
     (
     // Port
@@ -19,9 +19,9 @@ module ACC_COUNTER #(
 
 
     // Local parameter
-    localparam PSUM_CNT_NUM = WEIGHT_COL_NUM;           // 70
+    localparam PSUM_CNT_NUM = WEIGHT_ROW_NUM;           // 70
     localparam PSUM_CNT_WIDTH = $clog2(PSUM_CNT_NUM);
-    localparam ACC_CNT_NUM = WEIGHT_ROW_NUM / PE_SIZE;  // 294 / 14 = 21
+    localparam ACC_CNT_NUM = WEIGHT_COL_NUM / PE_SIZE;  // 294 / 14 = 21
     localparam ACC_CNT_WIDTH = $clog2(ACC_CNT_NUM);
     
     
@@ -40,7 +40,7 @@ module ACC_COUNTER #(
     
     // 1-2) Psum counter comb logic
     always @(*) begin
-        if (psum_cnt==WEIGHT_COL_NUM) begin
+        if (psum_cnt==PSUM_CNT_NUM) begin
             psum_cnt_n = 0;
         end else if (psum_en_i) begin
             psum_cnt_n = psum_cnt + 'd1;
@@ -51,7 +51,7 @@ module ACC_COUNTER #(
     
     // 1-3) generate acc counter enable signal by using psum counter
     wire psum_cnt_done;
-    assign psum_cnt_done = (psum_cnt==WEIGHT_COL_NUM);
+    assign psum_cnt_done = (psum_cnt==PSUM_CNT_NUM);
     
     
     

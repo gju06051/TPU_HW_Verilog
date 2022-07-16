@@ -12,8 +12,8 @@ module ACC_v2_TB #(
     // Quantization Param
     parameter SLICING_IDX       = 32,
     // Matrix Param for counter
-    parameter WEIGHT_ROW_NUM    = 294,
-    parameter WEIGHT_COL_NUM    = 70
+    parameter WEIGHT_ROW_NUM    = 70,
+    parameter WEIGHT_COL_NUM    = 294
     )
     (
     // No Port

@@ -8,8 +8,8 @@ module ACC_v2 #(
     // Quantization Param
     parameter SLICING_IDX       = 32,
     // Matrix Param for counter
-    parameter WEIGHT_ROW_NUM    = 294,
-    parameter WEIGHT_COL_NUM    = 70
+    parameter WEIGHT_ROW_NUM    = 70,
+    parameter WEIGHT_COL_NUM    = 294
     )
     (
     // Port
@@ -92,7 +92,7 @@ module ACC_v2 #(
             FIFO_v2 #(
                 // Parameter
                 .DATA_WIDTH ( PSUM_WIDTH ),   // data bit width
-                .FIFO_DEPTH ( WEIGHT_COL_NUM )    // FIFO entry num
+                .FIFO_DEPTH ( WEIGHT_ROW_NUM )    // FIFO entry num
             ) FIFO_INST (   
                 // special signal
                 .clk        ( clk   ),                      // clock signal
