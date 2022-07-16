@@ -10,6 +10,8 @@ module GEMM #(
     parameter SLICING_IDX   = 32,           // This is msb of slicing bit
                                             // ex. if SLICING_IDX = 32, slice 32bit output with data_width 8 => [31:24]
 
+    parameter OUT_CH        = 64,
+
     // GEMM parameter
     parameter WEIGHT_ROW_NUM   = 294,       // 294(=288+14-(288%14))
     parameter WEIGHT_COL_NUM   = 70,        // 70(=64+14-(288%14))
@@ -53,8 +55,9 @@ module GEMM #(
     output                          mem2_ce0,
     output                          mem2_we0,
     output  [MEM2_ADDR_WIDTH-1:0]   mem2_addr0,
-    output  [MEM2_DATA_WIDTH-1:0]   mem2_d0
+    output  [MEM2_DATA_WIDTH-1:0]   mem2_d0,
 
+    output                          finish_o
     );
     
     
@@ -64,9 +67,7 @@ module GEMM #(
     wire                                ifmap_valid_w;          // TOP_GLB -> SA
     wire    [MEM1_DATA_WIDTH-1:0]       weight_col_w;           // TOP_GLB -> SA
     wire    [PE_SIZE-1:0]               weight_en_col_w;        // TOP_GLB -> SA
-    
-    wire                                sa_data_mover_en_w;     // TOP_GLB -> SA_DATA_MOVER     // Need Modify
-    
+        
     wire    [PSUM_WIDTH*PE_SIZE-1:0]    psum_row_w;             // SA -> ACC
     wire    [PE_SIZE-1:0]               psum_en_row_w;          // SA -> ACC
     
@@ -112,7 +113,7 @@ module GEMM #(
         .rdata_o            ( weight_col_w  ),
         .weight_en_col_o    ( weight_en_col_w ),
         // Activation map read enable signal from SA_DATA_MOVER (GLB -> SA_DATA_MOVER)
-        .sa_data_mover_en   ( sa_data_mover_en )        // Need Modify
+        .sa_data_mover_en   ( )        // Need Modify
     );
 
 
@@ -178,16 +179,17 @@ module GEMM #(
         .clk                ( clk   ),
         .rst_n              ( rst_n ),
         // Control Input
-        .en                 ( sa_data_mover_en_w ),
+        .en                 ( ofmap_valid_w ),
         // Control Output
-        .rden_o             ( rden_w ),             // Need Modify
+        .rden_o             ( ),             // Need Modify 
         // Primtives Input
         .rdata_i            ( ofmap_row_w ),
         // BRAM I/O 
         .mem0_d0            ( mem2_d0     ),
         .mem0_addr0         ( mem2_addr0  ),
         .mem0_ce0           ( mem2_ce0    ),
-        .mem0_we0           ( mem2_we0    )
+        .mem0_we0           ( mem2_we0    ),
+        .finish             ( finish_o    )
     );
 
 

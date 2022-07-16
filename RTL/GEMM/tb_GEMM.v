@@ -1,34 +1,96 @@
 `timescale 1ns / 1ps
+`define DELTA 1
 
-`define CNT_BIT 31
+// Primitive param
 `define DATA_WIDTH 8
+`define PSUM_WIDTH 32
+`define PE_SIZE 14
+
+// Model Param
+`define SLICING_IDX 32
+`define IN_CH 32
+`define OUT_CH 64
+
+// IM2COL param
+`define WEIGHT_ROW_NUM 294
+`define WEIGHT_COL_NUM 70
+
+
+// BRAM0(Ifmap) Param
 `define MEM0_DEPTH 4116 // im2col
-`define MEM1_DEPTH 1470 // reshape weight
 `define MEM0_DATA_WIDTH 112
 `define MEM0_ADDR_WIDTH 13
+
+// BRAM1(Weight) Param
+`define MEM1_DEPTH 1470 // reshape weight
 `define MEM1_DATA_WIDTH 112
 `define MEM1_ADDR_WIDTH 11
+
+// BRAM2(Ofmap) Param
 `define MEM2_DATA_WIDTH 112
 `define MEM2_DEPTH 896
 `define MEM2_ADDR_WIDTH 10
+
 module tb_GEMM;
 
+    // Special signal
     reg clk;
+    reg rst_n;
+    
+    reg start_i;
+    
+    // Port for BRAM - GEMM
+    
+    // BRAM0(Ifmap) I/O 
+    wire                                mem0_ce0_w;  
+    wire                                mem0_we0_w;  
+    wire    [`MEM0_ADDR_WIDTH-1:0]      mem0_addr0_w;
+    wire    [`MEM0_DATA_WIDTH-1:0]      mem0_q0_w; 
+    
+    // BRAM1(Weight) I/O
+    wire                                mem1_ce0_w;  
+    wire                                mem1_we0_w;  
+    wire    [`MEM1_ADDR_WIDTH-1:0]      mem1_addr0_w;
+    wire    [`MEM1_DATA_WIDTH-1:0]      mem1_q0_w; 
+
+    // BRAM2(Activation map) I/O
+    wire                                mem2_ce0_w;
+    wire                                mem2_we0_w;
+    wire    [`MEM2_ADDR_WIDTH-1:0]      mem2_addr0_w;
+    wire    [`MEM2_DATA_WIDTH-1:0]      mem2_d0_w;
+    
+    // Output
+    wire    finish;
+    
+    
+    // Port for TB - BRAM
+    
+    // BRAM0(Ifmap) I/O
     reg mem0_ce1;
     reg mem0_we1;
     reg [`MEM0_DATA_WIDTH-1:0] mem0_d1;
     reg [`MEM0_ADDR_WIDTH-1:0] mem0_addr1;
+    
+    // BRAM1(Weight) I/O
     reg mem1_ce1;
     reg mem1_we1;
     reg [`MEM1_DATA_WIDTH-1:0] mem1_d1;
     reg [`MEM1_ADDR_WIDTH-1:0] mem1_addr1;
 
+    // BRAM2(Activation map) I/O
     reg [`MEM2_ADDR_WIDTH-1:0] mem2_addr1;
     reg [`MEM2_DATA_WIDTH-1:0] mem2_q1;
     reg mem2_ce1;
     reg mem2_we1;
     reg [`DATA_WIDTH-1:0]   a_0, a_1, a_2, a_3, a_4, a_5, a_6, a_7,a_8, a_9, a_10,
                             a_11, a_12, a_13;
+
+
+
+
+// TB Stimulus
+// ----------------------------------------------------------------------------------------------------------------------
+
 
     always begin
         #5 clk = ~clk;
@@ -45,6 +107,8 @@ module tb_GEMM;
 
     initial begin
         clk = 0;
+        rst_n = 1'b1;
+        start_i = 1'b0;
         mem0_ce1    = 0;
         mem0_we1    = 0;
         mem0_d1     = 0;
@@ -93,8 +157,27 @@ module tb_GEMM;
             mem1_d1  = 0;   
             mem1_addr1 = 0;
 
+        // TB strategy
         // start GEMM operation
-        //
+        @(posedge clk);
+        #(`DELTA)
+        rst_n = 1'b0;
+
+        @(posedge clk);
+        #(`DELTA)
+        rst_n = 1'b1;
+
+        
+        @(posedge clk);
+        #(`DELTA)
+        start_i = 1'b1;
+        
+        wait(finish)
+        
+        #(`DELTA)
+        start_i = 1'b0;
+
+
 
         // make fp_ot_Ofmap_tb files
         for(i = 0; i < `MEM2_DEPTH + 1; i = i+1) begin
@@ -132,6 +215,62 @@ module tb_GEMM;
     end
 
 
+
+// DUT INST
+// ----------------------------------------------------------------------------------------------------------------------
+
+
+    // Core INST
+    GEMM #(
+        .DATA_WIDTH      ( `DATA_WIDTH  ),
+        .PSUM_WIDTH      ( `PSUM_WIDTH  ),
+        .PE_SIZE         ( `PE_SIZE     ),
+        
+        .SLICING_IDX     ( `SLICING_IDX ),
+        .OUT_CH          ( `OUT_CH ),
+        
+        .WEIGHT_ROW_NUM  ( `WEIGHT_ROW_NUM ),
+        .WEIGHT_COL_NUM  ( `WEIGHT_COL_NUM ),
+        
+        .MEM0_DEPTH      ( `MEM0_DEPTH ),
+        .MEM0_DATA_WIDTH ( `MEM0_DATA_WIDTH ),
+        .MEM0_ADDR_WIDTH ( `MEM0_ADDR_WIDTH ),
+        
+        .MEM1_DEPTH      ( `MEM1_DEPTH ),
+        .MEM1_DATA_WIDTH ( `MEM1_DATA_WIDTH ),
+        .MEM1_ADDR_WIDTH ( `MEM1_ADDR_WIDTH ),
+        
+        .MEM2_DEPTH      ( `MEM2_DEPTH ),
+        .MEM2_DATA_WIDTH ( `MEM2_DATA_WIDTH ),
+        .MEM2_ADDR_WIDTH ( `MEM2_ADDR_WIDTH )
+    )u_GEMM(
+        .clk             ( clk              ),
+        .rst_n           ( rst_n            ),
+        
+        .gemm_start_i    ( start_i ),
+        
+        .mem0_ce0        ( mem0_ce0_w       ),
+        .mem0_we0        ( mem0_we0_w       ),
+        .mem0_addr0      ( mem0_addr0_w     ),
+        .mem0_q0_i       ( mem0_q0_w        ),
+        
+        .mem1_ce0        ( mem1_ce0_w       ),
+        .mem1_we0        ( mem1_we0_w       ),
+        .mem1_addr0      ( mem1_addr0_w     ),
+        .mem1_q0_i       ( mem1_q0_w        ),
+        
+        .mem2_ce0        ( mem2_ce0_w       ),
+        .mem2_we0        ( mem2_we0_w       ),
+        .mem2_addr0      ( mem2_addr0_w     ),
+        .mem2_d0         ( mem2_d0_w        ),
+        
+        .finish_o        (finish)
+    );
+
+    
+
+
+
     true_dpbram #(
         .DWIDTH(`MEM0_DATA_WIDTH),
         .AWIDTH(`MEM0_ADDR_WIDTH),
@@ -141,10 +280,10 @@ module tb_GEMM;
         .clk(clk),
 
         /* input for port 0 */
-        .addr0_i(),
-        .ce0_i(),
-        .we0_i(),
-        .d0_i(),
+        .addr0_i(mem0_addr0_w),
+        .ce0_i(mem0_ce0_w),
+        .we0_i(mem0_we0_w),
+        .d0_i(),    // not use
 
         /* input for port 1 */
         .addr1_i(mem0_addr1),
@@ -153,10 +292,10 @@ module tb_GEMM;
         .d1_i(mem0_d1),
 
         /* output for port 0 */
-        .q0_o(),
+        .q0_o(mem0_q0_w),
 
         /* output for port 1 */
-        .q1_o()
+        .q1_o()     // not use
     );
 
     true_dpbram #(
@@ -168,9 +307,9 @@ module tb_GEMM;
         .clk(clk),
 
         /* input for port 0 */
-        .addr0_i(),
-        .ce0_i(),
-        .we0_i(),
+        .addr0_i(mem1_addr0_w),
+        .ce0_i(mem1_ce0_w),
+        .we0_i(mem1_we0_w),
         .d0_i(),
 
         /* input for port 1 */
@@ -180,7 +319,7 @@ module tb_GEMM;
         .d1_i(mem1_d1),
 
         /* output for port 0 */
-        .q0_o(),
+        .q0_o(mem1_q0_w),
 
         /* output for port 1 */
         .q1_o()
@@ -195,10 +334,10 @@ module tb_GEMM;
         .clk(clk),
 
         /* input for port 0 */
-        .addr0_i(),
-        .ce0_i(),
-        .we0_i(),
-        .d0_i(),
+        .addr0_i(mem2_addr0_w),
+        .ce0_i(mem2_ce0_w),
+        .we0_i(mem2_we0_w),
+        .d0_i(mem2_d0_w),
 
         /* input for port 1 */
         .addr1_i(mem2_addr1),
