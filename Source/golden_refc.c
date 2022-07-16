@@ -56,12 +56,11 @@ int main(int argc, char **argv) {
     }
     for(int i = 0; i < ((RESHAPE_WEIGHT_COL + COL_EXTENSION) / PE_SIZE); i++){
         for(int k = 0; k < ((RESHAPE_WEIGHT_ROW + ROW_EXTENSION)/PE_SIZE); k++){
-            printf("time i = %d, k = %d\n",i,k);
+            //printf("time i = %d, k = %d\n",i,k);
             for(int l = 0; l < PE_SIZE; l++){
                 for(int m = 0; m < PE_SIZE; m++){
                     fprintf (fp_reshape_weight, "%u ", reshape_weight_matrix[m + k*(PE_SIZE)][l + i*(PE_SIZE)]);
                     //printf("%d ",im2col_ifmap_matrix[m + k*(PE_SIZE)][(PE_SIZE-1)-l + i*(PE_SIZE)]);
-                    //printf("%d %d ",m + k*(PE_SIZE), l + i*(PE_SIZE));
                 }
                 fprintf (fp_reshape_weight, "\n"); 
             }
@@ -70,7 +69,11 @@ int main(int argc, char **argv) {
         //printf("\n\n");
     }
 
-
+    uint8_t check_weight[RESHAPE_WEIGHT_COL + COL_EXTENSION];
+    for(int i = 0; i < RESHAPE_WEIGHT_COL + COL_EXTENSION; i++) {
+        check_weight[i] = reshape_weight_matrix[0][i];
+    }
+    
 
 
     // make random im2col_ifmap_matrix
@@ -87,10 +90,23 @@ int main(int argc, char **argv) {
         }
     }
 
+    
+
+    uint8_t check_im2col[IM2COL_IFMAP_ROW + ROW_EXTENSION];
+    for(int i = 0; i < IM2COL_IFMAP_ROW + ROW_EXTENSION; i++) {
+        check_im2col[i] = im2col_ifmap_matrix[i][0];
+    }
+
+    int check = 0;
+    for(int i = 0; i < RESHAPE_WEIGHT_COL + COL_EXTENSION; i++) {
+       check += check_im2col[i] * check_weight[i];
+    }
+    printf("check!! %d ",check);
+
     printf("start");
     for(int i = 0; i < (IM2COL_IFMAP_COL / PE_SIZE); i++){
         for(int k = 0; k < ((IM2COL_IFMAP_ROW + ROW_EXTENSION)/PE_SIZE); k++){
-            printf("time i = %d, k = %d\n",i,k);
+            //printf("time i = %d, k = %d\n",i,k);
             for(int l = 0; l < PE_SIZE; l++){
                 for(int m = 0; m < PE_SIZE; m++){
                     fprintf (fp_im2col_Ifmap, "%u ", im2col_ifmap_matrix[m + k*(PE_SIZE)][(PE_SIZE-1)-l + i*(PE_SIZE)]);
