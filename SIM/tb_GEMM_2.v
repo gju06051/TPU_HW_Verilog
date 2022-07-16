@@ -100,9 +100,9 @@ module tb_GEMM_v2;
 
     initial begin
         // read file open, write file open
-        fp_reshape_weight = $fopen("C:\Users\gju06\Desktop\ref_file\ref_c_reshape_weight.txt", "rb");
-        fp_im2col_Ifmap = $fopen("C:\Users\gju06\Desktop\ref_file\ref_c_im2col_Ifmap.txt", "rb");
-        fp_ot_Ofmap_tb = $fopen("C:\Users\gju06\Desktop\ref_file\ref_c_ot_Ofmap_tb.txt", "wb");
+        fp_reshape_weight = $fopen("C:/Users/gju06/Desktop/ref_file/ref_c_rand_reshape_weight.txt", "rb");
+        fp_im2col_Ifmap = $fopen("C:/Users/gju06/Desktop/ref_file/ref_c_rand_im2col_Ifmap.txt", "rb");
+        fp_ot_Ofmap_tb = $fopen("C:/Users/gju06/Desktop/ref_file/ref_c_ot_Ofmap_tb.txt", "wb");
     end
 
     initial begin
