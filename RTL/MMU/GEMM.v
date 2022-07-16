@@ -130,7 +130,7 @@ module GEMM #(
         // Primitives Input (TOP_GLB -> SA)
         .ifmap_row_i        ( ifmap_row_w  ), 
         .weight_col_i       ( weight_col_w ), 
-        .psum_row_i         ( {(PE_SIZE*PSUM_WIDTH-1){1'b0}} ),   // partial sum(In this logic, zero partial sum for SA)
+        .psum_row_i         ( {(PE_SIZE*PSUM_WIDTH){1'b0}} ),   // partial sum(In this logic, zero partial sum for SA)
         // Control Input (TOP_GBL -> SA)
         .ifmap_preload_i    ( ifmap_valid_w   ),  // preload start signal 
         .weight_en_col_i    ( weight_en_col_w ),
