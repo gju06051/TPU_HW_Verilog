@@ -12,8 +12,8 @@
 `define OUT_CH 64
 
 // IM2COL param
-`define WEIGHT_ROW_NUM 294
-`define WEIGHT_COL_NUM 70
+`define WEIGHT_ROW_NUM 70
+`define WEIGHT_COL_NUM 294
 
 
 // BRAM0(Ifmap) Param

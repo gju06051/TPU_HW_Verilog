@@ -13,8 +13,8 @@ module GEMM #(
     parameter OUT_CH        = 64,
 
     // GEMM parameter
-    parameter WEIGHT_ROW_NUM   = 294,       // 294(=288+14-(288%14))
-    parameter WEIGHT_COL_NUM   = 70,        // 70(=64+14-(288%14))
+    parameter WEIGHT_COL_NUM   = 294,       // 294(=288+14-(288%14))
+    parameter WEIGHT_ROW_NUM   = 70,        // 70(=64+14-(288%14))
     
     // BRAM0(Ifmap)
     parameter MEM0_DEPTH       = 4116,      // 4116(=196*294/14)
