@@ -170,9 +170,9 @@ module GEMM #(
     SA_Data_mover #(
         .FIFO_DATA_WIDTH    ( DATA_WIDTH      ),
         .PE_SIZE            ( PE_SIZE         ),
-        .MEM0_DEPTH         ( MEM0_DEPTH      ),
-        .MEM0_ADDR_WIDTH    ( MEM0_ADDR_WIDTH ),
-        .MEM0_DATA_WIDTH    ( MEM0_DATA_WIDTH ),
+        .MEM0_DEPTH         ( MEM2_DEPTH      ),
+        .MEM0_ADDR_WIDTH    ( MEM2_ADDR_WIDTH ),
+        .MEM0_DATA_WIDTH    ( MEM2_DATA_WIDTH ),
         .OC                 ( OUT_CH          )
     ) u_SA_Data_mover (
         // Special Input
