@@ -64,8 +64,8 @@
                             .rden_i         (w_rden_i_row[j]),    
                             .full_o         (full_o[j]), 
                             .empty_o        (empty_o[j]), 
-                            .wdata_i        (wdata_i[FIFO_DATA_WIDTH*(PE_SIZE-1-j) +: FIFO_DATA_WIDTH]), 
-                            .rdata_o        (rdata_o[FIFO_DATA_WIDTH*(PE_SIZE-1-j) +: FIFO_DATA_WIDTH])
+                            .wdata_i        (wdata_i[FIFO_DATA_WIDTH*(PE_SIZE-j)-1 +: FIFO_DATA_WIDTH]), 
+                            .rdata_o        (rdata_o[FIFO_DATA_WIDTH*(PE_SIZE-j)-1 +: FIFO_DATA_WIDTH])
                         );
                 end
             endgenerate
