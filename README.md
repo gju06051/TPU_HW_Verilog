@@ -8,16 +8,7 @@
 SW stack에서 target DNN모델을 training시킨 후 HDL로 구현한 HW 모듈 위에서 inferencing과정을 진행, performance 요소들을 평가한다.
 Inferencing 과정을 위해서 독립적인 Convolution, Fully Connected, Max Pooling layer들을 구현하였다. 
 Convolution layer연산은 im2col, ifmap stationary방식을 채택하였고, ifmap과 Weight에 quatization이 적용된다.  
-
-
-
-
-## AXI BUS
-- Convolution layer의 Matrix multiplication을 위해선 이전 layer의 output인 tensor를 im2col변환 이후에 matrix형태로 전달될 필요가 있다. 
-- SW stack에서 im2col변환을 수행하기 위해서 BRAM 과 Zynq프로세서 사이의 통신에 AMBA protocol의 일종인 AXI bus를 이용하였다.
-
-![model_spec](./IMG/Conv_layer.png)
-
+#
 
 
 
@@ -37,8 +28,8 @@ Convolution layer연산은 im2col, ifmap stationary방식을 채택하였고, if
 - HDMI CEC Support		    : TX and RX ports 
 - RGB LEDs		            : 2 
 
-[ZYBO Reference Manual](https://www.xilinx.com/content/dam/xilinx/support/documents/university/XUP%20Boards/XUPZYBO/documentation/ZYBO_RM_B_V6.pdf)
-
+[ZYBO Reference Manual](https://www.xilinx.com/content/dam/xilinx/support/documents/university/XUP%20Boards/XUPZYBO/documentation/ZYBO_RM_B_V6.pdf)  
+#
 
 
 
@@ -55,8 +46,14 @@ Convolution layer연산은 im2col, ifmap stationary방식을 채택하였고, if
 - Port        : True_dual_port_ram 
 - Latency     : R/W = 1clk 
 - Size        : 640kB 
-- Bandwidth   : 512 bit per cycle 
+- Bandwidth   : 512 bit per cycle  
+#
 
+## AXI BUS
+- Convolution layer의 Matrix multiplication을 위해선 이전 layer의 output인 tensor를 im2col변환 이후에 matrix형태로 전달될 필요가 있다. 
+- SW stack에서 im2col변환을 수행하기 위해서 BRAM 과 Zynq프로세서 사이의 통신에 AMBA protocol의 일종인 AXI bus를 이용하였다.
+
+![model_spec](./IMG/Conv_layer.png)
 
 
 
@@ -81,8 +78,8 @@ Convolution layer연산은 im2col, ifmap stationary방식을 채택하였고, if
 - FIFO의 rdata를 feedback으로 사용, add 이후에 다시 FIFO에 write하는 방식으로 accumulation을 수행한다.  
 
 #### 1-5) SA Data Mover
-- Accumulator로부터 전달받은 ofmap 값들을 buffer에 저장하고 BRAM에 write하는 동작을 수행한다.
-
+- Accumulator로부터 전달받은 ofmap 값들을 buffer에 저장하고 BRAM에 write하는 동작을 수행한다.  
+#
 
 
 
@@ -92,15 +89,14 @@ Convolution layer연산은 im2col, ifmap stationary방식을 채택하였고, if
 #### 2-1) FC CORE
 - Multipilcation core다수와 accmulation을 위한 buffer로 구성한다.
 #### 2-2) FC DATA MOVER
-- Ifmap, weight값들을 BRAM의 주소로부터 read하고, 결과값인 ofmap을 다시 BRAM에 write하는 Data Mover로 구성되었다.
-
+- Ifmap, weight값들을 BRAM의 주소로부터 read하고, 결과값인 ofmap을 다시 BRAM에 write하는 Data Mover로 구성되었다.  
+#
 
 
 
 ### 3. Pooling layer
-- Max Pooling과 같은 경우에도 pooling연산을 위한 Core와 Data Mover로 구성되었다. 
-(추가 작성필요)
-
+- Max Pooling과 같은 경우에도 pooling연산을 위한 Core와 Data Mover로 구성되었다. (추가 작성필요)  
+#
 
 
 
@@ -117,16 +113,15 @@ Convolution layer연산은 im2col, ifmap stationary방식을 채택하였고, if
 - 사용법
     1) golden_ref.c의 rand로 생성 되는 ifmap, weight txt파일 path 재설정
     2) Verilog tb_GEMM의 txt파일 open path 재설정
-    3) Vivado simulation 실행 및 c로 생성된 ofmap 폴더와 verilog testbench로 생성된 ofmap 값 변경  
-
+    3) Vivado simulation 실행 및 c로 생성된 ofmap 폴더와 verilog testbench로 생성된 ofmap 값 변경    
+#
 
 
 
 ## ETC
 - Conv연산을 위한 MMU와 FC연산을 위한 연산 core의 scale은 해당 project의 target DNN model에 적합한 크기로 구현하였다. 
-- verilog코드 내부의 parameter 값들을 변경하여 module의 크기를 변경하여 latency와 resource를 조절할 수 있다.
-
-
+- verilog코드 내부의 parameter 값들을 변경하여 module의 크기를 변경하여 latency와 resource를 조절할 수 있다.  
+#
 
 
 ## Version
