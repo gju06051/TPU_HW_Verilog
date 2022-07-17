@@ -1,8 +1,9 @@
 # CNN_HW_PROJ
 
 ## Abstract
-해당 프로젝트의 목표는 Google TPU[Tensor Proecssing Unit](https://cloud.google.com/blog/products/ai-machine-learning/an-in-depth-look-at-googles-first-tensor-processing-unit-tpu)와 유사한 구조의 머신러닝을 위한 co-processor 설계에 있다.
-[Google TPU 논문](https://arxiv.org/abs/1704.04760)
+해당 프로젝트의 목표는 Google TPU[(Tensor Proecssing Unit)](https://cloud.google.com/blog/products/ai-machine-learning/an-in-depth-look-at-googles-first-tensor-processing-unit-tpu)와 유사한 구조의 머신러닝을 위한 co-processor 설계에 있다.
+[[Google TPU 논문]](https://arxiv.org/abs/1704.04760)
+
 SW stack에서 target DNN모델을 training시킨 후 HDL로 구현한 HW 모듈 위에서 inferencing과정을 진행, performance 요소들을 평가한다.
 Inferencing 과정을 위해서 독립적인 Convolution, Fully Connected, Max Pooling layer들을 구현하였다. 
 Convolution layer연산은 im2col, ifmap stationary방식을 채택하였고, ifmap과 Weight에 quatization이 적용된다.  
@@ -76,11 +77,12 @@ Convolution layer연산은 im2col, ifmap stationary방식을 채택하였고, if
 
 ### 2) FC layer
 ![model_spec](./IMG/FC.JPG)
+
 #### 2-1) FC CORE
 - Multipilcation core다수와 accmulation을 위한 buffer로 구성한다.
-
 #### 2-2) FC DATA MOVER
 - Ifmap, weight값들을 BRAM의 주소로부터 read하고, 결과값인 ofmap을 다시 BRAM에 write하는 Data Mover로 구성되었다.
+
 
 ### 3) Pooling layer
 - Max Pooling과 같은 경우에도 pooling연산을 위한 Core와 Data Mover로 구성되었다. 
@@ -90,6 +92,18 @@ Convolution layer연산은 im2col, ifmap stationary방식을 채택하였고, if
 
 ## Simulation
 
+### 1) Test Strategy
+#### 1-1) Testbench Simulation
+- Path: /SIM/(module별 tb)
+- Vivado 2021.2 simulator
+- Vitis 2021.2
+
+#### 1-2) Golden Reference
+- Path: /SW/golden_ref.c
+- c언어로 작성된 프로그램 결과값과 verilog testbench의 결과값 비교
+- golden_ref.c의 rand로 생성 되는 ifmap, weight txt파일 path 재설정
+- Verilog tb_GEMM의 txt파일 open path 재설정
+- Vivado simulation 실행 및 c로 생성된 ofmap 폴더와 verilog testbench로 생성된 ofmap 값 변경  
 
 
 ## ETC
