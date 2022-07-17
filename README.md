@@ -1,7 +1,8 @@
 # CNN_HW_PROJ
 
 ## Abstract
-해당 프로젝트의 목표는 Google TPU(Tensor Proecssing Unit)와 유사한 구조의 머신러닝을 위한 co-processor 설계에 있다.
+해당 프로젝트의 목표는 Google TPU[Tensor Proecssing Unit](https://cloud.google.com/blog/products/ai-machine-learning/an-in-depth-look-at-googles-first-tensor-processing-unit-tpu)와 유사한 구조의 머신러닝을 위한 co-processor 설계에 있다.
+[Google TPU 논문](https://arxiv.org/abs/1704.04760)
 SW stack에서 target DNN모델을 training시킨 후 HDL로 구현한 HW 모듈 위에서 inferencing과정을 진행, performance 요소들을 평가한다.
 Inferencing 과정을 위해서 독립적인 Convolution, Fully Connected, Max Pooling layer들을 구현하였다. 
 Convolution layer연산은 im2col, ifmap stationary방식을 채택하였고, ifmap과 Weight에 quatization이 적용된다.  
@@ -10,13 +11,28 @@ Convolution layer연산은 im2col, ifmap stationary방식을 채택하였고, if
 ## AXI BUS
 - Convolution layer의 Matrix multiplication을 위해선 이전 layer의 output인 tensor를 im2col변환 이후에 matrix형태로 전달될 필요가 있다. 
 - SW stack에서 im2col변환을 수행하기 위해서 BRAM 과 Zynq프로세서 사이의 통신에 AMBA protocol의 일종인 AXI bus를 이용하였다.
+
 ![model_spec](./IMG/Conv_layer.png)
 
 
 ## Design Spec
 
-### 1) FPGA Board
-- Zybo Z7 20
+### 1) FPGA Board : Zybo Z7 20
+- FPGA part                 XC7Z020-1CLG400C
+- 1 MSPS On-chip ADC        Yes	
+- Look-up Tables (LUTs)		53,200
+- Flip-flops                106,400
+- Block RAM		            630 KB
+- Clock Management 	        4
+- Available Shield I/O		40
+- Total Pmod Ports		    6
+- Fan Connector		        Yes
+- Zynq Heat Sink            Yes
+- HDMI CEC Support		    TX and RX ports
+- RGB LEDs		            2
+
+[ZYBO Reference Manual](https://www.xilinx.com/content/dam/xilinx/support/documents/university/XUP%20Boards/XUPZYBO/documentation/ZYBO_RM_B_V6.pdf)
+
 
 ### 2) DNN Model : MNIST Classifier
 ![model_spec](./IMG/CNN_SPEC.PNG)
@@ -67,11 +83,13 @@ Convolution layer연산은 im2col, ifmap stationary방식을 채택하였고, if
 - Ifmap, weight값들을 BRAM의 주소로부터 read하고, 결과값인 ofmap을 다시 BRAM에 write하는 Data Mover로 구성되었다.
 
 ### 3) Pooling layer
-Max Pooling과 같은 경우에도 pooling연산을 위한 Core와 Data Mover로 구성되었다. 
+- Max Pooling과 같은 경우에도 pooling연산을 위한 Core와 Data Mover로 구성되었다. 
 (추가 작성필요)
 
 
+
 ## Simulation
+
 
 
 ## ETC
