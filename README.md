@@ -18,7 +18,7 @@ Convolution layer연산은 im2col, ifmap stationary방식을 채택하였고, if
 
 ## Design Spec
 
-### 1) FPGA Board : Zybo Z7 20
+### FPGA Board : Zybo Z7 20
 - FPGA part                 XC7Z020-1CLG400C
 - 1 MSPS On-chip ADC        Yes	
 - Look-up Tables (LUTs)		53,200
@@ -35,16 +35,16 @@ Convolution layer연산은 im2col, ifmap stationary방식을 채택하였고, if
 [ZYBO Reference Manual](https://www.xilinx.com/content/dam/xilinx/support/documents/university/XUP%20Boards/XUPZYBO/documentation/ZYBO_RM_B_V6.pdf)
 
 
-### 2) DNN Model : MNIST Classifier
+### DNN Model : MNIST Classifier
 ![model_spec](./IMG/CNN_SPEC.PNG)
 
-### 3) Quantization
+### Quantization
 - data type -> unsigned int8
 
-### 4) MAC Operation
+### MAC Operation
 - Using FPGA DSP, 10 < latency < 20(ns) (1clock = 10ns)
 
-### 5) SRAM (FPGA BRAM) 
+### SRAM (FPGA BRAM) 
 - Port        : True_dual_port_ram
 - Latency     : R/W = 1clk
 - Size        : 640kB
@@ -53,7 +53,7 @@ Convolution layer연산은 im2col, ifmap stationary방식을 채택하였고, if
 
 ## Architecture
 
-### 1) Convolution layer
+### 1. Convolution layer
 ![model_spec](./IMG/conv_white.JPG)
 
 #### 1-1) Conv Data Mover
@@ -75,7 +75,7 @@ Convolution layer연산은 im2col, ifmap stationary방식을 채택하였고, if
 - Accumulator로부터 전달받은 ofmap 값들을 buffer에 저장하고 BRAM에 write하는 동작을 수행한다.
 
 
-### 2) FC layer
+### 2. FC layer
 ![model_spec](./IMG/FC.JPG)
 
 #### 2-1) FC CORE
@@ -84,7 +84,7 @@ Convolution layer연산은 im2col, ifmap stationary방식을 채택하였고, if
 - Ifmap, weight값들을 BRAM의 주소로부터 read하고, 결과값인 ofmap을 다시 BRAM에 write하는 Data Mover로 구성되었다.
 
 
-### 3) Pooling layer
+### 3. Pooling layer
 - Max Pooling과 같은 경우에도 pooling연산을 위한 Core와 Data Mover로 구성되었다. 
 (추가 작성필요)
 
@@ -92,18 +92,17 @@ Convolution layer연산은 im2col, ifmap stationary방식을 채택하였고, if
 
 ## Simulation
 
-### 1) Test Strategy
-#### 1-1) Testbench Simulation
+#### 1. Testbench Simulation
 - Path: /SIM/(module별 tb)
 - Vivado 2021.2 simulator
 - Vitis 2021.2
 
-#### 1-2) Golden Reference
+#### 2. Golden Reference
 - Path: /SW/golden_ref.c
 - 사용법
-    1. golden_ref.c의 rand로 생성 되는 ifmap, weight txt파일 path 재설정
-    2. Verilog tb_GEMM의 txt파일 open path 재설정
-    3. Vivado simulation 실행 및 c로 생성된 ofmap 폴더와 verilog testbench로 생성된 ofmap 값 변경  
+    1) golden_ref.c의 rand로 생성 되는 ifmap, weight txt파일 path 재설정
+    2) Verilog tb_GEMM의 txt파일 open path 재설정
+    3) Vivado simulation 실행 및 c로 생성된 ofmap 폴더와 verilog testbench로 생성된 ofmap 값 변경  
 
 
 ## ETC
