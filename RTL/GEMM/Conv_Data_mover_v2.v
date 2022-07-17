@@ -227,7 +227,7 @@
         reg reg_rden_o;
         always @(posedge clk) begin
             reg_mem0_q0_vaild <= mem0_read_en;
-            reg_wren_o        <= mem1_read_en;
+            reg_wren_o        <= mem1_read_en && (!mem1_read_en_done);
             reg_rden_o        <= reg_wren_o;
         end
         assign mem0_q0_vaild = reg_mem0_q0_vaild;
