@@ -227,7 +227,12 @@
         reg reg_rden_o;
         always @(posedge clk) begin
             reg_mem0_q0_vaild <= mem0_read_en;
+<<<<<<< HEAD:RTL/GEMM/Conv_Data_mover_v2.v
             reg_wren_o        <= mem1_read_en && (!mem1_read_en_done);
+=======
+            //reg_wren_o        <= mem1_read_en;
+            reg_wren_o        <= (mem1_read_en) && (!mem1_read_en_done);
+>>>>>>> 30280ddb19134f8a0762893196ad207d179df3e6:RTL/Convolution/DATA_MOVER/Conv_Data_mover_v2.v
             reg_rden_o        <= reg_wren_o;
         end
         assign mem0_q0_vaild = reg_mem0_q0_vaild;
