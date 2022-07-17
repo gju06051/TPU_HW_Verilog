@@ -53,8 +53,8 @@ Convolution layer연산은 im2col, ifmap stationary방식을 채택하였고, if
 - Convolution layer의 Matrix multiplication을 위해선 이전 layer의 output인 tensor를 im2col변환 이후에 matrix형태로 전달될 필요가 있다. 
 - SW stack에서 im2col변환을 수행하기 위해서 BRAM 과 Zynq프로세서 사이의 통신에 AMBA protocol의 일종인 AXI bus를 이용하였다.
 
-![model_spec](./IMG/Conv_layer.png)
-
+![model_spec](./IMG/Conv_layer.png)  
+#
 
 
 ## Architecture
@@ -104,7 +104,7 @@ Convolution layer연산은 im2col, ifmap stationary방식을 채택하였고, if
 ## Simulation
 
 #### 1. Testbench Simulation
-- Path: /SIM/(module별 tb)
+- Path: /SIM/
 - Vivado 2021.2 simulator
 - Vitis 2021.2
 
