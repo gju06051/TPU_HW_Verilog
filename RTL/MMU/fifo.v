@@ -24,7 +24,7 @@ module FIFO #(
     // Pointers
     reg [FIFO_DEPTH_LG2:0] wrptr, wrptr_n;  // one extra bit for full checking
     reg [FIFO_DEPTH_LG2:0] rdptr, rdptr_n;  // one extra bit for full checking
-
+    
     // Sequential logic
     always @(posedge clk, negedge rst_n) begin
         if (!rst_n) begin

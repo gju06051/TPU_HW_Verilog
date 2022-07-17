@@ -167,7 +167,7 @@ module GEMM #(
 
 
 
-    SA_Data_mover #(
+    SA_Data_mover_v2 #(
         .FIFO_DATA_WIDTH    ( DATA_WIDTH      ),
         .PE_SIZE            ( PE_SIZE         ),
         .MEM0_DEPTH         ( MEM2_DEPTH      ),

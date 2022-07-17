@@ -32,9 +32,9 @@ int main(int argc, char **argv) {
 	srand(time(NULL));
 
 	FILE *fp_reshape_weight, *fp_im2col_Ifmap, *fp_ot_Ofmap;
-	fp_reshape_weight = fopen("C:/FPGA_pj/CNN_golden_ref/ref_c_rand_reshape_weight.txt","w");
-	fp_im2col_Ifmap = fopen("C:/FPGA_pj/CNN_golden_ref/ref_c_rand_im2col_Ifmap.txt","w");
-	fp_ot_Ofmap = fopen("C:/FPGA_pj/CNN_golden_ref/ref_c_ot_Ofmap.txt","w");
+	fp_reshape_weight = fopen("C:/FPGA_Proj/CNN_golden_ref/ref_c_rand_reshape_weight.txt","w");
+	fp_im2col_Ifmap = fopen("C:/FPGA_Proj/CNN_golden_ref/ref_c_rand_im2col_Ifmap.txt","w");
+	fp_ot_Ofmap = fopen("C:/FPGA_Proj/CNN_golden_ref/ref_c_ot_Ofmap.txt","w");
 	
 
     // make random reshape_weight_matrix
@@ -59,7 +59,7 @@ int main(int argc, char **argv) {
             //printf("time i = %d, k = %d\n",i,k);
             for(int l = 0; l < PE_SIZE; l++){
                 for(int m = 0; m < PE_SIZE; m++){
-                    fprintf (fp_reshape_weight, "%u ", reshape_weight_matrix[m + k*(PE_SIZE)][l + i*(PE_SIZE)]);
+                    fprintf (fp_reshape_weight, "%u ", reshape_weight_matrix[l + k*(PE_SIZE)][m + i*(PE_SIZE)]);
                     //printf("%d ",im2col_ifmap_matrix[m + k*(PE_SIZE)][(PE_SIZE-1)-l + i*(PE_SIZE)]);
                 }
                 fprintf (fp_reshape_weight, "\n"); 
@@ -109,7 +109,7 @@ int main(int argc, char **argv) {
             //printf("time i = %d, k = %d\n",i,k);
             for(int l = 0; l < PE_SIZE; l++){
                 for(int m = 0; m < PE_SIZE; m++){
-                    fprintf (fp_im2col_Ifmap, "%u ", im2col_ifmap_matrix[m + k*(PE_SIZE)][(PE_SIZE-1)-l + i*(PE_SIZE)]);
+                    fprintf (fp_im2col_Ifmap, "%u ", im2col_ifmap_matrix[(PE_SIZE-1)-l + k*(PE_SIZE)][m + i*(PE_SIZE)]);
                     //printf("%d ",im2col_ifmap_matrix[m + k*(PE_SIZE)][(PE_SIZE-1)-l + i*(PE_SIZE)]);
                     //printf("%d %d ",m + k*(PE_SIZE), ((PE_SIZE-1)-l) + (i*(PE_SIZE)));
                 }
@@ -119,7 +119,7 @@ int main(int argc, char **argv) {
         }
         //printf("\n\n");
     }
-    
+    printf("print result\n");
     Bitfild bitfild; 
     // make Ofmap
     uint8_t Ofmap_matrix[OFMAP_ROW][OFMAP_COL];
@@ -132,7 +132,9 @@ int main(int argc, char **argv) {
             }
             bitfild.result = result;
             Ofmap_matrix[i][k] = bitfild.bdata.b0;
+            printf("%d ",result);
         }
+        printf("\n\n");
     }
 
     for(int i = 0; i < OFMAP_ROW; i++) {
