@@ -37,7 +37,7 @@ Convolution layer연산은 im2col, ifmap stationary방식을 채택하였고, if
 ## Architecture
 
 ### 1) Convolution layer
-![model_spec](./IMG/Conv.JPG)
+![model_spec](./IMG/conv_white.JPG)
 
 #### 1-1) Conv Data Mover
 - BRAM에서 conv연산을 위한 ifmap과 weight를 주소값을 통해 호출하고, ifmap은 SA(Systolic Array)로 preload시키고, weight는 GLB로 전달한다. 
