@@ -145,21 +145,44 @@ int main(int argc, char **argv) {
         }
     }
 
-    uint8_t acc_check_arr[PE_SIZE][PE_SIZE];
+    printf("first\n");
+    int acc_check_arr[PE_SIZE][PE_SIZE];
     for(int i = 0 ; i < PE_SIZE; i++) {
         for(int k = 0; k < PE_SIZE; k++) {
             result = 0;
             for(int l = 0; l < PE_SIZE; l++){
                 result += reshape_weight_matrix[i][l] * im2col_ifmap_matrix[l][k];
             }
-            bitfild.result = result;
-            acc_check_arr[i][k] = bitfild.bdata.b0;
+            acc_check_arr[i][k] = result;
             printf("%d ",acc_check_arr[i][k]);
         }
         printf("\n\n");
     }
 
-    
+    printf("second\n");
+    int acc_check_arr_2[PE_SIZE][PE_SIZE];
+    for(int i = 0 ; i < PE_SIZE; i++) {
+        for(int k = 0; k < PE_SIZE; k++) {
+            result = 0;
+            for(int l = 0; l < PE_SIZE; l++){
+                result += reshape_weight_matrix[i][14+l] * im2col_ifmap_matrix[l+14][k];
+            }
+            acc_check_arr_2[i][k] = result;
+            printf("%d ",acc_check_arr_2[i][k]);
+        }
+        printf("\n\n");
+    }
+
+    printf("result\n");
+    int acc_check_arr_3[PE_SIZE][PE_SIZE];
+    for(int i = 0 ; i < PE_SIZE; i++) {
+        for(int k = 0; k < PE_SIZE; k++) {
+            acc_check_arr_3[i][k] = acc_check_arr[i][k] + acc_check_arr_2[i][k];
+            printf("%d ",acc_check_arr_3[i][k]);
+        }
+        printf("\n\n");
+    }
+
 	fclose(fp_reshape_weight);
 	fclose(fp_im2col_Ifmap);
 	fclose(fp_ot_Ofmap);
