@@ -132,9 +132,9 @@ int main(int argc, char **argv) {
             }
             bitfild.result = result;
             Ofmap_matrix[i][k] = bitfild.bdata.b0;
-            printf("%d ",result);
+            //printf("%d ",result);
         }
-        printf("\n\n");
+        //printf("\n\n");
     }
 
     for(int i = 0; i < OFMAP_ROW; i++) {
@@ -145,6 +145,21 @@ int main(int argc, char **argv) {
         }
     }
 
+    uint8_t acc_check_arr[PE_SIZE][PE_SIZE];
+    for(int i = 0 ; i < PE_SIZE; i++) {
+        for(int k = 0; k < PE_SIZE; k++) {
+            result = 0;
+            for(int l = 0; l < PE_SIZE; l++){
+                result += reshape_weight_matrix[i][l] * im2col_ifmap_matrix[l][k];
+            }
+            bitfild.result = result;
+            acc_check_arr[i][k] = bitfild.bdata.b0;
+            printf("%d ",acc_check_arr[i][k]);
+        }
+        printf("\n\n");
+    }
+
+    
 	fclose(fp_reshape_weight);
 	fclose(fp_im2col_Ifmap);
 	fclose(fp_ot_Ofmap);
