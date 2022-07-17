@@ -108,28 +108,28 @@ module SA_TB #(
         cycle = cycle + 1;
         #(`DELTA)
         ifmap_preload_i = 1'b1;
-        ifmap_row_i = 'h04_04_04_04;
+        ifmap_row_i = 'h03_02_02_03;
         
         // 2-2) ifmap row3
         @(posedge clk);
         cycle = cycle + 1;
         #(`DELTA)
         ifmap_preload_i = 1'b0;
-        ifmap_row_i = 'h03_03_03_03;
+        ifmap_row_i = 'h00_01_01_00;
         
         // 2-3) ifmap row2
         @(posedge clk);
         cycle = cycle + 1;
         #(`DELTA)
         ifmap_preload_i = 1'b0;
-        ifmap_row_i = 'h02_02_02_02;
+        ifmap_row_i = 'h03_02_01_00;
         
         // 2-4) ifmap row1
         @(posedge clk);
         cycle = cycle + 1;
         #(`DELTA)
         ifmap_preload_i = 1'b0;
-        ifmap_row_i = 'h01_01_01_01;
+        ifmap_row_i = 'h01_00_02_01;
         
         
         // 3. check ifmap enable signal for give uncorrect number
@@ -164,7 +164,7 @@ module SA_TB #(
         cycle = cycle + 1;
         #(`DELTA)
         weight_en_col_i = 4'b1100;
-        weight_col_i = 'h02_01_00_00;
+        weight_col_i = 'h01_02_00_00;
         psum_en_row_i = 4'b1100;
         psum_row_i = 'h00000000_00000000_00000000_00000000;
         
@@ -174,7 +174,7 @@ module SA_TB #(
         cycle = cycle + 1;
         #(`DELTA)
         weight_en_col_i = 4'b1110;
-        weight_col_i = 'h03_02_01_00;
+        weight_col_i = 'h01_02_03_00;
         psum_en_row_i = 4'b1110;
         psum_row_i = 'h00000000_00000000_00000000_00000000;
         
@@ -184,7 +184,7 @@ module SA_TB #(
         cycle = cycle + 1;
         #(`DELTA)
         weight_en_col_i = 4'b1111;
-        weight_col_i = 'h04_03_02_01;
+        weight_col_i = 'h01_02_03_04;
         psum_en_row_i = 4'b1111;
         psum_row_i = 'h00000000_00000000_00000000_00000000;
         
@@ -194,7 +194,7 @@ module SA_TB #(
         cycle = cycle + 1;
         #(`DELTA)
         weight_en_col_i = 4'b0111;
-        weight_col_i = 'h00_04_03_02;
+        weight_col_i = 'h00_02_03_04;
         psum_en_row_i = 4'b0111;
         psum_row_i = 'h00000000_00000000_00000000_00000000;
         
@@ -204,7 +204,7 @@ module SA_TB #(
         cycle = cycle + 1;
         #(`DELTA)
         weight_en_col_i = 4'b0011;
-        weight_col_i = 'h00_00_04_03;
+        weight_col_i = 'h00_00_03_04;
         psum_en_row_i = 4'b0011;
         psum_row_i = 'h00000000_00000000_00000000_00000000;
         
@@ -235,7 +235,7 @@ module SA_TB #(
         #(`DELTA)
         weight_en_col_i = 4'b0000;
         weight_col_i = 'h00_00_00_00;
-        psum_en_row_i = {(PE_SIZE){1'b1}};
+        psum_en_row_i = {(PE_SIZE){1'b0}};
         psum_row_i = 'h00000000_00000000_00000000_00000000;
         
         
