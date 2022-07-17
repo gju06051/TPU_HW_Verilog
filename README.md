@@ -101,10 +101,10 @@ Convolution layer연산은 im2col, ifmap stationary방식을 채택하였고, if
 #### 1-2) Golden Reference
 - Path: /SW/golden_ref.c
 - 사용법
-    - c언어로 작성된 프로그램 결과값과 verilog testbench의 결과값 비교
-    - golden_ref.c의 rand로 생성 되는 ifmap, weight txt파일 path 재설정
-    - Verilog tb_GEMM의 txt파일 open path 재설정
-    - Vivado simulation 실행 및 c로 생성된 ofmap 폴더와 verilog testbench로 생성된 ofmap 값 변경  
+    1. c언어로 작성된 프로그램 결과값과 verilog testbench의 결과값 비교
+    2. golden_ref.c의 rand로 생성 되는 ifmap, weight txt파일 path 재설정
+    3. Verilog tb_GEMM의 txt파일 open path 재설정
+    4. Vivado simulation 실행 및 c로 생성된 ofmap 폴더와 verilog testbench로 생성된 ofmap 값 변경  
 
 
 ## ETC
