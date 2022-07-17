@@ -19,18 +19,18 @@ Convolution layer연산은 im2col, ifmap stationary방식을 채택하였고, if
 ## Design Spec
 
 ### FPGA Board : Zybo Z7 20
-- FPGA part                 XC7Z020-1CLG400C 
-- 1 MSPS On-chip ADC        Yes 
-- Look-up Tables (LUTs)		53,200 
-- Flip-flops                106,400 
-- Block RAM		            630 KB 
-- Clock Management 	        4 
-- Available Shield I/O		40 
-- Total Pmod Ports		    6 
-- Fan Connector		        Yes 
-- Zynq Heat Sink            Yes 
-- HDMI CEC Support		    TX and RX ports 
-- RGB LEDs		            2 
+- FPGA part                  XC7Z020-1CLG400C  
+- 1 MSPS On-chip ADC         Yes 
+- Look-up Tables (LUTs)		 53,200 
+- Flip-flops                 106,400 
+- Block RAM		             630 KB 
+- Clock Management 	         4 
+- Available Shield I/O		 40 
+- Total Pmod Ports		     6 
+- Fan Connector		         Yes 
+- Zynq Heat Sink             Yes 
+- HDMI CEC Support		     TX and RX ports 
+- RGB LEDs		             2 
 
 [ZYBO Reference Manual](https://www.xilinx.com/content/dam/xilinx/support/documents/university/XUP%20Boards/XUPZYBO/documentation/ZYBO_RM_B_V6.pdf)
 
