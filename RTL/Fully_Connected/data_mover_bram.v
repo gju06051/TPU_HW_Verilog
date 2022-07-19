@@ -1,18 +1,24 @@
 // Module Name: data_mover_bram
 // 
-// discription
+// description
 //      Take input node from BRAM0 and Take weight from BRAM1
 //      Then do MAC Operation and Make 4 result using 4 Core
 //      moudle has 3 staus: IDLE, RUN, DONE. Outside can know the state of module by checking the state(output).
 //      To use 2 brams, notice the Memory I/F(Check the Timing diagram of BRAMS.)
 //      The number of Data is given from the outside, run_count_i signal
 //
+// Flow
+//      0. Write Input node and Weight to the BRAM 0, BRAM1, respectively
+//      1. give start_run_i signal with run_count_i
+//      2. wait for done_state
+//      3. read 4 result(Output_Node)
+//
 // inputs
 //      Special Inputs
 //          clk: special inputs. Clock
 //          reset_n: special input. reset (active low)
 //
-//      Signal From Register
+//      Signal From Controller
 //          start_run_i: active high. Signal for start running the data mover.
 //          run_count_i: number of data that module should take
 //      
@@ -32,6 +38,9 @@
 //          ce_b0_o/ce_b1_o: chip enable
 //          we_b0_o/we_b1_o: write enable. 0 means read mode and 1 means write mode
 //          d_b0_o/d_b1_o: data that user wants to write
+//
+//      Calculation_Result
+//          result_o: calculation result. that is, 7 core's result
 // Notice
 //      this data mover will read the data from BRAM0 and BRAM1
 //      So BRAM0 and BRAM1 is read-only 
@@ -61,7 +70,7 @@ module data_mover_bram
     /* Memory I/F Input for BRAM0 */
     input [DWIDTH - 1 : 0] q_b0_i,
 
-    /* Memory I/F Input for BRAM0 */
+    /* Memory I/F Input for BRAM1 */
     input [DWIDTH - 1 : 0] q_b1_i,
 
     /* State_Outputs */
@@ -83,10 +92,11 @@ module data_mover_bram
     output [DWIDTH - 1 : 0] d_b1_o,
 
     /* result for 4 Core */
-    output[DWIDTH - 1 : 0] result_0_o,
-    output[DWIDTH - 1 : 0] result_1_o,
-    output[DWIDTH - 1 : 0] result_2_o,
-    output[DWIDTH - 1 : 0] result_3_o
+    // output[DWIDTH - 1 : 0] result_0_o,
+    // output[DWIDTH - 1 : 0] result_1_o,
+    // output[DWIDTH - 1 : 0] result_2_o,
+    // output[DWIDTH - 1 : 0] result_3_o
+    output [DWIDTH - 1 : 0] result_o
 );
 
 /* localparam to define the state */
@@ -126,7 +136,7 @@ always @(*) begin
     n_state_read = c_state_read; // to prevent latch
     
     case(c_state_read)
-        S_IDLE : if(start_run_i)     begin n_state_read = S_RUN; end
+        S_IDLE : if(start_run_i)   begin n_state_read = S_RUN; end
         S_RUN  : if(is_read_done)  begin n_state_read = S_DONE; end
         S_DONE : n_state_read = S_IDLE; 
     endcase
@@ -136,7 +146,7 @@ always @(*) begin
     n_state_write = c_state_write; // prevent latch
  
     case(c_state_write)
-        S_IDLE : if(start_run_i)     begin n_state_write = S_RUN; end
+        S_IDLE : if(start_run_i)   begin n_state_write = S_RUN; end
         S_RUN  : if(is_write_done) begin n_state_write = S_DONE; end
         S_DONE : n_state_write = S_IDLE; 
     endcase
@@ -163,7 +173,7 @@ end
 
 /* Increase address count */
 reg [CNT_BIT - 1 : 0] addr_cnt_read;
-reg [CNT_BIT - 1 : 0] addr_cnt_write;
+reg [CNT_BIT - 1 : 0] addr_cnt_write; // Not used.
 assign is_read_done = read_o && (addr_cnt_read == num_cnt - 1); 
 assign is_write_done = write_o && (addr_cnt_write == num_cnt - 1); // is_done signal is 1 tic 
 
@@ -180,6 +190,7 @@ end
 // we_b1_o signal is write enable signal that even consider calc_delay
 // notice that we_b1_o signal is needed because module have to consider the calc_delay
 // so that address of write count will increase when module "really" do write
+/* Not used logic(No Write Operation) */
 wire result_valid;
 
 always @(posedge clk or negedge reset_n) begin
@@ -237,19 +248,75 @@ wire [IN_DATA_WIDTH - 1 : 0]        w_b_2 = mem_data_1[(2*IN_DATA_WIDTH) - 1 : (
 wire [(4*IN_DATA_WIDTH) - 1 : 0]    w_result_2;
 wire                                w_valid_2;
 
-wire [IN_DATA_WIDTH - 1 : 0]        w_a_3= mem_data_0[(1*IN_DATA_WIDTH) - 1 : (0*IN_DATA_WIDTH)];
+wire [IN_DATA_WIDTH - 1 : 0]        w_a_3 = mem_data_0[(1*IN_DATA_WIDTH) - 1 : (0*IN_DATA_WIDTH)];
 wire [IN_DATA_WIDTH - 1 : 0]        w_b_3 = mem_data_1[(1*IN_DATA_WIDTH) - 1 : (0*IN_DATA_WIDTH)];
 wire [(4*IN_DATA_WIDTH) - 1 : 0]    w_result_3;
 wire                                w_valid_3;
 
 /* Core Instantiation */
+fully_connected_core
+# (
+    .IN_DATA_WIDTH(IN_DATA_WIDTH)
+) fully_connected_core_8bit_inst_1 (
+    .clk(clk),
+    .reset_n(reset_n),
+    .run_i(start_run_i),
+    .valid_i(r_valid),
+    .node_i(w_a_0),
+    .weight_i(w_b_0),
+    .result_o(w_result_0),
+    .valid_o(w_valid_0)
+);
 
+fully_connected_core
+# (
+    .IN_DATA_WIDTH(IN_DATA_WIDTH)
+) fully_connected_core_8bit_inst_2 (
+    .clk(clk),
+    .reset_n(reset_n),
+    .run_i(start_run_i),
+    .valid_i(r_valid),
+    .node_i(w_a_1),
+    .weight_i(w_b_1),
+    .result_o(w_result_1),
+    .valid_o(w_valid_1)
+);
+
+fully_connected_core
+# (
+    .IN_DATA_WIDTH(IN_DATA_WIDTH)
+) fully_connected_core_8bit_inst_3 (
+    .clk(clk),
+    .reset_n(reset_n),
+    .run_i(start_run_i),
+    .valid_i(r_valid),
+    .node_i(w_a_2),
+    .weight_i(w_b_2),
+    .result_o(w_result_2),
+    .valid_o(w_valid_2)
+);
+
+fully_connected_core
+# (
+    .IN_DATA_WIDTH(IN_DATA_WIDTH)
+) fully_connected_core_8bit_inst_4 (
+    .clk(clk),
+    .reset_n(reset_n),
+    .run_i(start_run_i),
+    .valid_i(r_valid),
+    .node_i(w_a_3),
+    .weight_i(w_b_3),
+    .result_o(w_result_3),
+    .valid_o(w_valid_3)
+);
 
 /* Making Output */
 assign result_valid = w_valid_0 & w_valid_1 & w_valid_2 & w_valid_3;
-assign result_0_o     = w_result_0;
-assign result_1_o     = w_result_1;
-assign result_2_o     = w_result_2;
-assign result_3_o     = w_result_3;
+// assign result_0_o     = w_result_0;
+// assign result_1_o     = w_result_1;
+// assign result_2_o     = w_result_2;
+// assign result_3_o     = w_result_3;
+
+assign reuslt_o = w_result_0 + w_result_1 + w_result_2 + w_result_3; 
 endmodule
 

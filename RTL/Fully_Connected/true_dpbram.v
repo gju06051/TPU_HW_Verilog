@@ -33,13 +33,13 @@ module true_dpbram
     input [AWIDTH - 1 : 0] addr0_i,
     input ce0_i,
     input we0_i,
-    input [DWIDTH -1 : 0] d0_i,
+    input [DWIDTH - 1 : 0] d0_i,
 
     /* input for port 1 */
     input [AWIDTH - 1 : 0] addr1_i,
     input ce1_i,
     input we1_i,
-    input [DWIDTH -1 : 0] d1_i,
+    input [DWIDTH - 1 : 0] d1_i,
 
     /* output for port 0 */
     output reg [DWIDTH - 1 : 0] q0_o,
