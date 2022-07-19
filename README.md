@@ -124,7 +124,9 @@ BRAM1
 - Addr control 도 AXI4 Protocol 을 사용하여 수행할 수 있다고 가정  
 #
 
-![FC_BRAM2_ADDR](./IMG/FC_BRAM2.JPG)
+![FC_BRAM2_ADDR](./IMG/FC_BRAM2.JPG)  
+#
+
 BRAM2
 - FC1 의 output 이자 FC2 의 input neuron 1024 개의 값들 저장  
 #
