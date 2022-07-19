@@ -177,7 +177,9 @@ BRAM2
     1) golden_ref.c의 rand로 생성 되는 ifmap, weight txt파일 path 재설정
     2) Verilog tb_GEMM의 txt파일 open path 재설정
     3) Vivado simulation 실행 및 c로 생성된 ofmap 폴더와 verilog testbench로 생성된 ofmap 값 변경    
-#
+##### Conv SIM
+![Conv_SIM_golden](./IMG/Conv_SIM_golden.png)
+
 
 ##### FC SIM
 ![FC_SIM_golden](./IMG/golden_FC.JPG)  
