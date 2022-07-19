@@ -193,6 +193,7 @@ BRAM2
 
 
 ## ETC
+- Conv layer의 Block diagram은 /DOC/BLOCK_DIAGRAM/IFS_SA.drawio 를 참고
 - Conv연산을 위한 MMU와 FC연산을 위한 연산 core의 scale은 해당 project의 target DNN model에 적합한 크기로 구현하였다. 
 - verilog코드 내부의 parameter 값들을 변경하여 module의 크기를 변경하여 latency와 resource를 조절할 수 있다.  
 - FC, MP와 같은 경우에 core의 갯수를 변화시겨서 연산 latency, bandwidth를 변경할 수 있는데 위의 설명은 FC7, MP7만 올려두었다.
