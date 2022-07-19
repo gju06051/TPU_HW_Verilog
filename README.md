@@ -109,7 +109,8 @@ Convolution layer연산은 im2col, ifmap stationary방식을 채택하였고, if
 
 #### 2-4) FC BRAM Addressing
 ![FC_BRAM_Addr](./IMG/FC_BRAM_Addr.JPG)  
-#
+
+
 BRAM0
 - conv layer output featuremap volume 7 x 7 x 64
 - 7 x 7 feature map이 BRAM row에 1장씩 저장되어 있음
@@ -125,7 +126,7 @@ BRAM1
 #
 
 ![FC_BRAM2_ADDR](./IMG/FC_BRAM2.JPG)  
-#
+
 
 BRAM2
 - FC1 의 output 이자 FC2 의 input neuron 1024 개의 값들 저장  
