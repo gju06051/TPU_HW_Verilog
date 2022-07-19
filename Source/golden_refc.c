@@ -96,14 +96,15 @@ int main(int argc, char **argv) {
     for(int i = 0; i < IM2COL_IFMAP_ROW + ROW_EXTENSION; i++) {
         check_im2col[i] = im2col_ifmap_matrix[i][0];
     }
-
+    /*
     int check = 0;
     for(int i = 0; i < RESHAPE_WEIGHT_COL + COL_EXTENSION; i++) {
        check += check_im2col[i] * check_weight[i];
     }
     printf("check!! %d ",check);
-
+    
     printf("start");
+    */
     for(int i = 0; i < (IM2COL_IFMAP_COL / PE_SIZE); i++){
         for(int k = 0; k < ((IM2COL_IFMAP_ROW + ROW_EXTENSION)/PE_SIZE); k++){
             //printf("time i = %d, k = %d\n",i,k);
@@ -119,7 +120,7 @@ int main(int argc, char **argv) {
         }
         //printf("\n\n");
     }
-    printf("print result\n");
+   
     Bitfild bitfild; 
     // make Ofmap
     uint8_t Ofmap_matrix[OFMAP_ROW][OFMAP_COL];
@@ -144,7 +145,7 @@ int main(int argc, char **argv) {
                 fprintf (fp_ot_Ofmap, "\n");
         }
     }
-
+    /*
     printf("first\n");
     int acc_check_arr[PE_SIZE][PE_SIZE];
     for(int i = 0 ; i < PE_SIZE; i++) {
@@ -182,7 +183,7 @@ int main(int argc, char **argv) {
         }
         printf("\n\n");
     }
-
+    */
 	fclose(fp_reshape_weight);
 	fclose(fp_im2col_Ifmap);
 	fclose(fp_ot_Ofmap);
