@@ -84,29 +84,90 @@ Convolution layer연산은 im2col, ifmap stationary방식을 채택하였고, if
 
 
 ### 2. FC layer
-![model_spec](./IMG/FC.JPG)
-
-#### 2-1) FC CORE
-- Multipilcation core다수와 accmulation을 위한 buffer로 구성한다.
-#### 2-2) FC DATA MOVER
-- Ifmap, weight값들을 BRAM의 주소로부터 read하고, 결과값인 ofmap을 다시 BRAM에 write하는 Data Mover로 구성되었다.  
+![model_spec](./IMG/FC.JPG)  
 #
 
+#### 2-1) FC DATA Mover
+- BRAM 2개(BRAM0 & BRAM1)로부터 data 를 읽거나 써 주는 Module
+- State : IDLE/RUN/DONE, IDLE state 에서 controller로부터 run_i와 run_count_i를 받아 동작
+- BRAM0에 operand를 R/W해서 연산Core 통과 -> 나오는 결과값을 BRAM1에 저장(Max Pooling으로 전달)  
+# 
+![FC_DATA_MOVER_TIMING_DIAGRAM](./IMG/FC_Data_mover_timing_diagram.JPG)  
+
+#
+
+#### 2-2) FC Calculation Core
+- Operand 2 개를 받음, 두개를 곱하고 가지고 있던 결괏값에 accumulate MAC 연산은 Timing violation 일으킴 
+- Multiplication retiming 문제(clk latency < MAC)는 FF을 이용한 Pipelining으로 해결
+
+#### 2-3) Result Writer
+![Result_Writer](./IMG/Result_Writer.JPG)  
+#
+- Data mover 가 1 번의 IDLE-RUN-DONE을 끝낼 때마다 동작
+- 8bit 의 연산 결괏값이 그 결괏값이 4의 배수 개로 튀어나올 때마다 BRAM2 에 써 줘야 함(FC2 를 위해)  
+#
+
+#### 2-4) FC BRAM Addressing
+![FC_BRAM_Addr](./IMG/FC_BRAM_Addr.JPG)  
+#
+BRAM0
+- conv layer output featuremap volume 7 x 7 x 64
+- 7 x 7 feature map이 BRAM row에 1장씩 저장되어 있음
+- Row 하나를 읽어와서 7개의 숫자를 Core 1 ~ 7 에 집어넣음(𝑎_𝑖: ith input neuron)
+
+BRAM1
+- Weight들을 row당 7개씩 저장해 놓음
+- Row 하나를 읽어와서 7개의 숫자를 Core 1 ~ 7에 집어넣음
+- 𝑊_(𝑖,𝑗): ith input neuron 에서 jth output neuron 으로 가는 weight
+- Weight 저장에 있어 AXI4 Protocol 을 사용하여 전송할 수 있다고 가정 
+- BRAM 의 용량 요구치: 약 3.212MB ((7x7x64)x1024 x8bit)
+- Addr control 도 AXI4 Protocol 을 사용하여 수행할 수 있다고 가정  
+#
+
+![FC_BRAM2_ADDR](./IMG/FC_BRAM2.JPG)
+BRAM2
+- FC1 의 output 이자 FC2 의 input neuron 1024 개의 값들 저장  
+#
 
 
 ### 3. Pooling layer
-- Max Pooling과 같은 경우에도 pooling연산을 위한 Core와 Data Mover로 구성되었다. (추가 작성필요)  
+![MP_BLOCK](./IMG/MP_Block_digram.JPG)  
+#### 3-1) Pooling Core
+- BRAM0 로부터 feature map을 가져와서 max_pooling 수행
+- BRAM0 가 dual port 이므로 2개의 row씩 가져옴
+- 가져온 2 x 14 개의 operand에 대해 MP수행, 결과값 2 x 7개 BRAM1에 Write
+- BRAM0 에서 Data 를 Read 할 때, Row 를 2 개씩 가져와야 함
+- BRAM0 와의 MEM IF 에서 addr을 주는 port, bram output 을 받는 port 가 각각 2개로 나눠짐
+- Addr 하나는 1,3,5 , 다른 하나는 2,4,6 으로 증가하며 해당 row 의 data 를 읽어옴
+
+
+#### 3-2) MP BRAM Addressing
+![MP_BLOCK](./IMG/MP)  
 #
+- MP 동작에 의해 BRAM0 로부터 읽어온 ROW 개수의 절반에 해당하는 ROW를 Write(run_count_i0, run_count_i1)
 
-
+# 
 
 
 ## Simulation
+
+
 
 #### 1. Testbench Simulation
 - Path: /SIM/
 - Vivado 2021.2 simulator
 - Vitis 2021.2
+
+##### CONV SIM
+![CONV_SIM](./IMG/Conv_SIM.JPG)  
+#
+
+##### FC SIM
+![FC_SIM](./IMG/FC_SIM.JPG)  
+#
+##### MP SIM
+![MP_SIM](./IMG/MP_SIM.JPG)  
+#
 
 #### 2. Golden Reference
 - Path: /SW/golden_ref.c
