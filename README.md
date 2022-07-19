@@ -144,7 +144,7 @@ BRAM2
 
 
 #### 3-2) MP BRAM Addressing
-![MP_BLOCK](./IMG/MP)  
+![MP_BLOCK](./IMG/MP_BRAM_Addr.JPG)  
 #
 - MP 동작에 의해 BRAM0 로부터 읽어온 ROW 개수의 절반에 해당하는 ROW를 Write(run_count_i0, run_count_i1)
 
