@@ -1,4 +1,4 @@
-# CNN_HW_PROJ
+# TPU_HW_Verilog
 
 ## Abstract
 해당 프로젝트의 목표는 Google TPU[(Tensor Proecssing Unit)](https://cloud.google.com/blog/products/ai-machine-learning/an-in-depth-look-at-googles-first-tensor-processing-unit-tpu)와 유사한 구조의 머신러닝을 위한 co-processor 설계에 있다.
