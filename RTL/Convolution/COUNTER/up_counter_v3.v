@@ -11,7 +11,7 @@ module up_counter_v3 #(
     output wire is_done_o
 );
     reg [CNT_WIDTH-1:0] cnt;
-    always @(posedge clk or rst_n) begin
+    always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
             cnt <= 0;
         end else if(en) begin
@@ -23,5 +23,5 @@ module up_counter_v3 #(
         end
     end
     assign cnt_o = cnt;
-    assign is_done_o = (en) && (cnt == CNT-1);
+    assign is_done_o = (en) && (cnt == CNT*OFFSET-1);
 endmodule
