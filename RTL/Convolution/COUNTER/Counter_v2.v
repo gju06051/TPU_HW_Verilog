@@ -36,19 +36,19 @@ module Counter_v2 #(
         case (c_state)
             IDLE    : begin
                 if (start_i) begin
-                    n_state <= RUN;
+                    n_state = RUN;
                 end
             end
             RUN     : begin
                 if (cnt_num==COUNT_NUM-1) begin
-                    n_state <= DONE;
+                    n_state = DONE;
                 end
             end
             DONE    : begin
-                n_state <= IDLE;
+                n_state = IDLE;
             end
             default : begin
-                n_state <= IDLE;
+                n_state = IDLE;
             end
         endcase
     end
