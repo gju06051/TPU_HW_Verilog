@@ -58,7 +58,8 @@
         wire mem1_read_en_done;
         wire mem1_num_cnt_en;
         
-        reg [MEM0_WAIT_WIDTH-1:0]       mem0_wait;
+        //reg [MEM0_WAIT_WIDTH-1:0]       mem0_wait;
+        reg  mem0_wait;
         wire counter_is_done;
         always @(posedge clk or negedge rst_n) begin
             if(!rst_n) begin
