@@ -1,4 +1,4 @@
-# CNN_HW_PROJ
+# TPU_HW_Verilog
 
 ## Abstract
 해당 프로젝트의 목표는 Google TPU[(Tensor Proecssing Unit)](https://cloud.google.com/blog/products/ai-machine-learning/an-in-depth-look-at-googles-first-tensor-processing-unit-tpu)와 유사한 구조의 머신러닝을 위한 co-processor 설계에 있다.
@@ -85,7 +85,7 @@ Convolution layer연산은 im2col, ifmap stationary방식을 채택하였고, if
 
 ### 2. FC layer
 ![model_spec](./IMG/FC.JPG)  
-#
+
 
 #### 2-1) FC DATA Mover
 - BRAM 2개(BRAM0 & BRAM1)로부터 data 를 읽거나 써 주는 Module
@@ -102,14 +102,16 @@ Convolution layer연산은 im2col, ifmap stationary방식을 채택하였고, if
 
 #### 2-3) Result Writer
 ![Result_Writer](./IMG/Result_Writer.JPG)  
-#
+
+
 - Data mover 가 1 번의 IDLE-RUN-DONE을 끝낼 때마다 동작
 - 8bit 의 연산 결괏값이 그 결괏값이 4의 배수 개로 튀어나올 때마다 BRAM2 에 써 줘야 함(FC2 를 위해)  
 #
 
 #### 2-4) FC BRAM Addressing
 ![FC_BRAM_Addr](./IMG/FC_BRAM_Addr.JPG)  
-#
+
+
 BRAM0
 - conv layer output featuremap volume 7 x 7 x 64
 - 7 x 7 feature map이 BRAM row에 1장씩 저장되어 있음
@@ -125,7 +127,7 @@ BRAM1
 #
 
 ![FC_BRAM2_ADDR](./IMG/FC_BRAM2.JPG)  
-#
+
 
 BRAM2
 - FC1 의 output 이자 FC2 의 input neuron 1024 개의 값들 저장  
@@ -140,12 +142,12 @@ BRAM2
 - 가져온 2 x 14 개의 operand에 대해 MP수행, 결과값 2 x 7개 BRAM1에 Write
 - BRAM0 에서 Data 를 Read 할 때, Row 를 2 개씩 가져와야 함
 - BRAM0 와의 MEM IF 에서 addr을 주는 port, bram output 을 받는 port 가 각각 2개로 나눠짐
-- Addr 하나는 1,3,5 , 다른 하나는 2,4,6 으로 증가하며 해당 row 의 data 를 읽어옴
-
+- Addr 하나는 1,3,5 , 다른 하나는 2,4,6 으로 증가하며 해당 row 의 data 를 읽어옴  
+#
 
 #### 3-2) MP BRAM Addressing
 ![MP_BLOCK](./IMG/MP_BRAM_Addr.JPG)  
-#
+
 - MP 동작에 의해 BRAM0 로부터 읽어온 ROW 개수의 절반에 해당하는 ROW를 Write(run_count_i0, run_count_i1)
 
 # 
@@ -177,7 +179,9 @@ BRAM2
     1) golden_ref.c의 rand로 생성 되는 ifmap, weight txt파일 path 재설정
     2) Verilog tb_GEMM의 txt파일 open path 재설정
     3) Vivado simulation 실행 및 c로 생성된 ofmap 폴더와 verilog testbench로 생성된 ofmap 값 변경    
-#
+##### Conv SIM
+![Conv_SIM_golden](./IMG/Conv_SIM_golden.png)
+
 
 ##### FC SIM
 ![FC_SIM_golden](./IMG/golden_FC.JPG)  
@@ -189,8 +193,10 @@ BRAM2
 
 
 ## ETC
+- Conv layer의 Block diagram은 /DOC/BLOCK_DIAGRAM/IFS_SA.drawio 를 참고
 - Conv연산을 위한 MMU와 FC연산을 위한 연산 core의 scale은 해당 project의 target DNN model에 적합한 크기로 구현하였다. 
 - verilog코드 내부의 parameter 값들을 변경하여 module의 크기를 변경하여 latency와 resource를 조절할 수 있다.  
+- FC, MP와 같은 경우에 core의 갯수를 변화시겨서 연산 latency, bandwidth를 변경할 수 있는데 위의 설명은 FC7, MP7만 올려두었다.
 #
 
 
