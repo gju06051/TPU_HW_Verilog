@@ -50,7 +50,7 @@ Convolution layer연산은 im2col, ifmap stationary방식을 채택하였고, if
 
 ## AXI BUS
 
-- Convolution layer의 Matrix multiplication을 위해선 이전 layer의 output인 tensor를 im2col변환 이후에 matrix형태로 전달될 필요가 있다. 
+- Convolution layer의 Matrix multiplication을 위해선 이전 layer의 output인 tensor를 im2col변환 이후에 matrix형태로 전달될 필요가 있다.
 - SW stack에서 im2col변환을 수행하기 위해서 BRAM 과 Zynq프로세서 사이의 통신에 AMBA protocol의 일종인 AXI bus를 이용하였다.
 
 ![model_spec](./IMG/Conv_layer.png)  
@@ -136,6 +136,7 @@ BRAM2
 ### 3. Pooling layer
 
 ![MP_BLOCK](./IMG/MP_Block_digram.JPG)  
+
 #### 3-1) Pooling Core
 
 - BRAM0 로부터 feature map을 가져와서 max_pooling 수행
@@ -151,7 +152,9 @@ BRAM2
 
 - MP 동작에 의해 BRAM0 로부터 읽어온 ROW 개수의 절반에 해당하는 ROW를 Write(run_count_i0, run_count_i1)
 
-## Simulation
+### Simulation
+
+- Simulating with verilog testbench and golden ref below
 
 #### 1. Testbench Simulation
 
@@ -159,15 +162,15 @@ BRAM2
 - Vivado 2021.2 simulator
 - Vitis 2021.2
 
-##### CONV SIM
+##### CONV SIM in tb
 
 ![CONV_SIM](./IMG/Conv_SIM.JPG)  
 
-##### FC SIM
+##### FC SIM in tb
 
 ![FC_SIM](./IMG/FC_SIM.JPG)  
 
-##### MP SIM
+##### MP SIM in tb
 
 ![MP_SIM](./IMG/MP_SIM.JPG)  
 
@@ -179,24 +182,33 @@ BRAM2
     2) Verilog tb_GEMM의 txt파일 open path 재설정
     3) Vivado simulation 실행 및 c로 생성된 ofmap 폴더와 verilog testbench로 생성된 ofmap 값 변경
 
-##### Conv SIM
+##### Conv SIM in golden ref
 
+-conv sim
 ![Conv_SIM_golden](./IMG/Conv_SIM_golden.png)
 
-##### FC SIM
+##### FC SIM in golden ref
 
+- fc sim
 ![FC_SIM_golden](./IMG/golden_FC.JPG)  
 
-##### MP SIM
+##### MP SIM in golden ref
 
+- mp sim
 ![MP_SIM_golden](./IMG/golden_MP.JPG)  
 
 ## ETC
 
 - Conv layer의 Block diagram은 /DOC/BLOCK_DIAGRAM/IFS_SA.drawio 를 참고
-- Conv연산을 위한 MMU와 FC연산을 위한 연산 core의 scale은 해당 project의 target DNN model에 적합한 크기로 구현하였다. 
+- Conv연산을 위한 MMU와 FC연산을 위한 연산 core의 scale은 해당 project의 target DNN model에 적합한 크기로 구현하였다.
 - verilog코드 내부의 parameter 값들을 변경하여 module의 크기를 변경하여 latency와 resource를 조절할 수 있다.  
 - FC, MP와 같은 경우에 core의 갯수를 변화시겨서 연산 latency, bandwidth를 변경할 수 있는데 위의 설명은 FC7, MP7만 올려두었다.
+
+### Advance
+
+- instruction 설계
+- scalable code
+- timing variation check
 
 ## Version
 
