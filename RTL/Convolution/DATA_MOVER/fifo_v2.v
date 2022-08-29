@@ -18,12 +18,15 @@ module FIFO_v2 #(
     );
     
     // Localparam
-    localparam FIFO_DEPTH_LG2 = $clog2(FIFO_DEPTH);     // making param log2 of entry size
-                                                        // ex) depth is 8 -> log(8) = 3
+    // making param log2 of entry size
+    // ex) depth is 8 -> log(8) = 3
+    localparam FIFO_DEPTH_LG2 = $clog2(FIFO_DEPTH);     
+                                                        
 
     // Pointers
-    reg [FIFO_DEPTH_LG2:0] wrptr, wrptr_n;  // one extra bit for full checking
-    reg [FIFO_DEPTH_LG2:0] rdptr, rdptr_n;  // one extra bit for full checking
+    // one extra bit for full checking
+    reg [FIFO_DEPTH_LG2:0] wrptr, wrptr_n;  
+    reg [FIFO_DEPTH_LG2:0] rdptr, rdptr_n;  
 
     // Sequential logic
     always @(posedge clk, negedge rst_n) begin
@@ -36,11 +39,12 @@ module FIFO_v2 #(
         end
     end
     
-    // Combination logic for pointer modify(add overflow logic)
+    // Combination logic for pointer modify
+    // (add overflow logic)
     always @(*) begin
         // write pointer modfiy
         if (wren_i) begin
-            if (wrptr[FIFO_DEPTH_LG2-1:0]==FIFO_DEPTH-1) begin  // overflow case
+            if (wrptr[FIFO_DEPTH_LG2-1:0]==FIFO_DEPTH-1) begin              // overflow case
                 wrptr_n[FIFO_DEPTH_LG2] = wrptr[FIFO_DEPTH_LG2] + 'd1;      // update msb
                 wrptr_n[FIFO_DEPTH_LG2-1:0] = {(FIFO_DEPTH_LG2){1'b0}};     // reset fifo addr
             end else begin
@@ -52,7 +56,7 @@ module FIFO_v2 #(
         
         // read pointer modify
         if (rden_i) begin
-            if (rdptr[FIFO_DEPTH_LG2-1:0]==FIFO_DEPTH-1) begin  // overflow case
+            if (rdptr[FIFO_DEPTH_LG2-1:0]==FIFO_DEPTH-1) begin              // overflow case
                 rdptr_n[FIFO_DEPTH_LG2] = rdptr[FIFO_DEPTH_LG2] + 'd1;      // update msb
                 rdptr_n[FIFO_DEPTH_LG2-1:0] = {(FIFO_DEPTH_LG2){1'b0}};     // reset fifo addr
             end else begin
@@ -64,21 +68,28 @@ module FIFO_v2 #(
     end
     
     // FIFO Storage
-    reg [DATA_WIDTH-1:0] mem [FIFO_DEPTH-1:0];          // consist with 32bit 8 entry
-                                                        // it will be modify when using real architecture
+    // consist with 32bit 8 entry
+    // it will be modify when using real architecture(ex. ture_dp_bram_inst)
+    reg [DATA_WIDTH-1:0] mem [FIFO_DEPTH-1:0];          
+                                                            
     // Write Activation
+    // write activation access memory by write pointer
+    // wrptr not use full index(not use msb), overflow -> target first fifo
     always @(posedge clk) begin
         if (wren_i) begin
-            mem[wrptr[FIFO_DEPTH_LG2-1:0]] <= wdata_i;      // write activation access memory by write pointer
-        end                                                 // wrptr not use full index(not use msb), overflow -> target first fifo
+            mem[wrptr[FIFO_DEPTH_LG2-1:0]] <= wdata_i;      
+        end                                                 
     end
     
     // Read activation ouput assignment
-    assign rdata_o  = mem[rdptr[FIFO_DEPTH_LG2-1:0]];       // read actiavation access memory by read pointer
+    // read actiavation access memory by read pointer
+    assign rdata_o  = mem[rdptr[FIFO_DEPTH_LG2-1:0]];       
     
-    // Empty Check
+    // Empty & Full check
+    // full checking checking under addr is equal
+    // checking msb for full(msb is equal -> empty, otherwise full)
     assign empty_o  = (wrptr == rdptr);
-    assign full_o   = (wrptr[FIFO_DEPTH_LG2-1:0] == rdptr[FIFO_DEPTH_LG2-1:0])      // full checking checking under addr is equal
-                        & (wrptr[FIFO_DEPTH_LG2] != rdptr[FIFO_DEPTH_LG2]);         // checking msb for full(msb is equal -> empty, otherwise full)
+    assign full_o   = (wrptr[FIFO_DEPTH_LG2-1:0] == rdptr[FIFO_DEPTH_LG2-1:0])      
+                        & (wrptr[FIFO_DEPTH_LG2] != rdptr[FIFO_DEPTH_LG2]);         
 
 endmodule
