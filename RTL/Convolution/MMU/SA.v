@@ -85,7 +85,6 @@ module SA #(
     assign ifmap_en_w = (!preload_done_w) & (ifmap_preload_i | preload_r);
 
 
-
     // Systolic Array MAC body logic
     // PE inst(j : col_num, k : row_num)
     // ex. psum, j=1, k=1 this signal is 
